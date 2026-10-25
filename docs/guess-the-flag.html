@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="guess-the-flag">
+<title>Guess the Flag · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Anton&family=Work+Sans:wght@500;600;700;800;900&display=swap">
+<style>
+/* Layout: a parade of nations at a stadium. The flag flies on a big pole card, four country buttons below,
+   progress as small pennants. One look: stadium navy, flag white card, gold medals, green/red for right/wrong. */
+:root{
+  --navy:#0C1F3F; --navy-2:#12294F; --panel:#1A3561; --ink:#F4F7FB; --muted:#A8B8D4; --line:rgba(255,255,255,.14);
+  --card:#FFFFFF; --card-ink:#14213D; --gold:#F5B700; --gold-d:#A87D00; --ok:#1FAF6B; --ok-d:#137346; --bad:#E24B4B; --bad-d:#9B2C2C;
+  --f-flag:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
+  --f-display:"Anton","Impact",system-ui,sans-serif; --f-body:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--navy);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:700;font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(700px 320px at 50% -8%,rgba(245,183,0,.18),transparent 70%),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 60px,transparent 60px 120px)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+.flag{font-family:var(--f-flag);font-weight:400;line-height:1}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:26px;color:var(--gold)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:12px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-gold{background:var(--gold);border-color:var(--gold-d);color:#231A00}.btn-plain{background:var(--navy-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--navy-2);color:var(--ink)}
+.pole{position:relative;margin:0 auto;max-width:30rem;padding:22px 18px 18px 34px;border-radius:20px;background:var(--card);color:var(--card-ink);border:3px solid #000;border-bottom-width:9px;text-align:center}
+.pole::before{content:"";position:absolute;left:16px;top:14px;bottom:14px;width:6px;border-radius:3px;background:linear-gradient(90deg,#9AA4B5,#D9DEE7,#9AA4B5)}
+.pole::after{content:"";position:absolute;left:12px;top:8px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid #000}
+.pole .flag{font-size:clamp(110px,30vw,170px)}
+@keyframes wave{0%,100%{transform:skewY(0) rotate(0)}50%{transform:skewY(-2deg) rotate(-1deg)}}.wave{display:inline-block;animation:wave 2.4s ease-in-out infinite;transform-origin:left center}
+.opt{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:12px;border:2px solid #000;border-bottom-width:6px;background:var(--panel);color:var(--ink);font-weight:800;font-size:17px;text-align:left;cursor:pointer;transition:transform .1s,background .2s,opacity .2s}
+.opt:hover:not(:disabled){transform:translateY(-3px);background:#22427A}
+.opt:disabled{cursor:default}
+.opt .k{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,.3);font-size:13px;color:var(--gold)}
+.opt.right{background:var(--ok);border-color:var(--ok-d);color:#fff}.opt.wrong{background:var(--bad);border-color:var(--bad-d);color:#fff}.opt.dim{opacity:.4}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(168,184,212,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(168,184,212,.25) 50%,transparent calc(50% + .5px)),rgba(0,0,0,.15)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(12,31,63,.97);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.pop,.wave{animation:none!important}.opt:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">🏁 Raising the flags…</div></div>
+<div id="gr-more"></div>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* Links and the site address come from config.js (window.GLOBERUSH). Flags are emoji drawn with the Noto Color Emoji font,
+   so they show on Windows too (Windows' own emoji font has no flags). */
+const GR = window.GLOBERUSH;
+
+/* [ISO country code, name, capital, airport for the flight link ("" = no link), region] */
+const COUNTRIES = [["FR", "France", "Paris", "CDG", "eu"], ["DE", "Germany", "Berlin", "BER", "eu"], ["IT", "Italy", "Rome", "FCO", "eu"], ["ES", "Spain", "Madrid", "MAD", "eu"], ["PT", "Portugal", "Lisbon", "LIS", "eu"], ["GB", "United Kingdom", "London", "LHR", "eu"], ["IE", "Ireland", "Dublin", "DUB", "eu"], ["NL", "Netherlands", "Amsterdam", "AMS", "eu"], ["BE", "Belgium", "Brussels", "BRU", "eu"], ["CH", "Switzerland", "Bern", "ZRH", "eu"], ["AT", "Austria", "Vienna", "VIE", "eu"], ["SE", "Sweden", "Stockholm", "ARN", "eu"], ["NO", "Norway", "Oslo", "OSL", "eu"], ["DK", "Denmark", "Copenhagen", "CPH", "eu"], ["FI", "Finland", "Helsinki", "HEL", "eu"], ["IS", "Iceland", "Reykjavík", "KEF", "eu"], ["PL", "Poland", "Warsaw", "WAW", "eu"], ["CZ", "Czechia", "Prague", "PRG", "eu"], ["HU", "Hungary", "Budapest", "BUD", "eu"], ["GR", "Greece", "Athens", "ATH", "eu"], ["HR", "Croatia", "Zagreb", "ZAG", "eu"], ["RO", "Romania", "Bucharest", "OTP", "eu"], ["TR", "Turkey", "Ankara", "IST", "eu"], ["LU", "Luxembourg", "Luxembourg", "LUX", "eu"], ["MT", "Malta", "Valletta", "MLA", "eu"], ["EE", "Estonia", "Tallinn", "TLL", "eu"], ["LV", "Latvia", "Riga", "RIX", "eu"], ["LT", "Lithuania", "Vilnius", "VNO", "eu"], ["US", "United States", "Washington, D.C.", "IAD", "am"], ["CA", "Canada", "Ottawa", "YOW", "am"], ["MX", "Mexico", "Mexico City", "MEX", "am"], ["BR", "Brazil", "Brasília", "GRU", "am"], ["AR", "Argentina", "Buenos Aires", "EZE", "am"], ["CL", "Chile", "Santiago", "SCL", "am"], ["CO", "Colombia", "Bogotá", "BOG", "am"], ["PE", "Peru", "Lima", "LIM", "am"], ["JM", "Jamaica", "Kingston", "MBJ", "am"], ["CU", "Cuba", "Havana", "HAV", "am"], ["DO", "Dominican Republic", "Santo Domingo", "PUJ", "am"], ["BS", "Bahamas", "Nassau", "NAS", "am"], ["CR", "Costa Rica", "San José", "SJO", "am"], ["PA", "Panama", "Panama City", "PTY", "am"], ["EC", "Ecuador", "Quito", "UIO", "am"], ["UY", "Uruguay", "Montevideo", "MVD", "am"], ["BB", "Barbados", "Bridgetown", "BGI", "am"], ["TT", "Trinidad and Tobago", "Port of Spain", "POS", "am"], ["BZ", "Belize", "Belmopan", "BZE", "am"], ["GT", "Guatemala", "Guatemala City", "GUA", "am"], ["JP", "Japan", "Tokyo", "HND", "as"], ["CN", "China", "Beijing", "PEK", "as"], ["KR", "South Korea", "Seoul", "ICN", "as"], ["IN", "India", "New Delhi", "DEL", "as"], ["TH", "Thailand", "Bangkok", "BKK", "as"], ["VN", "Vietnam", "Hanoi", "HAN", "as"], ["SG", "Singapore", "Singapore", "SIN", "as"], ["MY", "Malaysia", "Kuala Lumpur", "KUL", "as"], ["ID", "Indonesia", "Jakarta", "CGK", "as"], ["PH", "Philippines", "Manila", "MNL", "as"], ["NP", "Nepal", "Kathmandu", "KTM", "as"], ["PK", "Pakistan", "Islamabad", "ISB", "as"], ["BD", "Bangladesh", "Dhaka", "DAC", "as"], ["MN", "Mongolia", "Ulaanbaatar", "UBN", "as"], ["KH", "Cambodia", "Phnom Penh", "", "as"], ["MV", "Maldives", "Malé", "MLE", "as"], ["BT", "Bhutan", "Thimphu", "PBH", "as"], ["LA", "Laos", "Vientiane", "VTE", "as"], ["AE", "United Arab Emirates", "Abu Dhabi", "DXB", "af"], ["SA", "Saudi Arabia", "Riyadh", "RUH", "af"], ["QA", "Qatar", "Doha", "DOH", "af"], ["JO", "Jordan", "Amman", "AMM", "af"], ["EG", "Egypt", "Cairo", "CAI", "af"], ["MA", "Morocco", "Rabat", "CMN", "af"], ["ZA", "South Africa", "Pretoria", "JNB", "af"], ["KE", "Kenya", "Nairobi", "NBO", "af"], ["NG", "Nigeria", "Abuja", "LOS", "af"], ["GH", "Ghana", "Accra", "ACC", "af"], ["ET", "Ethiopia", "Addis Ababa", "ADD", "af"], ["TZ", "Tanzania", "Dodoma", "ZNZ", "af"], ["TN", "Tunisia", "Tunis", "TUN", "af"], ["SN", "Senegal", "Dakar", "DSS", "af"], ["LB", "Lebanon", "Beirut", "BEY", "af"], ["CY", "Cyprus", "Nicosia", "LCA", "af"], ["NA", "Namibia", "Windhoek", "WDH", "af"], ["RW", "Rwanda", "Kigali", "KGL", "af"], ["OM", "Oman", "Muscat", "MCT", "af"], ["BW", "Botswana", "Gaborone", "GBE", "af"], ["AU", "Australia", "Canberra", "SYD", "oc"], ["NZ", "New Zealand", "Wellington", "AKL", "oc"], ["FJ", "Fiji", "Suva", "NAN", "oc"], ["PG", "Papua New Guinea", "Port Moresby", "", "oc"], ["WS", "Samoa", "Apia", "APW", "oc"], ["TO", "Tonga", "Nukuʻalofa", "TBU", "oc"]];
+const THE = new Set(["US", "GB", "NL", "DO", "BS", "PH", "AE", "MV"]);
+const withThe = c => (THE.has(c.iso) ? "the " : "") + c.name;
+const flagOf = iso => String.fromCodePoint(...[...iso].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+const ALL = COUNTRIES.map(([iso, name, capital, code, region]) => ({
+  iso,
+  name,
+  capital,
+  code,
+  region,
+  flag: flagOf(iso)
+}));
+const SIZE = 10;
+const DAY = GR.day();
+const POOL = GR.shuffled(ALL, 1960);
+function buildRounds(mode) {
+  const picks = mode.daily ? Array.from({
+    length: SIZE
+  }, (_, i) => POOL[((DAY.id - 1) * SIZE + i) % POOL.length]) : GR.shuffled(POOL, mode.seed).slice(0, SIZE);
+  return picks.map((c, i) => {
+    const seed = (mode.daily ? DAY.id * 7919 : mode.seed) + i * 104729;
+    // wrong answers from the same part of the world, so the flags are harder to tell apart
+    const same = GR.shuffled(ALL.filter(x => x.iso !== c.iso && x.region === c.region), seed);
+    return {
+      c,
+      options: GR.shuffled([c, ...same.slice(0, 3)], seed + 1)
+    };
+  });
+}
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+const RANKS = [[10, "Gold Medal", "🥇"], [8, "Silver Medal", "🥈"], [6, "Bronze Medal", "🥉"], [0, "Keep Training", "🏃"]];
+const rankFor = n => RANKS.find(([m]) => n >= m);
+let AC = null;
+function tone(f, type = "triangle", step = .07, len = .2, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    f.forEach((fr, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = fr;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  right: () => tone([659, 880, 1047]),
+  wrong: () => tone([220, 165], "sawtooth", .12, .25, .05),
+  done: () => tone([392, 523, 659, 784, 1047], "triangle", .1, .35, .1)
+};
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#3D5684]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--navy)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "font-extrabold tabular-nums"
+  }, t);
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative w-full max-w-md rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--card)] p-6 text-[color:var(--card-ink)]",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full hover:bg-black/5",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[28px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDFC1"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Name the country for each flag from 4 choices (keys ", /*#__PURE__*/React.createElement("b", null, "1"), "\u2013", /*#__PURE__*/React.createElement("b", null, "4"), "). The wrong choices come from the same region, so look closely.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83E\uDD47"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Get all ", SIZE, " for a gold medal.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCC5"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, SIZE, " new flags every day, from ", ALL.length, " countries."))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-gold mt-5 w-full py-3 text-[17px]"
+  }, "Raise the first flag")));
+}
+function App() {
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `flags-${DAY.id}`;
+  const LINEUP = useMemo(() => buildRounds({
+    daily: true
+  }).map(r => r.c.iso).join(","), []);
+  const loadDaily = () => {
+    const s = store.get(SAVE_KEY, null);
+    return s && s.lineup === LINEUP && Array.isArray(s.answers) ? s.answers : [];
+  };
+  const rounds = useMemo(() => buildRounds(mode), [mode]);
+  const [answers, setAnswers] = useState(loadDaily);
+  const [revealed, setRevealed] = useState(false);
+  const [sound, setSound] = useState(() => store.get("flags-sound", true));
+  const [streak, setStreak] = useState(() => store.get("flags-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null),
+    nextRef = useRef(null);
+  const idx = revealed ? answers.length - 1 : answers.length;
+  const done = answers.length >= SIZE && !revealed;
+  const r = rounds[Math.min(idx, SIZE - 1)];
+  const pick = revealed ? answers[idx] : null;
+  const right = answers.filter((a, i) => a === rounds[i].c.iso).length;
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      answers,
+      lineup: LINEUP
+    });
+  }, [answers, mode.daily]);
+  useEffect(() => {
+    store.set("flags-sound", sound);
+  }, [sound]);
+  useEffect(() => {
+    if (revealed && nextRef.current) nextRef.current.focus({
+      preventScroll: true
+    });
+  }, [revealed]);
+  const choose = iso => {
+    if (revealed || done) return;
+    if (sound) (iso === r.c.iso ? SFX.right : SFX.wrong)();
+    setAnswers(p => [...p, iso]);
+    setRevealed(true);
+  };
+  const next = () => {
+    setRevealed(false);
+    if (answers.length >= SIZE) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) {
+        const st = {
+          count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+          last: DAY.id
+        };
+        setStreak(st);
+        store.set("flags-streak", st);
+      }
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+  };
+  const restart = m => {
+    setMode(m);
+    setAnswers([]);
+    setRevealed(false);
+    setCopied(false);
+    setFallback(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const backToDaily = () => {
+    setMode({
+      daily: true,
+      seed: 0
+    });
+    setAnswers(loadDaily());
+    setRevealed(false);
+  };
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey || done || revealed) return;
+      const n = +e.key;
+      if (n >= 1 && n <= 4) choose(r.options[n - 1].iso);
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+  const [, rName, rIcon] = rankFor(right);
+  // share card shows the flags you got right/wrong without naming the countries
+  const shareTxt = done ? `🏁 Guess the Flag ${mode.daily ? `#${DAY.id}` : "· Bonus round"}\n${answers.map((a, i) => a === rounds[i].c.iso ? "🟩" : "🟥").join("")}\n${right}/${SIZE} · ${rName} ${rIcon}\nPlay: ${GR.gameUrl("guess-the-flag")}` : "";
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(shareTxt).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-3xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "mt-1 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[32px] sm:text-[46px] leading-none text-[color:var(--gold)]"
+  }, "Guess the Flag"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 truncate text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]"
+  }, mode.daily ? `Flag day #${DAY.id} · ${DAY.label}` : "Bonus round · just for fun")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", {
+    className: "text-[15px] font-extrabold tabular-nums"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
+    "aria-label": "How to play"
+  }, "?"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), !done ? /*#__PURE__*/React.createElement("main", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-1 gap-1",
+    "aria-label": `Flag ${idx + 1} of ${SIZE}`
+  }, Array.from({
+    length: SIZE
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "h-2.5 flex-1 rounded-full",
+    style: {
+      background: answers[i] && (i < idx || revealed) ? answers[i] === rounds[i].c.iso ? "var(--ok)" : "var(--bad)" : i === idx ? "var(--gold)" : "rgba(255,255,255,.14)"
+    }
+  }))), /*#__PURE__*/React.createElement("span", {
+    className: "text-[13px] font-extrabold text-[color:var(--muted)] tabular-nums"
+  }, idx + 1, "/", SIZE)), /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pole pop"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-black uppercase tracking-[.16em] text-[#5B6782]"
+  }, "Flag ", idx + 1, " of ", SIZE, " \xB7 which country?"), /*#__PURE__*/React.createElement("div", {
+    className: "flag mt-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "wave",
+    role: "img",
+    "aria-label": revealed ? `Flag of ${r.c.name}` : "Mystery flag"
+  }, r.c.flag)), revealed && /*#__PURE__*/React.createElement("div", {
+    className: "pop mt-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[18px] font-black",
+    style: {
+      color: pick === r.c.iso ? "var(--ok-d)" : "var(--bad-d)"
+    }
+  }, pick === r.c.iso ? "Correct!" : `That's ${withThe(r.c)}.`), /*#__PURE__*/React.createElement("div", {
+    className: "text-[14.5px] font-bold text-[#3B4560]"
+  }, "Capital: ", r.c.capital))), !revealed ? /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto mt-4 grid max-w-[30rem] gap-2.5 sm:grid-cols-2"
+  }, r.options.map((o, k) => /*#__PURE__*/React.createElement("button", {
+    key: o.iso,
+    className: "opt",
+    onClick: () => choose(o.iso)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k",
+    "aria-hidden": "true"
+  }, k + 1), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0"
+  }, o.name)))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto mt-4 grid max-w-[30rem] gap-2.5 sm:grid-cols-2"
+  }, r.options.map((o, k) => /*#__PURE__*/React.createElement("div", {
+    key: o.iso,
+    className: `opt ${o.iso === r.c.iso ? "right" : o.iso === pick ? "wrong" : "dim"}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flag text-[26px]",
+    "aria-hidden": "true"
+  }, o.flag), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0"
+  }, o.name)))), /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto mt-4 grid max-w-[30rem] gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+  }, r.c.code ? /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(null, r.c.code),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn btn-plain block py-3 text-center text-[15px]"
+  }, "\u2708\uFE0F Flights to ", withThe(r.c), " \u2197") : /*#__PURE__*/React.createElement("span", null), /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: next,
+    className: "btn btn-gold px-6 py-3 text-[17px]"
+  }, answers.length >= SIZE ? "See my medal →" : "Next flag →"))))) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pole pop !max-w-none !text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-black uppercase tracking-[.16em] text-[#5B6782]"
+  }, mode.daily ? `Flag day #${DAY.id}` : "Bonus round", " \xB7 medal ceremony"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex items-center gap-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[60px] leading-none",
+    "aria-hidden": "true"
+  }, rIcon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "display text-[48px] leading-none"
+  }, right, "/", SIZE), /*#__PURE__*/React.createElement("div", {
+    className: "display text-[22px]"
+  }, rName))), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 grid gap-1.5 sm:grid-cols-2"
+  }, rounds.map((rr, i) => /*#__PURE__*/React.createElement("li", {
+    key: rr.c.iso,
+    className: "flex items-center gap-2 rounded-lg border-2 border-black/10 px-2.5 py-1.5 text-[14px]"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, answers[i] === rr.c.iso ? "🟩" : "🟥"), /*#__PURE__*/React.createElement("span", {
+    className: "flag text-[22px]",
+    "aria-hidden": "true"
+  }, rr.c.flag), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0 flex-1 truncate font-bold"
+  }, rr.c.name), rr.c.code && /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(null, rr.c.code),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "text-[12px] font-extrabold text-[#1F5FBF] underline underline-offset-2",
+    "aria-label": `Flights to ${rr.c.name}`
+  }, "Fly \u2197"))))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-wrap gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: false,
+      seed: Math.floor(Math.random() * 1e9)
+    }),
+    className: "btn btn-gold min-w-[12rem] flex-1 py-3 text-[17px]"
+  }, "\uD83C\uDFB2 ", mode.daily ? "Play a bonus round" : "Play again"), !mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: backToDaily,
+    className: "btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]"
+  }, "\u2190 Back to today's flags"))), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[18px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 text-[13px] font-bold leading-relaxed",
+    style: {
+      fontFamily: "ui-monospace,Menlo,Consolas,monospace"
+    }
+  }, shareTxt), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold text-[color:var(--gold)]"
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    readOnly: true,
+    value: shareTxt,
+    rows: 5,
+    className: "w-full rounded-lg bg-black/30 p-2 text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-gold mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[18px] border-2 border-black bg-[color:var(--panel)] p-4 text-center text-[13px] text-[color:var(--muted)]"
+  }, "New flags in ", /*#__PURE__*/React.createElement(Countdown, null), mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
+  }, "\u21BA Replay today's flags")))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
+  }, "Guess the Flag \xB7 a GlobeRush game"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

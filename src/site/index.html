@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+</head>
+<body>
+<title>GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+/* Layout: an airport at night. Split-flap style header board, then every game as a boarding pass (main stub + tear-off stub),
+   one featured "now boarding" pass on top. One committed look: night-sky navy, runway-light coral, boarding-pass cream. */
+:root{
+  --night:#0B1428; --night-2:#111E3B; --panel:#17284B; --line:rgba(255,244,230,.12);
+  --cream:#FFF4E6; --cream-2:#F4E6CF; --ink:#13203D; --ink-2:#55607A; --muted:#AFC0E4;
+  --coral:#FF7A4D; --coral-d:#B94A23; --amber:#FFC94A;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--night);color:var(--cream)}
+body{font-family:var(--f-body);font-weight:600;font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 40px;
+  background-image:radial-gradient(1200px 520px at 80% -10%,rgba(255,122,77,.16),transparent 65%),radial-gradient(1.5px 1.5px at 20% 12%,rgba(255,244,230,.5) 50%,transparent),radial-gradient(1.5px 1.5px at 62% 6%,rgba(255,244,230,.4) 50%,transparent),radial-gradient(1px 1px at 88% 22%,rgba(255,244,230,.4) 50%,transparent)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:inherit}
+.wrap{max-width:68rem;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand .g{font-size:30px;line-height:1}
+.brand .w{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:-.02em}
+.brand .w b{color:var(--coral);font-weight:800}
+.date{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* hero board */
+.board{display:grid;gap:18px;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center}
+@media (max-width:820px){.board{grid-template-columns:1fr}}
+.board h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,6.4vw,64px);line-height:1.02;letter-spacing:-.03em}
+.board h1 em{font-style:normal;color:var(--coral)}
+.board p{margin:14px 0 0;max-width:34rem;color:var(--muted);font-size:17px}
+.flap{font-family:var(--f-mono);background:#060C1A;border:2px solid #000;border-radius:14px;padding:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.flap .hd{display:grid;grid-template-columns:3.6rem minmax(0,1fr) 5.2rem;gap:10px;font-size:11px;color:var(--muted);letter-spacing:.14em;padding:0 4px 8px;border-bottom:1px solid var(--line)}
+.flap .row{display:grid;grid-template-columns:3.6rem minmax(0,1fr) 5.2rem;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line);font-size:14px;text-decoration:none;color:var(--amber)}
+.flap .row:last-child{border-bottom:none}
+.flap .row:hover{background:rgba(255,201,74,.08)}
+.flap .row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flap .st{font-size:12px;color:#7CF2B4;text-align:right}
+@keyframes flip{0%{transform:rotateX(90deg);opacity:.2}100%{transform:none;opacity:1}}
+.flap .row{animation:flip .45s ease-out both}
+@media (prefers-reduced-motion:reduce){.flap .row{animation:none}}
+
+/* boarding passes */
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-h h2{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+.sec-h span{color:var(--muted);font-size:14px}
+.passes{display:grid;grid-template-columns:repeat(auto-fill,minmax(19rem,1fr));gap:16px}
+.pass{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 5.4rem;text-decoration:none;color:var(--ink);background:var(--cream);border-radius:16px;border:2px solid #000;border-bottom-width:6px;transition:transform .12s}
+.pass:hover{transform:translateY(-4px) rotate(-.4deg)}
+@media (prefers-reduced-motion:reduce){.pass:hover{transform:none}}
+.pass .main{padding:16px 16px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pass .air{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--ink-2);text-transform:uppercase}
+.pass .nm{display:flex;align-items:center;gap:10px}
+.pass .nm i{font-style:normal;font-size:30px;line-height:1}
+.pass .nm b{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.15;letter-spacing:-.01em}
+.pass .bl{font-size:14.5px;line-height:1.4;color:#2E3A57}
+.pass .fields{margin-top:4px;display:flex;gap:16px;font-family:var(--f-mono);font-size:12px}
+.pass .fields div{display:flex;flex-direction:column}
+.pass .fields small{font-size:10px;letter-spacing:.14em;color:var(--ink-2)}
+.pass .stub{position:relative;border-left:2px dashed rgba(19,32,61,.35);background:var(--cream-2);border-radius:0 14px 14px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 6px;text-align:center}
+.pass .stub::before,.pass .stub::after{content:"";position:absolute;left:-11px;width:20px;height:20px;border-radius:50%;background:var(--night);border:2px solid #000}
+.pass .stub::before{top:-12px}.pass .stub::after{bottom:-14px}
+.pass .go{font-family:var(--f-display);font-weight:800;font-size:13px;color:#fff;background:var(--coral);border:2px solid #000;border-bottom-width:4px;border-radius:10px;padding:8px 10px}
+.pass .bars{width:44px;height:26px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px);opacity:.75}
+.pass.feature{grid-column:1/-1;grid-template-columns:minmax(0,1fr) 9rem}
+.pass.feature .nm b{font-size:clamp(22px,3.4vw,30px)}
+.pass.feature .bl{font-size:16px}
+.pass.feature .tag{align-self:flex-start;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:#fff;background:var(--ink);padding:3px 8px;border-radius:6px}
+@media (max-width:520px){.pass,.pass.feature{grid-template-columns:minmax(0,1fr) 4.6rem}}
+
+/* deals + ads + footer */
+.deal{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:18px 20px;border-radius:18px;background:var(--panel);border:2px solid #000;border-bottom-width:6px}
+@media (max-width:620px){.deal{grid-template-columns:1fr}}
+.deal h3{font-family:var(--f-display);font-weight:700;font-size:20px}
+.deal p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.btn{display:inline-block;text-align:center;text-decoration:none;font-weight:800;font-size:16px;color:#1A0D05;background:var(--coral);border:2px solid #000;border-bottom-width:5px;border-radius:12px;padding:12px 18px;transition:transform .08s}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.ad{margin:0 auto;max-width:100%;display:flex;align-items:center;justify-content:center;border:2px dashed #33446B;border-radius:12px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;background:rgba(0,0,0,.18)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(11,20,40,.97);border-top:1px solid var(--line)}
+@media (min-width:768px){.sticky-ad{display:none}}
+@media (max-width:767px){.ad.lb{display:none}}
+footer{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:18px}
+footer b{color:var(--cream)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="index.html" aria-label="GlobeRush home"><span class="g" aria-hidden="true">🌍</span><span class="w">Globe<b>Rush</b></span></a>
+    <span class="date" id="date"></span>
+  </header>
+
+  <section class="board" aria-label="Welcome">
+    <div>
+      <h1>Travel games for people who'd <em>rather be somewhere else.</em></h1>
+      <p>Quick puzzles, quizzes and hot takes about flying, cities and vacations. A few minutes each, new rounds every day, and no sign-up.</p>
+    </div>
+    <div class="flap" role="list" aria-label="Today's games board">
+      <div class="hd" aria-hidden="true"><span>GATE</span><span>GAME</span><span style="text-align:right">STATUS</span></div>
+      <div id="flap"></div>
+    </div>
+  </section>
+
+  <div class="ad lb" style="width:728px;height:90px">Ad · 728×90</div>
+
+  <section aria-labelledby="games-h" style="display:flex;flex-direction:column;gap:14px">
+    <div class="sec-h"><h2 id="games-h">Pick your gate</h2><span id="count"></span></div>
+    <div class="passes" id="passes"></div>
+  </section>
+
+  <section class="deal" aria-label="Find flights">
+    <div>
+      <h3>Played your way to a trip idea?</h3>
+      <p>Compare flight prices across airlines and booking sites in one search.</p>
+    </div>
+    <a class="btn" id="deal-btn" href="https://www.skyscanner.com/" target="_blank" rel="noopener sponsored">Find cheap flights ↗</a>
+  </section>
+
+  <footer>
+    <span><b>GlobeRush</b> · free travel games, new every day.</span>
+    <span>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</span>
+  </footer>
+</div>
+<div class="sticky-ad"><div class="ad" style="width:320px;height:50px">Ad · 320×50</div></div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  var G = window.GLOBERUSH;
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var now = new Date();
+  document.getElementById("date").textContent = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + " · " + G.games.length + " games boarding";
+  document.getElementById("count").textContent = "Every game takes " + Math.min.apply(null, G.games.map(function (g) { return g.mins; })) + "–" + Math.max.apply(null, G.games.map(function (g) { return g.mins; })) + " minutes";
+  document.getElementById("deal-btn").href = G.flightLink();
+
+  // departures board: one row per game, gate = its number, status rotates through boarding words
+  var STATUS = ["BOARDING", "ON TIME", "GATE OPEN", "FINAL CALL", "ON TIME", "BOARDING", "GATE OPEN"];
+  document.getElementById("flap").innerHTML = G.games.map(function (g, i) {
+    return '<a class="row" role="listitem" href="' + esc(g.slug) + '.html" style="animation-delay:' + (i * 70) + 'ms"><span>G' + (i + 1) + '</span><span>' + esc(g.name.toUpperCase()) + '</span><span class="st">' + STATUS[i % STATUS.length] + '</span></a>';
+  }).join("");
+
+  // boarding passes: first game is today's featured pass
+  var flight = function (i) { return "GR " + (101 + i * 7); };
+  document.getElementById("passes").innerHTML = G.games.map(function (g, i) {
+    var feature = i === 0;
+    return '<a class="pass' + (feature ? " feature" : "") + '" href="' + esc(g.slug) + '.html" aria-label="Play ' + esc(g.name) + '">' +
+      '<div class="main">' +
+        (feature ? '<span class="tag">NOW BOARDING · TODAY\'S PUZZLE</span>' : '<span class="air">GlobeRush · ' + esc(g.kind) + '</span>') +
+        '<div class="nm"><i aria-hidden="true">' + g.emoji + '</i><b>' + esc(g.name) + '</b></div>' +
+        '<div class="bl">' + esc(g.blurb) + '</div>' +
+        '<div class="fields"><div><small>FLIGHT</small>' + flight(i) + '</div><div><small>GATE</small>G' + (i + 1) + '</div><div><small>DURATION</small>' + g.mins + ' MIN</div></div>' +
+      '</div>' +
+      '<div class="stub"><span class="go">PLAY</span><span class="bars" aria-hidden="true"></span></div>' +
+    '</a>';
+  }).join("");
+})();
+</script>
+
+</body>
+</html>

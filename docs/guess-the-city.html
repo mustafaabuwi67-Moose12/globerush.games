@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="guess-the-city">
+<title>Guess the City · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Archivo:wght@500;600;700;800;900&family=Archivo+Black&display=swap">
+<style>
+/* Layout: a postcard on a travel-worn desk. The clues are "written" on the card one line at a time (handwriting face),
+   a stamp in the corner shows the points still on offer, six city tickets below. One look: desk teal, postcard cream, stamp red, ink blue. */
+:root{
+  --desk:#0F3B3A; --desk-2:#14504E; --panel:#1B5F5C; --ink:#F4F7F2; --muted:#B5D3CC; --line:rgba(255,255,255,.14);
+  --card:#FFF8EA; --card-2:#F5EAD3; --pen:#1F3A8A; --card-ink:#2B2B2B; --stamp:#D9442E; --stamp-d:#9C2B1B; --sun:#F6B93B; --sun-d:#A97A12; --ok:#2FA36B; --ok-d:#1D6C46;
+  --f-display:"Archivo Black","Impact",system-ui,sans-serif; --f-hand:"Caveat","Comic Sans MS",cursive; --f-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--desk);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(900px 400px at 50% -10%,rgba(246,185,59,.18),transparent 70%),repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 9px)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:400}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-hand);font-size:30px;color:var(--sun)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:12px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.btn-stamp{background:var(--stamp);border-color:var(--stamp-d);color:#fff}
+.btn-sun{background:var(--sun);border-color:var(--sun-d);color:#2A1C00}
+.btn-plain{background:var(--desk-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--desk-2);color:var(--ink)}
+.postcard{position:relative;border-radius:10px;background:linear-gradient(180deg,var(--card),var(--card-2));color:var(--card-ink);border:3px solid #000;border-bottom-width:9px;padding:20px 20px 18px;box-shadow:0 22px 44px -24px #000}
+.postcard .lines{background-image:repeating-linear-gradient(180deg,transparent 0 37px,rgba(31,58,138,.16) 37px 38px);min-height:200px}
+.clue{font-family:var(--f-hand);font-size:clamp(23px,4.4vw,29px);line-height:38px;color:var(--pen)}
+.clue .n{font-family:var(--f-body);font-size:12px;font-weight:900;color:#8A7F6B;margin-right:6px;vertical-align:3px}
+.stampbox{position:absolute;right:14px;top:14px;width:74px;height:86px;border:3px dashed var(--stamp);border-radius:4px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(3deg)}
+.stampbox b{font-family:var(--f-display);font-size:30px;line-height:1;color:var(--stamp)}
+.stampbox small{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--stamp)}
+.opt{display:flex;align-items:center;gap:8px;width:100%;min-height:56px;padding:10px 12px;border-radius:12px;border:2px solid #000;border-bottom-width:6px;background:var(--panel);color:var(--ink);font-weight:800;font-size:16px;text-align:left;cursor:pointer;transition:transform .1s,opacity .2s,background .2s}
+.opt:hover:not(:disabled){transform:translateY(-3px);background:#22706C}
+.opt:disabled{cursor:default}
+.opt.out{opacity:.3;text-decoration:line-through}
+.opt.right{background:var(--ok);border-color:var(--ok-d);color:#fff}
+@keyframes write{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0 0 0)}}
+.write{animation:write .6s ease-out both}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}.shake{animation:shake .3s}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(181,211,204,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(181,211,204,.25) 50%,transparent calc(50% + .5px)),rgba(0,0,0,.15)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(15,59,58,.97);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.write,.shake,.pop{animation:none!important}.opt:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">📮 Sorting the mail…</div></div>
+<div id="gr-more"></div>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";b.style.fontFamily="system-ui";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* Links and the site address come from config.js (window.GLOBERUSH). */
+const GR = window.GLOBERUSH;
+const CITIES = [
+// [id, city, country, airport code, region, flag, [5 clues, hardest first]]
+["paris", "Paris", "France", "CDG", "eu", "🇫🇷", ["Its metro system opened in 1900.", "Croissants, baguettes and café terraces are part of daily life.", "The Louvre museum is here.", "An iron tower built for the 1889 World's Fair overlooks the city.", "The capital of France, on the Seine."]], ["rome", "Rome", "Italy", "FCO", "eu", "🇮🇹", ["Its history goes back nearly 3,000 years.", "Carbonara and cacio e pepe are local classics.", "Visitors toss coins into the Trevi Fountain.", "The Colosseum stands here.", "The capital of Italy."]], ["tokyo", "Tokyo", "Japan", "HND", "asia", "🇯🇵", ["Its metro area is one of the most populous on Earth.", "Sushi, ramen and vending machines on every corner.", "Shibuya Crossing is one of the busiest crosswalks anywhere.", "It hosted the Summer Olympics in 1964 and 2021.", "The capital of Japan."]], ["london", "London", "United Kingdom", "LHR", "eu", "🇬🇧", ["Its underground railway, opened in 1863, is the oldest in the world.", "Fish and chips and Sunday roasts are local favorites.", "Red double-decker buses roll past.", "Big Ben's clock tower stands by the Thames.", "The capital of the United Kingdom."]], ["nyc", "New York", "USA", "JFK", "us", "🇺🇸", ["The city is made up of five boroughs.", "Famous for bagels and pizza by the slice.", "Broadway shows play here every night.", "The Statue of Liberty stands in its harbor.", "The Big Apple."]], ["vegas", "Las Vegas", "USA", "LAS", "us", "🇺🇸", ["It sits in the Mojave Desert.", "Known for giant all-you-can-eat buffets.", "Hotels are themed after Paris, Venice and New York.", "Its famous Strip is lined with casinos.", "Sin City, in Nevada."]], ["orlando", "Orlando", "USA", "MCO", "us", "🇺🇸", ["The biggest tourist hub in central Florida.", "Theme-park turkey legs are a local legend.", "Several of the world's most-visited theme parks are here.", "Cinderella Castle is just outside the city.", "Florida's theme park capital."]], ["barcelona", "Barcelona", "Spain", "BCN", "eu", "🇪🇸", ["A Mediterranean port city with its own language, Catalan.", "Tapas and seafood paella are everywhere.", "The architect Antoni Gaudí shaped its skyline.", "The Sagrada Família has been under construction since 1882.", "Spain's second-largest city."]], ["dubai", "Dubai", "United Arab Emirates", "DXB", "me", "🇦🇪", ["Summer temperatures often pass 40°C (104°F).", "Shawarma and dates are local favorites.", "It has an indoor ski slope inside a shopping mall.", "The Burj Khalifa, the world's tallest building, is here.", "The largest city in the United Arab Emirates."]], ["sydney", "Sydney", "Australia", "SYD", "oc", "🇦🇺", ["Its summer falls in December and January.", "Meat pies and flat whites are local staples.", "Bondi Beach is a short trip from downtown.", "Its Opera House has sail-shaped roofs.", "Australia's largest city."]], ["cancun", "Cancún", "Mexico", "CUN", "am", "🇲🇽", ["It sits on the Yucatán Peninsula.", "Cochinita pibil and fresh ceviche are Yucatán favorites.", "Snorkelers can explore an underwater museum of sculptures.", "Its Hotel Zone is a strip of land between a lagoon and the Caribbean.", "Mexico's most famous beach resort city."]], ["honolulu", "Honolulu", "USA", "HNL", "us", "🇺🇸", ["It's in the middle of the Pacific Ocean.", "Poke bowls and shave ice are local favorites.", "Surfers ride the waves at Waikīkī.", "Pearl Harbor is nearby.", "The capital of Hawaii."]], ["miami", "Miami", "USA", "MIA", "us", "🇺🇸", ["Its metro area sits between the Everglades and the Atlantic.", "Cuban sandwiches and cafecito are local staples.", "Art Deco hotels line Ocean Drive.", "South Beach is here.", "Florida's biggest metro area, home of the Heat and the Dolphins."]], ["nola", "New Orleans", "USA", "MSY", "us", "🇺🇸", ["Much of the city lies below sea level.", "Beignets, gumbo and po'boys are local classics.", "Jazz was born here.", "Bourbon Street runs through its French Quarter.", "Home of the biggest Mardi Gras in the U.S."]], ["chicago", "Chicago", "USA", "ORD", "us", "🇺🇸", ["It sits on the shore of Lake Michigan.", "Famous for deep-dish pizza.", "Nicknamed the Windy City.", "A giant mirrored sculpture nicknamed \"The Bean\" is downtown.", "Illinois's largest city."]], ["sf", "San Francisco", "USA", "SFO", "us", "🇺🇸", ["Summer fog rolls in most afternoons.", "Sourdough bread bowls of clam chowder are famous here.", "Cable cars climb its steep hills.", "Alcatraz island sits in its bay.", "The Golden Gate Bridge is here."]], ["la", "Los Angeles", "USA", "LAX", "us", "🇺🇸", ["The second-largest city in the U.S.", "Taco trucks and smoothie bars are everywhere.", "Its Walk of Fame has more than 2,700 stars.", "A giant white sign sits in its hills.", "Hollywood is here."]], ["amsterdam", "Amsterdam", "Netherlands", "AMS", "eu", "🇳🇱", ["It's said to have more bicycles than people.", "Stroopwafels and herring are local snacks.", "Anne Frank's house is a museum here.", "Famous for its canals.", "The capital of the Netherlands."]], ["istanbul", "Istanbul", "Turkey", "IST", "me", "🇹🇷", ["It spans two continents.", "Kebabs and baklava are everywhere.", "Its Grand Bazaar has thousands of shops.", "Hagia Sophia stands here.", "Turkey's largest city, on the Bosphorus."]], ["cairo", "Cairo", "Egypt", "CAI", "me", "🇪🇬", ["The Nile River runs through it.", "Koshari is the beloved street dish.", "The Great Sphinx is just outside the city.", "The Pyramids of Giza stand at its edge.", "The capital of Egypt."]], ["rio", "Rio de Janeiro", "Brazil", "GIG", "am", "🇧🇷", ["Its name means \"River of January\" in Portuguese.", "Feijoada stew and açaí bowls are favorites.", "Copacabana and Ipanema beaches are here.", "A giant Christ the Redeemer statue overlooks it.", "Brazil's famous Carnival city."]], ["bangkok", "Bangkok", "Thailand", "BKK", "asia", "🇹🇭", ["Its full ceremonial name is one of the longest place names in the world.", "Pad thai and mango sticky rice are street favorites.", "Tuk-tuks zip through traffic.", "The Grand Palace is here.", "The capital of Thailand."]], ["singapore", "Singapore", "Singapore", "SIN", "asia", "🇸🇬", ["A city that is also a country.", "Hawker centres serve chili crab and chicken rice.", "Selling chewing gum is banned.", "Marina Bay Sands has a rooftop infinity pool.", "Its Changi Airport has an indoor waterfall."]], ["hongkong", "Hong Kong", "China", "HKG", "asia", "🇭🇰", ["It has more skyscrapers than any other city.", "Dim sum is the classic breakfast.", "The Star Ferry crosses Victoria Harbour.", "It was a British territory until 1997.", "A Special Administrative Region of China."]], ["seoul", "Seoul", "South Korea", "ICN", "asia", "🇰🇷", ["About half of its country's people live in its metro area.", "Kimchi and Korean BBQ are everywhere.", "K-pop's home base.", "Gyeongbokgung Palace is here.", "The capital of South Korea."]], ["reykjavik", "Reykjavík", "Iceland", "KEF", "eu", "🇮🇸", ["The world's northernmost capital of a sovereign country.", "Hot dogs and fermented shark are local foods.", "Many homes are heated with geothermal water.", "Visitors come for the Northern Lights.", "The capital of Iceland."]], ["lisbon", "Lisbon", "Portugal", "LIS", "eu", "🇵🇹", ["Its 25 de Abril suspension bridge looks a lot like San Francisco's Golden Gate.", "Pastéis de nata custard tarts are famous.", "Yellow trams climb its steep streets.", "Much of it was destroyed by an earthquake in 1755.", "The capital of Portugal."]], ["athens", "Athens", "Greece", "ATH", "eu", "🇬🇷", ["One of the oldest cities in the world.", "Souvlaki and Greek salad are everywhere.", "It hosted the first modern Olympics in 1896.", "The Parthenon sits on its Acropolis.", "The capital of Greece."]], ["toronto", "Toronto", "Canada", "YYZ", "am", "🇨🇦", ["Its country's largest city.", "Peameal bacon sandwiches are a local classic.", "It sits on Lake Ontario.", "The CN Tower dominates the skyline.", "The capital of Ontario."]], ["vancouver", "Vancouver", "Canada", "YVR", "am", "🇨🇦", ["Mountains and ocean meet here.", "Famous for its sushi and Japanese-style hot dogs.", "Stanley Park is bigger than New York's Central Park.", "It hosted the 2010 Winter Olympics.", "British Columbia's biggest city."]], ["cdmx", "Mexico City", "Mexico", "MEX", "am", "🇲🇽", ["It was built on the ruins of the Aztec capital, Tenochtitlan.", "Tacos al pastor and churros are everywhere.", "It sits about 2,240 m (7,350 ft) above sea level.", "Frida Kahlo's Blue House is here.", "The capital of Mexico."]], ["nashville", "Nashville", "USA", "BNA", "us", "🇺🇸", ["It has a full-size replica of the Parthenon.", "Hot chicken is the signature dish.", "The Grand Ole Opry is here.", "Honky-tonks line Broadway.", "Music City, Tennessee."]], ["venice", "Venice", "Italy", "VCE", "eu", "🇮🇹", ["It's built on more than 100 small islands.", "Cicchetti small bites are the local snack.", "It hosts the world's oldest film festival.", "Gondolas glide through its canals.", "Italy's floating city."]], ["prague", "Prague", "Czech Republic", "PRG", "eu", "🇨🇿", ["Its astronomical clock dates to 1410.", "Trdelník chimney cakes are sold everywhere.", "Charles Bridge crosses the Vltava River.", "It has one of the largest castle complexes in the world.", "The capital of the Czech Republic."]], ["capetown", "Cape Town", "South Africa", "CPT", "me", "🇿🇦", ["It sits near the southern tip of Africa.", "Bobotie is a classic local dish.", "Penguins live on a nearby beach.", "Table Mountain rises over the city.", "South Africa's legislative capital."]], ["marrakech", "Marrakech", "Morocco", "RAK", "me", "🇲🇦", ["Nicknamed the \"Red City\" for its walls.", "Tagine and mint tea are everywhere.", "Food stalls fill its main square, Jemaa el-Fnaa, at night.", "The Atlas Mountains are on the horizon.", "A famous city in Morocco."]], ["seattle", "Seattle", "USA", "SEA", "us", "🇺🇸", ["It has a rainy reputation.", "The first Starbucks store opened here.", "Fishmongers toss fish at Pike Place Market.", "The Space Needle was built for the 1962 World's Fair.", "Washington State's biggest city."]], ["sanjuan", "San Juan", "Puerto Rico", "SJU", "am", "🇵🇷", ["Its old town is ringed by Spanish colonial forts.", "Mofongo is the signature dish.", "The piña colada is said to have been invented here.", "Colorful houses line its old town.", "The capital of Puerto Rico."]], ["denver", "Denver", "USA", "DEN", "us", "🇺🇸", ["Its airport is the largest in the U.S. by land area.", "Rocky Mountain oysters are a local dare.", "It sits at the foot of the Rocky Mountains.", "One step of its capitol building is exactly one mile above sea level.", "The capital of Colorado."]], ["boston", "Boston", "USA", "BOS", "us", "🇺🇸", ["It has the oldest public park in the U.S.", "Clam chowder and lobster rolls are local musts.", "Harvard is just across the river.", "The Freedom Trail passes Revolutionary War sites.", "Site of a famous tea party in 1773."]]];
+const ALL = CITIES.map(([id, city, country, code, region, flag, clues]) => ({
+  id,
+  city,
+  country,
+  code,
+  region,
+  flag,
+  clues
+}));
+const SIZE = 5,
+  OPTS = 6,
+  MAXPTS = 5;
+const DAY = GR.day();
+const POOL = GR.shuffled(ALL, 5150);
+function buildRounds(mode) {
+  const picks = mode.daily ? Array.from({
+    length: SIZE
+  }, (_, i) => POOL[((DAY.id - 1) * SIZE + i) % POOL.length]) : GR.shuffled(POOL, mode.seed).slice(0, SIZE);
+  return picks.map((c, i) => {
+    const seed = (mode.daily ? DAY.id * 7919 : mode.seed) + i * 104729;
+    const same = GR.shuffled(ALL.filter(x => x.id !== c.id && x.region === c.region), seed);
+    const other = GR.shuffled(ALL.filter(x => x.id !== c.id && x.region !== c.region), seed + 1);
+    return {
+      c,
+      options: GR.shuffled([c, ...[...same.slice(0, 3), ...other].slice(0, OPTS - 1)], seed + 2)
+    };
+  });
+}
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+// a round result: { wrong: [ids], solved: bool, clues: number shown }
+const ptsOf = r => r && r.solved ? Math.max(1, MAXPTS - (r.clues - 1)) : 0;
+const sq = r => !r.solved ? "⬛" : ["🟩", "🟩", "🟨", "🟧", "🟥"][Math.min(4, r.clues - 1)];
+const RANKS = [[23, "Globetrotter", "🌍"], [18, "Frequent Flyer", "✈️"], [12, "Weekend Wanderer", "🧳"], [0, "Armchair Traveler", "🛋️"]];
+const rankFor = s => RANKS.find(([m]) => s >= m);
+let AC = null;
+function tone(f, type = "triangle", step = .07, len = .2, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    f.forEach((fr, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = fr;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  right: () => tone([660, 880, 1175]),
+  wrong: () => tone([220, 165], "sawtooth", .12, .25, .05),
+  done: () => tone([523, 659, 784, 1047], "triangle", .1, .3, .1)
+};
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#3F7E78]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--desk)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "font-extrabold tabular-nums"
+  }, t);
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative w-full max-w-md rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--card)] p-6 text-[color:var(--card-ink)]",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full hover:bg-black/5",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[24px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCEE"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Each postcard is from a mystery city. The first clue is the hardest.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDFAF"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Guess from the six cities anytime (keys ", /*#__PURE__*/React.createElement("b", null, "1"), "\u2013", /*#__PURE__*/React.createElement("b", null, "6"), "). Get it on clue 1 for ", /*#__PURE__*/React.createElement("b", null, "5 points"), ". Each wrong guess or extra clue costs a point.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCC5"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, SIZE, " new cities every day, up to ", SIZE * MAXPTS, " points."))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-stamp mt-5 w-full py-3 text-[17px]"
+  }, "Read the first postcard")));
+}
+function App() {
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `gtc-${DAY.id}`;
+  const LINEUP = useMemo(() => buildRounds({
+    daily: true
+  }).map(r => r.c.id).join(","), []);
+  const load = () => {
+    const s = store.get(SAVE_KEY, null);
+    return s && s.lineup === LINEUP && Array.isArray(s.results) ? s : {
+      results: [],
+      cur: null
+    };
+  };
+  const rounds = useMemo(() => buildRounds(mode), [mode]);
+  const init = useMemo(load, []);
+  const [results, setResults] = useState(init.results); // finished rounds
+  const [cur, setCur] = useState(init.cur || {
+    wrong: [],
+    clues: 1,
+    solved: false,
+    over: false
+  });
+  const [sound, setSound] = useState(() => store.get("gtc-sound", true));
+  const [streak, setStreak] = useState(() => store.get("gtc-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false),
+    [shake, setShake] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null),
+    nextRef = useRef(null);
+  const idx = results.length,
+    done = idx >= SIZE;
+  const round = rounds[Math.min(idx, SIZE - 1)];
+  const finished = cur.solved || cur.over;
+  const total = results.reduce((s, r) => s + ptsOf(r), 0);
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      results,
+      cur,
+      lineup: LINEUP
+    });
+  }, [results, cur, mode.daily]);
+  useEffect(() => {
+    store.set("gtc-sound", sound);
+  }, [sound]);
+  useEffect(() => {
+    if (finished && nextRef.current) nextRef.current.focus({
+      preventScroll: true
+    });
+  }, [finished]);
+  const guess = o => {
+    if (finished || done || cur.wrong.includes(o.id)) return;
+    if (o.id === round.c.id) {
+      if (sound) SFX.right();
+      setCur({
+        ...cur,
+        solved: true
+      });
+      return;
+    }
+    if (sound) SFX.wrong();
+    setShake(true);
+    setTimeout(() => setShake(false), 320);
+    const wrong = [...cur.wrong, o.id],
+      clues = cur.clues + 1;
+    setCur(clues > MAXPTS ? {
+      ...cur,
+      wrong,
+      over: true
+    } : {
+      ...cur,
+      wrong,
+      clues
+    });
+  };
+  const moreClue = () => {
+    if (finished) return;
+    const clues = cur.clues + 1;
+    setCur(clues > MAXPTS ? {
+      ...cur,
+      over: true
+    } : {
+      ...cur,
+      clues
+    });
+  };
+  const next = () => {
+    const res = [...results, {
+      solved: cur.solved,
+      clues: Math.min(cur.clues, MAXPTS),
+      wrong: cur.wrong
+    }];
+    setResults(res);
+    setCur({
+      wrong: [],
+      clues: 1,
+      solved: false,
+      over: false
+    });
+    if (res.length >= SIZE) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) {
+        const st = {
+          count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+          last: DAY.id
+        };
+        setStreak(st);
+        store.set("gtc-streak", st);
+      }
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const restart = m => {
+    setMode(m);
+    setResults([]);
+    setCur({
+      wrong: [],
+      clues: 1,
+      solved: false,
+      over: false
+    });
+    setCopied(false);
+    setFallback(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const backToDaily = () => {
+    const s = load();
+    setMode({
+      daily: true,
+      seed: 0
+    });
+    setResults(s.results);
+    setCur(s.cur || {
+      wrong: [],
+      clues: 1,
+      solved: false,
+      over: false
+    });
+  };
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey || done || finished) return;
+      const n = +e.key;
+      if (n >= 1 && n <= OPTS) guess(round.options[n - 1]);
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+  const [, rName, rIcon] = rankFor(total);
+  const shareTxt = done ? `📮 Guess the City ${mode.daily ? `#${DAY.id}` : "· Bonus trip"}\n${results.map(sq).join("")}\n${total}/${SIZE * MAXPTS} · ${rName} ${rIcon}\nPlay: ${GR.gameUrl("guess-the-city")}` : "";
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(shareTxt).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+  const ptsNow = Math.max(1, MAXPTS - (cur.clues - 1));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-3xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "mt-1 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[30px] sm:text-[42px] leading-none text-[color:var(--sun)]"
+  }, "Guess the City ", /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCEE")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 truncate text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]"
+  }, mode.daily ? `Postcards #${DAY.id} · ${DAY.label}` : "Bonus trip · just for fun")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", {
+    className: "text-[15px] font-extrabold tabular-nums"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
+    "aria-label": "How to play"
+  }, "?"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), !done ? /*#__PURE__*/React.createElement("main", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-1 gap-1.5",
+    "aria-label": `City ${idx + 1} of ${SIZE}`
+  }, Array.from({
+    length: SIZE
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "grid h-7 flex-1 place-items-center rounded-md border-2 border-black text-[13px]",
+    style: {
+      background: i === idx ? "var(--sun)" : "rgba(255,255,255,.1)"
+    }
+  }, results[i] ? sq(results[i]) : ""))), /*#__PURE__*/React.createElement("div", {
+    className: "chip px-3 py-1 text-[14px] font-extrabold tabular-nums"
+  }, total, " pts")), /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `postcard ${shake ? "shake" : ""}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stampbox",
+    "aria-label": finished ? "" : `${ptsNow} points on offer`
+  }, finished ? /*#__PURE__*/React.createElement("span", {
+    className: "text-[36px]",
+    "aria-hidden": "true"
+  }, round.c.flag) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("b", null, ptsNow), /*#__PURE__*/React.createElement("small", null, "POINTS"))), /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-extrabold uppercase tracking-[.16em] text-[#8A7F6B]"
+  }, "Postcard ", idx + 1, " of ", SIZE, " \xB7 Greetings from\u2026"), /*#__PURE__*/React.createElement("div", {
+    className: "lines mt-2 pr-24"
+  }, round.c.clues.slice(0, finished ? MAXPTS : cur.clues).map((t, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `clue ${i === cur.clues - 1 && !finished ? "write" : ""}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "n"
+  }, i + 1), t))), finished && /*#__PURE__*/React.createElement("div", {
+    className: "pop mt-3 rounded-xl border-2 border-black bg-white/70 p-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[17px] font-black",
+    style: {
+      color: cur.solved ? "var(--ok-d)" : "var(--stamp)"
+    }
+  }, cur.solved ? `You got it! +${ptsNow}` : "Return to sender!"), /*#__PURE__*/React.createElement("div", {
+    className: "display text-[26px] leading-tight"
+  }, round.c.flag, " ", round.c.city, ", ", round.c.country))), !finished ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3"
+  }, round.options.map((o, k) => /*#__PURE__*/React.createElement("button", {
+    key: o.id,
+    className: `opt ${cur.wrong.includes(o.id) ? "out" : ""}`,
+    disabled: cur.wrong.includes(o.id),
+    onClick: () => guess(o)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "grid h-6 w-6 flex-none place-items-center rounded-md bg-black/30 text-[12px]",
+    "aria-hidden": "true"
+  }, k + 1), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0"
+  }, o.city)))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex justify-center"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: moreClue,
+    className: "btn btn-plain px-5 py-2.5 text-[15px]"
+  }, cur.clues < MAXPTS ? "📝 Read the next clue (−1 point)" : "🏳️ I give up"))) : /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(null, round.c.code),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn btn-sun block py-3 text-center text-[16px]"
+  }, "\u2708\uFE0F Find flights to ", round.c.city, " \u2197"), /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: next,
+    className: "btn btn-stamp px-6 py-3 text-[17px]"
+  }, idx + 1 >= SIZE ? "See my score →" : "Next postcard →")))) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "postcard pop"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-extrabold uppercase tracking-[.16em] text-[#8A7F6B]"
+  }, mode.daily ? `Postcards #${DAY.id}` : "Bonus trip", " \xB7 trip complete"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex items-center gap-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[56px] leading-none",
+    "aria-hidden": "true"
+  }, rIcon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "display text-[44px] leading-none tabular-nums"
+  }, total, "/", SIZE * MAXPTS), /*#__PURE__*/React.createElement("div", {
+    className: "display text-[20px]"
+  }, rName))), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 space-y-2"
+  }, rounds.map((r, i) => /*#__PURE__*/React.createElement("li", {
+    key: r.c.id,
+    className: "flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border-2 border-black/10 bg-white/60 px-3 py-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, sq(results[i])), /*#__PURE__*/React.createElement("span", {
+    className: "text-[20px]",
+    "aria-hidden": "true"
+  }, r.c.flag), /*#__PURE__*/React.createElement("b", {
+    className: "min-w-0 flex-1"
+  }, r.c.city, /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold text-[#6B6355]"
+  }, ", ", r.c.country)), /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(null, r.c.code),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "text-[13px] font-extrabold text-[color:var(--pen)] underline underline-offset-2"
+  }, "Flights \u2197")))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-[13px] text-[#6B6355]"
+  }, "\uD83D\uDFE9 clue 1\u20132 \xB7 \uD83D\uDFE8 clue 3 \xB7 \uD83D\uDFE7 clue 4 \xB7 \uD83D\uDFE5 clue 5 \xB7 \u2B1B missed")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-wrap gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: false,
+      seed: Math.floor(Math.random() * 1e9)
+    }),
+    className: "btn btn-sun min-w-[12rem] flex-1 py-3 text-[17px]"
+  }, "\uD83C\uDFB2 ", mode.daily ? "Take a bonus trip" : "Another trip"), !mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: backToDaily,
+    className: "btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]"
+  }, "\u2190 Back to today's postcards"))), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 text-[13px] font-bold leading-relaxed",
+    style: {
+      fontFamily: "ui-monospace,Menlo,Consolas,monospace"
+    }
+  }, shareTxt), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold text-[color:var(--sun)]"
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    readOnly: true,
+    value: shareTxt,
+    rows: 5,
+    className: "w-full rounded-lg bg-black/30 p-2 text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-stamp mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy & Send a Postcard"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[20px] border-2 border-black bg-[color:var(--panel)] p-4 text-center text-[13px] text-[color:var(--muted)]"
+  }, "New postcards in ", /*#__PURE__*/React.createElement(Countdown, null), mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
+  }, "\u21BA Replay today's postcards")))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
+  }, "Guess the City \xB7 a GlobeRush game"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="would-you-rather">
+<!-- Settings: edit SITE and AFFILIATE at the top of the main <script>. Poll data: the ITEMS list. -->
+<title>Would You Rather: Travel · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,800&display=swap">
+<style>
+/* Layout: two boarding gates side by side with an OR badge on the seam. Pick a gate, then see how the crowd split. */
+:root{
+  --bg:#EEF3F8; --bg-2:#DCE7F2; --card:#FFFFFF; --card-2:#F3F7FB; --ink:#132033; --muted:#58677D; --line:#CCD8E5;
+  --ga:#0FA3A3; --ga-d:#0A7373; --gb:#E5487A; --gb-d:#A92E55; --gold:#FFC43D; --gold-d:#B88A10; --other:#AAB6C4;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1420; --bg-2:#132033; --card:#16243A; --card-2:#1D2E48; --ink:#ECF3FB; --muted:#9DB0C8; --line:#2A3D5A;
+  --ga:#22C2C2; --ga-d:#0E8080; --gb:#FF6496; --gb-d:#B83C64; --gold:#FFC93F; --gold-d:#A87C0C; --other:#55657C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1420; --bg-2:#132033; --card:#16243A; --card-2:#1D2E48; --ink:#ECF3FB; --muted:#9DB0C8; --line:#2A3D5A;
+  --ga:#22C2C2; --ga-d:#0E8080; --gb:#FF6496; --gb-d:#B83C64; --gold:#FFC93F; --gold-d:#A87C0C; --other:#55657C; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:700;font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(800px 400px at 0% 0%,color-mix(in srgb,var(--ga) 18%,transparent),transparent 70%),radial-gradient(800px 400px at 100% 0%,color-mix(in srgb,var(--gb) 16%,transparent),transparent 70%)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:800;letter-spacing:-.02em}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:22px;color:var(--muted)}
+h1,h2,h3{text-wrap:balance}
+
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:800;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-gold{background:var(--gold);border-color:var(--gold-d);color:#2A1E00}
+.btn-plain{background:var(--card);border-color:var(--line);color:var(--ink)}
+.chip{border-radius:999px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink)}
+
+.gates{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gate{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:230px;text-align:left;border-radius:24px;border:3px solid transparent;border-bottom-width:9px;padding:18px;color:#fff;cursor:pointer;transition:transform .1s,filter .15s,opacity .3s,border-bottom-width .1s}
+.gate:hover:not(:disabled){transform:translateY(-4px);filter:brightness(1.05)}
+.gate:active:not(:disabled){transform:translateY(4px);border-bottom-width:4px}
+.gate:disabled{cursor:default}
+.gate.a{background:linear-gradient(160deg,var(--ga),var(--ga-d));border-color:var(--ga-d)}
+.gate.b{background:linear-gradient(160deg,var(--gb),var(--gb-d));border-color:var(--gb-d)}
+.gate.faded{opacity:.45}
+.gate .tag{font-family:var(--f-display);font-size:13px;letter-spacing:.06em;background:rgba(0,0,0,.22);border-radius:8px;padding:3px 9px;align-self:flex-start}
+.gate .label{font-family:var(--f-display);font-size:clamp(19px,3.4vw,30px);line-height:1.1}
+.or{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:#2A1E00;border:3px solid var(--bg);font-family:var(--f-display);font-size:16px;box-shadow:0 6px 16px -6px rgba(0,0,0,.4)}
+@media (max-width:560px){.gates{grid-template-columns:1fr}.gate{min-height:150px}.or{top:50%}}
+.pct{font-family:var(--f-display);font-size:clamp(36px,7vw,56px);line-height:1}
+.bar{height:12px;border-radius:999px;background:rgba(255,255,255,.3);overflow:hidden}
+.bar > i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .9s cubic-bezier(.2,.9,.2,1)}
+@keyframes rise{0%{transform:translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+.rise{animation:rise .35s ease-out both}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),var(--card-2)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--bg);border-top:1px solid var(--line)}
+.kbd{font-size:.88em;font-weight:800;background:var(--card-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.02em .4em;white-space:nowrap}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.rise,.pop{animation:none!important}.bar > i{transition:none}.gate:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">✈️ Opening the gates…</div></div>
+<div id="gr-more"></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* =====================================================================
+   YOUR SETTINGS: edit once.
+   SITE.url  = where this game lives (used in the share card)
+   AFFILIATE = your fare links. Placeholders: {FROM} {TO} capitals, {from} {to} lowercase
+   ===================================================================== */
+const SITE = {
+  url: window.GLOBERUSH.gameUrl("would-you-rather")
+};
+const AFFILIATE = window.GLOBERUSH && window.GLOBERUSH.affiliate || {
+  route: "https://www.skyscanner.com/transport/flights/{from}/{to}/",
+  toOnly: "https://www.skyscanner.com/transport/flights-to/{to}/",
+  general: "https://www.skyscanner.com/"
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(),
+    d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase()).replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Choices, each backed by a published poll (pct = share who chose that option; the rest said other/not sure) ---------- */
+const ITEMS = /*ITEMS*/[{
+  "id": "window-aisle",
+  "prompt": "Flying solo — would you rather sit in the…",
+  "a": {
+    "label": "Window seat",
+    "pct": 48,
+    "trait": "explorer"
+  },
+  "b": {
+    "label": "Aisle seat",
+    "pct": 30,
+    "trait": "planner"
+  },
+  "who": "US adults (n=8,027)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 17 2023: 'If traveling alone on a flight, which seat on the airplane would you prefer?' Middle 10%, not sure 12%.",
+  "source": "https://yougov.com/en-us/daily-results/20230517-c9cb2-1"
+}, {
+  "id": "first-class-gift",
+  "prompt": "You bought one first-class and one economy ticket for you and your partner. Would you rather take…",
+  "a": {
+    "label": "The first-class seat",
+    "pct": 34,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "The economy seat (partner gets 1st)",
+    "pct": 48,
+    "trait": "none"
+  },
+  "who": "US adults (n=10,934)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 23 2023: 'One plane ticket is in first class and the other in economy. Which would you take for yourself?' Not sure 18%.",
+  "source": "https://yougov.com/en-us/daily-results/20230523-968bc-1"
+}, {
+  "id": "boarding-order",
+  "prompt": "Would you rather planes board…",
+  "a": {
+    "label": "Back-to-front (economy first)",
+    "pct": 44,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Front-to-back (first class first)",
+    "pct": 27,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=10,934)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 23 2023: 'Should planes board front-to-back ... or back-to-front?' Neither 11%, not sure 19%.",
+  "source": "https://yougov.com/en-us/daily-results/20230523-968bc-3"
+}, {
+  "id": "roadtrip-plan",
+  "prompt": "Picking a road-trip route, would you rather…",
+  "a": {
+    "label": "Plan every detail",
+    "pct": 50,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Be spontaneous",
+    "pct": 37,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=9,289)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 10 2023: 'Which would come closer to your approach to deciding where to go on a road trip?' Not sure 13%.",
+  "source": "https://yougov.com/en-us/daily-results/20230510-2487c-2"
+}, {
+  "id": "scenic-fast",
+  "prompt": "On a road trip, would you rather take…",
+  "a": {
+    "label": "The most scenic route",
+    "pct": 59,
+    "trait": "explorer"
+  },
+  "b": {
+    "label": "The fastest route",
+    "pct": 28,
+    "trait": "planner"
+  },
+  "who": "US adults (n=9,289)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 10 2023: 'If you were taking a road trip, which route would you most prefer to take?' Not sure 12%.",
+  "source": "https://yougov.com/en-us/daily-results/20230510-2487c-3"
+}, {
+  "id": "new-vs-same-place",
+  "prompt": "Money no object, would you rather vacation…",
+  "a": {
+    "label": "Somewhere different each year",
+    "pct": 67,
+    "trait": "explorer"
+  },
+  "b": {
+    "label": "The same place every year",
+    "pct": 8,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=4,755)",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Daily question, Jan 7 2025: 'If cost and responsibilities were not a concern, would you rather go on a vacation…?' No preference 14%, not sure 10%.",
+  "source": "https://yougov.com/en-us/daily-results/20250107-d1e97-1"
+}, {
+  "id": "window-shade",
+  "prompt": "Who would you rather control the window shade?",
+  "a": {
+    "label": "The window-seat passenger",
+    "pct": 51,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "The whole row works it out",
+    "pct": 28,
+    "trait": "relaxer"
+  },
+  "who": "US adults (2,500+)",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Airplane etiquette survey, fielded Jul 29-31 2026, nationally representative. Remaining options not reported.",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "middle-armrests",
+  "prompt": "In a row of three, would you rather the armrests go…",
+  "a": {
+    "label": "Shared equally by everyone",
+    "pct": 61,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Mostly to the middle seat",
+    "pct": 19,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=8,027)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 17 2023: should the middle seat have more, less, or equal claim to armrests? 'Equal' 61%, 'More' 19%; less 4%, not sure 16%.",
+  "source": "https://yougov.com/en-us/daily-results/20230517-c9cb2-2"
+}, {
+  "id": "seatmate-chat",
+  "prompt": "Next to a stranger on a plane, would you rather…",
+  "a": {
+    "label": "Swap pleasantries, nothing more",
+    "pct": 35,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Chat with them a little",
+    "pct": 29,
+    "trait": "explorer"
+  },
+  "who": "US adult citizens (n=1,000)",
+  "pollster": "YouGov",
+  "year": 2022,
+  "method": "Flight Etiquette survey, Nov 18-21 2022: preferred level of conversation with a stranger. Other answers: none at all 11%, a lot 7%, whole flight 4%, not sure 14%.",
+  "source": "https://docs.cdn.yougov.com/a17jg5yq7s/toplines_Flight%20Etiquette.pdf"
+}, {
+  "id": "swap-worse-seat",
+  "prompt": "A stranger asks you to swap to a worse seat so they can sit with their companion. Would you rather…",
+  "a": {
+    "label": "Say yes and switch",
+    "pct": 23,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Politely keep my seat",
+    "pct": 46,
+    "trait": "planner"
+  },
+  "who": "US adult citizens (n=1,000)",
+  "pollster": "YouGov",
+  "year": 2022,
+  "method": "Flight Etiquette survey, Nov 18-21 2022: if traveling alone and asked to switch seats (offered seat is worse). Not sure 31%.",
+  "source": "https://docs.cdn.yougov.com/a17jg5yq7s/toplines_Flight%20Etiquette.pdf"
+}, {
+  "id": "recline-rule",
+  "prompt": "In economy, would you rather recline…",
+  "a": {
+    "label": "Only after checking behind me",
+    "pct": 51,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Anytime after takeoff",
+    "pct": 21,
+    "trait": "relaxer"
+  },
+  "who": "US adults (2,500+)",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Airplane etiquette survey, Jul 29-31 2026: when is it acceptable to recline in economy? 'Never' 10%; rest not reported.",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "deplane",
+  "prompt": "When the plane lands, would you rather…",
+  "a": {
+    "label": "Exit row by row, front to back",
+    "pct": 65,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Grab any opening and go",
+    "pct": 10,
+    "trait": "explorer"
+  },
+  "who": "US adults (2,500+)",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Airplane etiquette survey, Jul 29-31 2026: proper way to deplane. 'Cut ahead to make a tight connection' 9%; rest not reported.",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "drive-vs-fly",
+  "prompt": "For a vacation, would you rather…",
+  "a": {
+    "label": "Drive there",
+    "pct": 73,
+    "trait": "explorer"
+  },
+  "b": {
+    "label": "Fly there",
+    "pct": 22,
+    "trait": "relaxer"
+  },
+  "who": "US drivers (n=2,000)",
+  "pollster": "OnePoll for Michelin",
+  "year": 2024,
+  "method": "Random double-opt-in survey, Feb 9-20 2024: 73% prefer driving for vacations, 22% would rather fly.",
+  "source": "https://studyfinds.com/road-trip-nation-traveling-by-car/"
+}, {
+  "id": "who-drives",
+  "prompt": "On a road trip, would you rather…",
+  "a": {
+    "label": "Do all the driving",
+    "pct": 45,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Let someone else drive",
+    "pct": 22,
+    "trait": "relaxer"
+  },
+  "who": "US drivers (n=2,000)",
+  "pollster": "OnePoll for Michelin",
+  "year": 2024,
+  "method": "Feb 9-20 2024. Split the driving 28%.",
+  "source": "https://www.ems1.com/lifestyle/why-3-in-4-prefer-road-trips-over-flying"
+}, {
+  "id": "airline-vs-ota",
+  "prompt": "Shopping for flights online, would you rather use…",
+  "a": {
+    "label": "The airline's own site/app",
+    "pct": 76,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "A travel site like Expedia",
+    "pct": 24,
+    "trait": "bargain"
+  },
+  "who": "US adults who have flown (n=3,230)",
+  "pollster": "Ipsos for Airlines for America",
+  "year": 2025,
+  "method": "KnowledgePanel, Jan 7-22 2025: preferred channel for online comparison shopping (airline app/site vs online travel agency).",
+  "source": "https://www.airlines.org/wp-content/uploads/2025/03/A4A-Air-Travel-Survey-Key-Findings-18Mar2025.pdf"
+}, {
+  "id": "boarding-pass",
+  "prompt": "At the gate, would you rather show…",
+  "a": {
+    "label": "A boarding pass on my phone",
+    "pct": 68,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "A paper boarding pass",
+    "pct": 32,
+    "trait": "planner"
+  },
+  "who": "US adults who have flown",
+  "pollster": "Ipsos for Airlines for America",
+  "year": 2025,
+  "method": "KnowledgePanel, Jan 7-22 2025, describing 2024 trips: boarding pass used at gate, electronic vs paper.",
+  "source": "https://www.airlines.org/wp-content/uploads/2025/03/A4A-Air-Travel-Survey-Key-Findings-18Mar2025.pdf"
+}, {
+  "id": "checkin-timing",
+  "prompt": "Would you rather check in…",
+  "a": {
+    "label": "Before leaving for the airport",
+    "pct": 80,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "At the airport",
+    "pct": 19,
+    "trait": "relaxer"
+  },
+  "who": "US adults who have flown",
+  "pollster": "Ipsos for Airlines for America",
+  "year": 2025,
+  "method": "KnowledgePanel, Jan 7-22 2025, describing 2024 trips: where/when travelers checked in. Other/skipped 1%.",
+  "source": "https://www.airlines.org/wp-content/uploads/2025/03/A4A-Air-Travel-Survey-Key-Findings-18Mar2025.pdf"
+}, {
+  "id": "lounge-why",
+  "prompt": "In an airport lounge, would you rather go for…",
+  "a": {
+    "label": "The food and drinks",
+    "pct": 54,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "A quiet place to sit",
+    "pct": 37,
+    "trait": "relaxer"
+  },
+  "who": "US adults who have or would consider a lounge membership (32% of sample)",
+  "pollster": "Ipsos for Airlines for America",
+  "year": 2026,
+  "method": "KnowledgePanel, Jan 5-19 2026: primary driver of lounge use. Status 2%, other 7%.",
+  "source": "https://www.airlines.org/wp-content/uploads/2026/03/A4A-Air-Travel-Survey-Key-Findings-March-2026-1.pdf"
+}, {
+  "id": "cost-vs-convenience",
+  "prompt": "Booking a holiday flight, would you rather prioritize…",
+  "a": {
+    "label": "The lowest cost",
+    "pct": 48,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "The most convenient flight",
+    "pct": 25,
+    "trait": "relaxer"
+  },
+  "who": "US holiday fliers",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Online survey of 2,445 US adults, Sept 18-22 2026: most important booking factor among holiday fliers. Brand loyalty 7%, rewards 5%.",
+  "source": "https://thepointsguy.com/news/holiday-travel-survey/"
+}, {
+  "id": "pay-for-convenience",
+  "prompt": "Would you rather…",
+  "a": {
+    "label": "Pay more for convenience",
+    "pct": 63,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Save money, accept hassle",
+    "pct": 27,
+    "trait": "bargain"
+  },
+  "who": "US holiday travelers",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Sept 18-22 2026: agree vs disagree that it is worth paying more for convenience.",
+  "source": "https://thepointsguy.com/news/holiday-travel-survey/"
+}, {
+  "id": "price-vs-airline",
+  "prompt": "Would you rather fly…",
+  "a": {
+    "label": "The cheapest fare, any airline",
+    "pct": 70,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "My favorite airline, even if pricier",
+    "pct": 25,
+    "trait": "planner"
+  },
+  "who": "US holiday fliers",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Sept 18-22 2026: agree (70%) vs disagree (25%) that price matters more than flying a favorite airline.",
+  "source": "https://thepointsguy.com/news/holiday-travel-survey/"
+}, {
+  "id": "shoes-off",
+  "prompt": "On a flight, would you rather…",
+  "a": {
+    "label": "Kick shoes off (socks stay on)",
+    "pct": 27,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Keep my shoes on",
+    "pct": 64,
+    "trait": "planner"
+  },
+  "who": "US adults (n=1,098)",
+  "pollster": "SurveyMonkey for The Vacationer",
+  "year": 2022,
+  "method": "Polled Aug 6 2022: 'Do you ever remove your shoes or other footwear on a plane?' Yes, socks stay on 26.87%; No 63.57%; Yes, socks come off 9.56%. Rounded.",
+  "source": "https://thevacationer.com/controversial-airplane-behavior-survey-2022/"
+}, {
+  "id": "overhead-bin",
+  "prompt": "Stowing your carry-on, would you rather…",
+  "a": {
+    "label": "Use only the bin above my row",
+    "pct": 43,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Grab any open bin up front",
+    "pct": 16,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=1,098)",
+  "pollster": "SurveyMonkey for The Vacationer",
+  "year": 2022,
+  "method": "Polled Aug 6 2022: use overhead bins many rows in front of your seat? Never 42.62%, Always 15.66%; only if boarding late 16.21%, only on a full flight 25.50%. Rounded.",
+  "source": "https://thevacationer.com/controversial-airplane-behavior-survey-2022/"
+}, {
+  "id": "inflight-activity",
+  "prompt": "On a flight, would you rather spend the time…",
+  "a": {
+    "label": "Reading",
+    "pct": 24,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Watching movies or TV",
+    "pct": 22,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=3,544)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question, May 17 2023: activity you typically spend the most time doing on a flight. Music/podcasts 13%, sleeping 11%, don't fly 15%, others smaller.",
+  "source": "https://yougov.com/en-us/daily-results/20230517-46c28-3"
+}, {
+  "id": "book-timing",
+  "prompt": "For summer trips, would you rather book…",
+  "a": {
+    "label": "1-3 months ahead",
+    "pct": 46,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Last-minute (under a month)",
+    "pct": 26,
+    "trait": "explorer"
+  },
+  "who": "US summer travelers (from n=1,155 US adults)",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov Surveys, Aug 26-27 2024: when summer hotel/flight bookings were made. Other timing options not reported in article.",
+  "source": "https://yougov.com/en-us/articles/50451-are-americans-more-likely-to-book-travel-early-on-or-last-minute-us-travel-booking-trends-explained"
+}, {
+  "id": "language",
+  "prompt": "Would you rather vacation where most people…",
+  "a": {
+    "label": "Speak your language",
+    "pct": 44,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Speak a different language",
+    "pct": 17,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=4,755)",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Daily question Jan 7, 2025: 'If cost and responsibilities were not a concern, would you rather go on a vacation to a place where…?' No preference 31%, not sure 8%.",
+  "source": "https://yougov.com/en-us/daily-results/20250107-d1e97-2"
+}, {
+  "id": "locals-vs-tourists",
+  "prompt": "Would you rather vacation where most people are…",
+  "a": {
+    "label": "Locals",
+    "pct": 38,
+    "trait": "explorer"
+  },
+  "b": {
+    "label": "Fellow tourists",
+    "pct": 15,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=4,755)",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Daily question Jan 7, 2025: 'If cost and responsibilities were not a concern, would you rather go on a vacation to a place where…?' No preference 38%, not sure 10%.",
+  "source": "https://yougov.com/en-us/daily-results/20250107-d1e97-3"
+}, {
+  "id": "quiet-vs-lively-beach",
+  "prompt": "Would you rather hit…",
+  "a": {
+    "label": "A quiet, uncrowded beach",
+    "pct": 74,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "A lively beach packed with people",
+    "pct": 12,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=8,900)",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Daily question Jul 10, 2025: 'Which of the following beach experiences would you prefer?' Neither 7%, not sure 7%.",
+  "source": "https://yougov.com/en-us/daily-results/20250710-5ae48-3"
+}, {
+  "id": "warmer-vs-colder",
+  "prompt": "For a summer vacation, would you rather go somewhere…",
+  "a": {
+    "label": "Warmer than home",
+    "pct": 26,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Colder than home",
+    "pct": 19,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=32,561)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question May 8, 2023: 'If you were going on a vacation this summer, would you rather go somewhere...?' About the same temperature 43% (most popular), not sure 12%.",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-3"
+}, {
+  "id": "summer-vs-winter",
+  "prompt": "Would you rather vacation in…",
+  "a": {
+    "label": "Summer",
+    "pct": 36,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Winter",
+    "pct": 15,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=32,561)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question May 8, 2023: 'Which is your favorite season for taking vacations?' Spring 19%, fall 18%, not sure 12%.",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-1"
+}, {
+  "id": "anticipate-vs-experience",
+  "prompt": "What's the best part of a vacation?",
+  "a": {
+    "label": "Looking forward to it",
+    "pct": 18,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Actually being there",
+    "pct": 65,
+    "trait": "explorer"
+  },
+  "who": "US adults (n=32,561)",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "Daily question May 8, 2023: 'What is generally your favorite part of the vacation process?' Remembering it after it's over 7%, not sure 10%.",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-2"
+}, {
+  "id": "hotel-toiletries",
+  "prompt": "At a hotel or rental, would you rather…",
+  "a": {
+    "label": "Use the free toiletries",
+    "pct": 51,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "Use your own products",
+    "pct": 37,
+    "trait": "planner"
+  },
+  "who": "US adults (n=5,134)",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Daily question Jun 25, 2024: 'If you stayed at a hotel or vacation rental that provides small toiletries such as shampoo, would you…?' Not sure 12%.",
+  "source": "https://yougov.com/en-us/daily-results/20240625-bc6a0-1"
+}, {
+  "id": "mini-vs-refillable",
+  "prompt": "Would you rather your hotel shampoo come in…",
+  "a": {
+    "label": "Little mini bottles",
+    "pct": 36,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Big refillable dispensers",
+    "pct": 23,
+    "trait": "bargain"
+  },
+  "who": "US adults (n=5,134)",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Daily question Jun 25, 2024: 'If you were to stay at a hotel or vacation rental that provides toiletries such as shampoo, would you prefer…?' No preference 33%, not sure 8%.",
+  "source": "https://yougov.com/en-us/daily-results/20240625-bc6a0-3"
+}, {
+  "id": "hotel-vs-rental-us",
+  "prompt": "Traveling in the US, would you rather stay in…",
+  "a": {
+    "label": "A hotel",
+    "pct": 62,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "A short-term rental (Airbnb/Vrbo)",
+    "pct": 38,
+    "trait": "explorer"
+  },
+  "who": "US travelers (n=2,193)",
+  "pollster": "Upgraded Points (own online survey)",
+  "year": 2025,
+  "method": "Online survey Oct 22-30, 2025, travelers aged 18-79 in 45 states; preferred lodging for US leisure travel in 2026. Article also cites 61%/39% for holiday-season stays. No independent pollster named.",
+  "source": "https://upgradedpoints.com/news/airbnb-vs-hotels-traveler-survey/"
+}, {
+  "id": "hotel-vs-friends",
+  "prompt": "On an overnight leisure trip, would you rather…",
+  "a": {
+    "label": "Stay in a hotel",
+    "pct": 50,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Crash with family or friends",
+    "pct": 29,
+    "trait": "bargain"
+  },
+  "who": "US adults likely to take an overnight leisure trip (n=1,240)",
+  "pollster": "Morning Consult for American Hotel & Lodging Association",
+  "year": 2024,
+  "method": "Online survey Jan 6-7, 2024 (2,202 adults total). Where they're most likely to stay on upcoming leisure trips. Short-term rental 11%; remaining options not clearly labeled in the source.",
+  "source": "https://www.ahla.com/sites/default/files/AHLA.Travel.Intent.PreferencesJan23.1.30.2024.pdf"
+}, {
+  "id": "drive-vs-fly-x",
+  "prompt": "For your trips, would you rather…",
+  "a": {
+    "label": "Drive",
+    "pct": 40,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "Fly",
+    "pct": 26,
+    "trait": "relaxer"
+  },
+  "who": "US adults who traveled in the past year (n=2,000)",
+  "pollster": "Talker Research for Club Wyndham",
+  "year": 2024,
+  "method": "Online survey Sep 27-Oct 7, 2024. Drive vs fly preference as reported; rest unreported.",
+  "source": "https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2024/2024-2025-travel-trends-survey"
+}, {
+  "id": "spread-vs-bulk",
+  "prompt": "Would you rather…",
+  "a": {
+    "label": "Spread trips out over the year",
+    "pct": 58,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Do most travel in one big stretch",
+    "pct": 28,
+    "trait": "explorer"
+  },
+  "who": "US adults who traveled in the past year (n=2,000)",
+  "pollster": "Talker Research for Club Wyndham",
+  "year": 2024,
+  "method": "Online survey Sep 27-Oct 7, 2024. Spacing trips out vs doing the bulk of travel in one period; rest unreported.",
+  "source": "https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2024/2024-2025-travel-trends-survey"
+}, {
+  "id": "relax-vs-adventure",
+  "prompt": "Main goal for your summer vacation…",
+  "a": {
+    "label": "Rest and relaxation",
+    "pct": 45,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Adventure or exploration",
+    "pct": 20,
+    "trait": "explorer"
+  },
+  "who": "US adults planning a summer vacation (n=778)",
+  "pollster": "Marist Poll",
+  "year": 2025,
+  "method": "National poll Jun 23-25, 2025: main goal for summer vacation. Visiting family/friends 26%, cultural/historical 10%.",
+  "source": "https://maristpoll.marist.edu/polls/summer-travel-july-2025/"
+}, {
+  "id": "us-vs-abroad",
+  "prompt": "For summer vacation, would you rather travel…",
+  "a": {
+    "label": "Within the US",
+    "pct": 71,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Internationally",
+    "pct": 12,
+    "trait": "explorer"
+  },
+  "who": "US adults planning a summer vacation (n=778)",
+  "pollster": "Marist Poll",
+  "year": 2025,
+  "method": "National poll Jun 23-25, 2025: 'Where do you plan to travel for your summer vacation?' Both 15%, staycation 2%. Measures plans, not pure preference.",
+  "source": "https://maristpoll.marist.edu/polls/summer-travel-july-2025/"
+}, {
+  "id": "one-vs-two-weeks",
+  "prompt": "The ideal vacation length is…",
+  "a": {
+    "label": "One week",
+    "pct": 41,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "Two weeks",
+    "pct": 35,
+    "trait": "relaxer"
+  },
+  "who": "US adults (n=1,381)",
+  "pollster": "Marist Poll",
+  "year": 2025,
+  "method": "National poll Jun 23-25, 2025: ideal length of a vacation. More than two weeks 13%, a long weekend 12%.",
+  "source": "https://maristpoll.marist.edu/polls/summer-travel-july-2025/"
+}, {
+  "id": "beach-vs-mountains",
+  "prompt": "Would you rather take a…",
+  "a": {
+    "label": "Beach vacation",
+    "pct": 61,
+    "trait": "relaxer"
+  },
+  "b": {
+    "label": "Mountain vacation",
+    "pct": 39,
+    "trait": "explorer"
+  },
+  "who": "US adults (2,000+ respondents)",
+  "pollster": "CivicScience",
+  "year": 2022,
+  "method": "CivicScience polling published Jun 22, 2022; exact question wording not published.",
+  "source": "https://civicscience.com/5-things-you-didnt-know-beach-vs-mountain-vacationers/"
+}, {
+  "id": "what-counts-as-visiting",
+  "prompt": "Does it count as visiting a state if you…",
+  "a": {
+    "label": "Just drive through it",
+    "pct": 27,
+    "trait": "bargain"
+  },
+  "b": {
+    "label": "Take a full trip with sightseeing",
+    "pct": 21,
+    "trait": "explorer"
+  },
+  "who": "US adult citizens (n=1,016)",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Survey Jun 24-26, 2025: minimum travel that counts as visiting a state. Spending a night 15%, setting foot on the ground 12%, leaving the airport 7%, other options smaller, not sure 10%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Travel_poll_results.pdf"
+}, {
+  "id": "book-early-vs-late",
+  "prompt": "For holiday travel, would you rather book…",
+  "a": {
+    "label": "1-3 months ahead",
+    "pct": 47,
+    "trait": "planner"
+  },
+  "b": {
+    "label": "Less than a month out",
+    "pct": 18,
+    "trait": "explorer"
+  },
+  "who": "US adults planning winter holiday travel (from n=1,155 US adults)",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Online survey Aug 26-27, 2024: when they plan to book winter holiday travel. 4-6 months ahead 24%, 6+ months 12%. Measures plans, not pure preference.",
+  "source": "https://yougov.com/en-us/articles/50451-are-americans-more-likely-to-book-travel-early-on-or-last-minute-us-travel-booking-trends-explained"
+}] /*END_ITEMS*/;
+const TRAITS = {
+  explorer: {
+    name: "The Explorer",
+    icon: "🧭",
+    color: "var(--ga)",
+    line: "New places, new plans, new stories. You'd rather have an adventure than a schedule.",
+    cta: "Find flights somewhere you've never been"
+  },
+  relaxer: {
+    name: "The Relaxer",
+    icon: "🏖️",
+    color: "var(--gb)",
+    line: "Vacation means vacation. Comfort first, alarms never, a drink with an umbrella in it.",
+    cta: "Find flights to somewhere warm"
+  },
+  bargain: {
+    name: "The Bargain Hunter",
+    icon: "💸",
+    color: "var(--gold-d)",
+    line: "Why pay more? You'll take the cheaper route and spend the savings on the trip.",
+    cta: "Find the cheapest flights"
+  },
+  planner: {
+    name: "The Planner",
+    icon: "🗓️",
+    color: "#5B6CFF",
+    line: "Itinerary printed, bags packed early, at the gate before boarding. Nothing goes wrong on your watch.",
+    cta: "Book your next trip early"
+  }
+};
+const ROUND = Math.min(10, ITEMS.length);
+const LAUNCH = Date.UTC(2026, 9, 19);
+const DAY = (() => {
+  const n = new Date(),
+    today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  return {
+    id: Math.max(1, Math.round((today - LAUNCH) / 864e5) + 1),
+    label: n.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    })
+  };
+})();
+function seeded(seed) {
+  let s = seed >>> 0;
+  return () => (s = s * 1664525 + 1013904223 >>> 0) / 4294967296;
+}
+function shuffle(arr, r) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const POOL = shuffle(ITEMS, seeded(8642));
+function pickSet(mode) {
+  if (mode.daily) return Array.from({
+    length: ROUND
+  }, (_, i) => POOL[((DAY.id - 1) * ROUND + i) % POOL.length]);
+  return shuffle(POOL, seeded(mode.seed)).slice(0, ROUND);
+}
+// "crowd" = you picked the more popular side; "rebel" = the less popular one; "tie" = equal
+const sideOf = (pick, it) => {
+  const mine = it[pick].pct,
+    other = it[pick === "a" ? "b" : "a"].pct;
+  return mine > other ? "crowd" : mine < other ? "rebel" : "tie";
+};
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+
+/* ---------- Sound ---------- */
+let AC = null;
+function tone(freqs, type = "triangle", step = .08, len = .22, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+// airport "ding-dong" chime
+const SFX = {
+  pick: () => tone([659, 523], "sine", .22, .5, .12),
+  done: () => tone([523, 659, 784, 1047], "triangle", .1, .35, .11)
+};
+
+/* ---------- Pieces ---------- */
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[color:var(--line)]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--card)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "font-extrabold tabular-nums"
+  }, t);
+}
+function Gate({
+  side,
+  opt,
+  revealed,
+  picked,
+  onPick
+}) {
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    if (revealed) {
+      const t = setTimeout(() => setW(opt.pct), 60);
+      return () => clearTimeout(t);
+    }
+    setW(0);
+  }, [revealed, opt.pct]);
+  const mine = picked === side;
+  return /*#__PURE__*/React.createElement("button", {
+    className: `gate ${side} ${revealed && !mine ? "faded" : ""}`,
+    disabled: revealed,
+    onClick: () => onPick(side),
+    "aria-label": `Gate ${side.toUpperCase()}: ${opt.label}${revealed ? `, ${opt.pct}% chose this` : ""}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "tag"
+  }, "GATE ", side.toUpperCase(), mine ? " · YOUR PICK" : ""), /*#__PURE__*/React.createElement("span", {
+    className: "label mt-3"
+  }, opt.label), revealed ? /*#__PURE__*/React.createElement("span", {
+    className: "mt-4 block"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "pct"
+  }, opt.pct, "%"), /*#__PURE__*/React.createElement("span", {
+    className: "bar mt-2 block"
+  }, /*#__PURE__*/React.createElement("i", {
+    style: {
+      width: `${w}%`
+    }
+  }))) : /*#__PURE__*/React.createElement("span", {
+    className: "mt-4 text-[13px] font-extrabold opacity-85"
+  }, "Tap to board ", side === "a" ? "←" : "→"));
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative w-full max-w-md rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-6",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--muted)] hover:bg-[color:var(--card-2)]",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[24px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDEAA"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, ROUND, " travel choices. Pick Gate A or Gate B, or press ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "\u2190"), " / ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "\u2192"), ".")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCCA"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "See how real people chose in a published poll. Percentages may not add to 100 because some people said \"not sure\" or picked another option.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83E\uDDED"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Every pick adds to your travel personality: Explorer, Relaxer, Bargain Hunter or Planner."))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-gold mt-5 w-full py-3 text-[17px]"
+  }, "Now boarding")));
+}
+function shareText(set, picks, daily, top) {
+  const rebels = set.filter((it, i) => picks[i] && sideOf(picks[i], it) === "rebel").length;
+  const grid = set.map((it, i) => !picks[i] ? "⬜" : sideOf(picks[i], it) === "rebel" ? "🦄" : "👥").join("");
+  return `✈️ Would You Rather: Travel ${daily ? `#${DAY.id}` : "· Bonus round"}\nI'm ${top ? `${TRAITS[top].icon} ${TRAITS[top].name}` : "a mystery traveler"} · went against the crowd ${rebels}/${set.length}\n${grid}\nPlay: ${SITE.url}`;
+}
+
+/* ---------- App ---------- */
+function App() {
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `wyr-${DAY.id}`;
+  const set = useMemo(() => pickSet(mode), [mode]);
+  const [picks, setPicks] = useState(() => store.get(SAVE_KEY, null)?.picks || []);
+  const [idx, setIdx] = useState(() => Math.min(store.get(SAVE_KEY, null)?.picks?.length || 0, ROUND));
+  const [shown, setShown] = useState(false);
+  const [sound, setSound] = useState(() => store.get("wyr-sound", true));
+  const [streak, setStreak] = useState(() => store.get("wyr-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null),
+    nextRef = useRef(null);
+  const done = idx >= ROUND;
+  const it = set[Math.min(idx, ROUND - 1)];
+  const pick = picks[idx];
+  const tally = {
+    explorer: 0,
+    relaxer: 0,
+    bargain: 0,
+    planner: 0
+  };
+  set.forEach((x, i) => {
+    const p = picks[i];
+    if (p && tally[x[p].trait] != null) tally[x[p].trait]++;
+  });
+  const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+  const topTrait = top && top[1] > 0 ? top[0] : null;
+  const rebels = set.filter((x, i) => picks[i] && sideOf(picks[i], x) === "rebel").length;
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      picks
+    });
+  }, [picks, mode.daily]);
+  useEffect(() => {
+    store.set("wyr-sound", sound);
+  }, [sound]);
+  const choose = side => {
+    if (done || shown) return;
+    const next = [...picks];
+    next[idx] = side;
+    setPicks(next);
+    setShown(true);
+    if (sound) SFX.pick();
+    setTimeout(() => nextRef.current && nextRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    }), 450);
+  };
+  const advance = () => {
+    const n = idx + 1;
+    setIdx(n);
+    setShown(false);
+    if (n >= ROUND) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) {
+        const s = {
+          count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+          last: DAY.id
+        };
+        setStreak(s);
+        store.set("wyr-streak", s);
+      }
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const restart = m => {
+    setMode(m);
+    setPicks([]);
+    setIdx(0);
+    setShown(false);
+    setCopied(false);
+    setFallback(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const playBonus = () => restart({
+    daily: false,
+    seed: Math.floor(Math.random() * 1e9)
+  });
+  const backToDaily = () => {
+    const s = store.get(SAVE_KEY, null);
+    setMode({
+      daily: true,
+      seed: 0
+    });
+    setPicks(s?.picks || []);
+    setIdx(Math.min(s?.picks?.length || 0, ROUND));
+    setShown(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey) return;
+      if (!done && !shown && (e.key === "ArrowLeft" || e.key.toLowerCase() === "a")) choose("a");else if (!done && !shown && (e.key === "ArrowRight" || e.key.toLowerCase() === "b")) choose("b");else if (shown && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        advance();
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+  const text = shareText(set, picks, mode.daily, topTrait);
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+  const s = shown && sideOf(pick, it);
+  const other = it ? Math.max(0, 100 - it.a.pct - it.b.pct) : 0;
+  const trait = shown && TRAITS[it[pick].trait];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-4xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "flex items-center justify-between gap-3 py-1.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex min-w-0 items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-b-[5px] border-[color:var(--gold-d)] bg-[color:var(--gold)] text-[22px]",
+    "aria-hidden": "true"
+  }, "\uD83D\uDEAA"), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[19px] sm:text-[26px] leading-none"
+  }, "Would You Rather", /*#__PURE__*/React.createElement("span", {
+    className: "text-[color:var(--muted)]"
+  }, ":"), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--ga)"
+    }
+  }, "Trav"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--gb)"
+    }
+  }, "el")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 truncate text-[12px] font-extrabold text-[color:var(--muted)]"
+  }, mode.daily ? `Daily #${DAY.id} · ${DAY.label}` : "Bonus round · just for fun"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", {
+    className: "text-[15px] font-extrabold tabular-nums"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
+    "aria-label": "How to play"
+  }, "?"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-1 gap-1.5",
+    "aria-label": "Progress"
+  }, set.map((x, i) => /*#__PURE__*/React.createElement("span", {
+    key: x.id + i,
+    className: "h-2.5 flex-1 rounded-full",
+    style: {
+      background: picks[i] ? picks[i] === "a" ? "var(--ga)" : "var(--gb)" : i === idx && !done ? "var(--gold)" : "var(--line)"
+    }
+  }))), /*#__PURE__*/React.createElement("span", {
+    className: "text-[13px] font-extrabold text-[color:var(--muted)] tabular-nums"
+  }, Math.min(idx + 1, ROUND), "/", ROUND)), !done ? /*#__PURE__*/React.createElement("main", {
+    key: it.id + idx,
+    className: "rise mt-4"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-center display text-[22px] sm:text-[30px]"
+  }, it.prompt || "Would you rather…"), /*#__PURE__*/React.createElement("div", {
+    className: "gates mt-4"
+  }, /*#__PURE__*/React.createElement(Gate, {
+    side: "a",
+    opt: it.a,
+    revealed: shown,
+    picked: pick,
+    onPick: choose
+  }), /*#__PURE__*/React.createElement(Gate, {
+    side: "b",
+    opt: it.b,
+    revealed: shown,
+    picked: pick,
+    onPick: choose
+  }), !shown && /*#__PURE__*/React.createElement("div", {
+    className: "or",
+    "aria-hidden": "true"
+  }, "OR")), shown && /*#__PURE__*/React.createElement("section", {
+    className: "pop mt-4 rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5",
+    "aria-live": "polite"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "display text-[20px] sm:text-[24px]"
+  }, s === "crowd" ? `👥 You're with the ${it[pick].pct}%` : s === "rebel" ? `🦄 Rebel pick! Only ${it[pick].pct}% chose this` : "⚖️ Perfect tie"), trait && /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 text-[14px] font-extrabold",
+    style: {
+      color: trait.color
+    }
+  }, "+1 ", trait.icon, " ", trait.name.replace("The ", ""))), /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: advance,
+    className: "btn btn-gold px-6 py-3 text-[17px]"
+  }, idx + 1 < ROUND ? "Next choice →" : "See my travel personality →")), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-[12px] font-bold text-[color:var(--muted)]"
+  }, other > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, other, "% said not sure or something else. "), it.pollster, it.year ? `, ${it.year}` : "", " \xB7 ", it.who, it.source && /*#__PURE__*/React.createElement(React.Fragment, null, " \xB7 ", /*#__PURE__*/React.createElement("a", {
+    href: it.source,
+    target: "_blank",
+    rel: "noopener",
+    className: "underline"
+  }, "source")))), !shown && /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-center text-[13px] font-bold text-[color:var(--muted)]"
+  }, "No wrong answers. Just your gate.")) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "pop min-w-0 rounded-[24px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5 sm:p-7"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]"
+  }, mode.daily ? `Daily #${DAY.id}` : "Bonus round", " \xB7 your travel personality"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex items-center gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid h-20 w-20 shrink-0 place-items-center rounded-[22px] text-[42px]",
+    style: {
+      background: "var(--card-2)"
+    },
+    "aria-hidden": "true"
+  }, topTrait ? TRAITS[topTrait].icon : "🧳"), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[28px] sm:text-[36px] leading-none",
+    style: {
+      color: topTrait ? TRAITS[topTrait].color : "var(--ink)"
+    }
+  }, topTrait ? TRAITS[topTrait].name : "The Mystery Traveler"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-[15px] font-bold text-[color:var(--muted)]"
+  }, topTrait ? TRAITS[topTrait].line : "Your picks didn't lean any one way."))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5 space-y-2"
+  }, Object.entries(TRAITS).map(([k, t]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    className: "grid grid-cols-[150px_minmax(0,1fr)_28px] items-center gap-2 text-[14px] font-extrabold"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "truncate"
+  }, t.icon, " ", t.name.replace("The ", "")), /*#__PURE__*/React.createElement("span", {
+    className: "h-3 overflow-hidden rounded-full bg-[color:var(--card-2)]"
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "block h-full rounded-full",
+    style: {
+      width: `${tally[k] / ROUND * 100}%`,
+      background: t.color
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-right tabular-nums"
+  }, tally[k])))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-4 text-[16px] font-extrabold"
+  }, "You went against the crowd ", rebels, " of ", ROUND, " times. ", rebels >= 6 ? "Total rebel. 🦄" : rebels >= 3 ? "A healthy rebel streak." : "You travel like most people do."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-wrap gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: playBonus,
+    className: "btn btn-gold min-w-[12rem] flex-1 py-3 text-[17px]"
+  }, "\uD83C\uDFB2 ", mode.daily ? "Play a bonus round" : "Play again"), !mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: backToDaily,
+    className: "btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]"
+  }, "\u2190 Back to today's choices")), mode.daily && /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[13px] text-[color:var(--muted)]"
+  }, "Bonus rounds are just for fun and don't change your daily result."), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-6 display text-[18px]"
+  }, "Your picks vs. the crowd"), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-2 space-y-2"
+  }, set.map((x, i) => {
+    const p = picks[i],
+      q = p === "a" ? "b" : "a";
+    return /*#__PURE__*/React.createElement("li", {
+      key: x.id + i,
+      className: "grid grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl bg-[color:var(--card-2)] px-3 py-2.5"
+    }, /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true"
+    }, p ? sideOf(p, x) === "rebel" ? "🦄" : "👥" : "⬜"), /*#__PURE__*/React.createElement("span", {
+      className: "min-w-0 text-[14px] leading-snug"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-extrabold",
+      style: {
+        color: p === "a" ? "var(--ga)" : "var(--gb)"
+      }
+    }, p ? x[p].label : "—"), /*#__PURE__*/React.createElement("span", {
+      className: "block text-[12px] text-[color:var(--muted)]"
+    }, "over ", p ? x[q].label : "—")), /*#__PURE__*/React.createElement("span", {
+      className: "text-right text-[13px] font-extrabold tabular-nums"
+    }, p ? `${x[p].pct}%` : ""));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 rounded-2xl border-2 border-b-[6px] p-4 text-white",
+    style: {
+      background: "linear-gradient(135deg,var(--ga-d),var(--gb-d))",
+      borderColor: "rgba(0,0,0,.3)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] opacity-85"
+  }, "Sponsored \xB7 Fare finder"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 display text-[20px] leading-tight"
+  }, topTrait ? TRAITS[topTrait].cta : "Find your next trip"), /*#__PURE__*/React.createElement("a", {
+    href: fareLink(null, null),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn mt-3 block w-full border-black bg-white py-3 text-center text-[16px] text-[#132033]"
+  }, "Compare Fares \u2197"))), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-[color:var(--card-2)] p-3 text-[13px] font-bold leading-relaxed",
+    style: {
+      fontFamily: "ui-monospace,Menlo,Consolas,monospace"
+    }
+  }, text), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold",
+    style: {
+      color: "var(--gb)"
+    }
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    id: "share-fallback",
+    readOnly: true,
+    value: text,
+    rows: 4,
+    className: "w-full rounded-lg border border-[color:var(--line)] bg-[color:var(--card-2)] p-2 text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-gold mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy Result"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-[color:var(--line)] bg-[color:var(--card)] p-4 text-center text-[13px] text-[color:var(--muted)]"
+  }, "New choices in ", /*#__PURE__*/React.createElement(Countdown, null), mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
+  }, "\u21BA Replay today's choices")))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
+  }, "Would You Rather: Travel \xB7 a GlobeRush game \xB7 percentages come from the published polls linked on each choice"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

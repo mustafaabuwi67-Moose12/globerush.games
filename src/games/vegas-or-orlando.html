@@ -1,0 +1,555 @@
+<!-- Affiliate links: edit the AFFILIATE block at the top of the main <script>. -->
+<title>Vegas or Orlando?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+/* Layout: a split stage. Left half is the Strip at night, right half is Central Florida at noon; the fact card sits on the seam.
+   Deliberately one look in every theme: the two halves ARE the design. */
+:root{
+  --page:#140A26; --page-2:#1E1036; --ink:#FFF7FB; --muted:#B9A9D6; --line:rgba(255,255,255,.12);
+  --night:#1A0B2E; --neon:#FF2E88; --neon-d:#B3135C; --gold:#FFD23F;
+  --day:#E3F8FB; --sun:#FF8A00; --sun-d:#C25E00; --lagoon:#00A99B; --palm:#0F5C55;
+  --card:#FFFFFF; --card-ink:#1B1030; --card-muted:#6A5C84;
+  --right:#16B364; --wrong:#F04438;
+  --f-sign:"Bungee","Impact","Arial Black",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--page);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(800px 400px at 0% 0%,rgba(255,46,136,.18),transparent 70%),radial-gradient(800px 400px at 100% 0%,rgba(255,138,0,.16),transparent 70%)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.sign{font-family:var(--f-sign);font-weight:400;letter-spacing:.02em}
+.mono{font-family:var(--f-mono)}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-sign);font-size:22px;color:var(--gold)}
+h1,h2,h3{text-wrap:balance}
+
+/* split stage */
+.stage{position:relative;display:grid;grid-template-columns:1fr 1fr;border-radius:26px;overflow:hidden;border:2px solid #000;border-bottom-width:7px;min-height:420px}
+.half{position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:18px}
+.half.vegas{background:radial-gradient(120% 90% at 30% 110%,#3B0F5C 0%,var(--night) 60%);color:#FFE9F4}
+.half.orlando{background:radial-gradient(120% 90% at 70% -10%,#FFF6C8 0%,var(--day) 55%,#BFEFF3 100%);color:#0D3B38}
+.vegas .stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff8 50%,transparent 51%),radial-gradient(1px 1px at 40% 10%,#fff6 50%,transparent 51%),radial-gradient(1.5px 1.5px at 70% 26%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 25% 40%,#fff5 50%,transparent 51%),radial-gradient(1px 1px at 85% 12%,#fff6 50%,transparent 51%);pointer-events:none}
+.orlando .sunball{position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#FFD45A 0 45%,rgba(255,212,90,.35) 46% 60%,transparent 61%);pointer-events:none}
+.skyline{position:absolute;left:0;right:0;bottom:0;height:90px;pointer-events:none;opacity:.9}
+.seam{position:absolute;left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%);background:linear-gradient(var(--neon),var(--gold),var(--sun));pointer-events:none}
+
+.pick{position:relative;z-index:2;width:100%;border-radius:18px;border:3px solid transparent;border-bottom-width:7px;padding:14px 10px;cursor:pointer;
+  font-family:var(--f-sign);font-size:clamp(20px,4.6vw,34px);line-height:1;transition:transform .08s ease,border-bottom-width .08s ease,filter .15s}
+.pick:hover:not(:disabled){filter:brightness(1.08)}
+.pick:active:not(:disabled){transform:translateY(4px);border-bottom-width:3px}
+.pick:disabled{cursor:default}
+.pick.v{background:var(--neon);border-color:var(--neon-d);color:#fff;text-shadow:0 0 12px rgba(255,255,255,.55)}
+.pick.o{background:var(--sun);border-color:var(--sun-d);color:#fff}
+.pick small{display:block;font-family:var(--f-body);font-size:12px;font-weight:800;letter-spacing:.08em;opacity:.9;margin-top:6px}
+.pick.dim{opacity:.35}
+
+.card{position:absolute;z-index:3;left:50%;top:22px;width:min(560px,calc(100% - 28px));transform:translateX(-50%);
+  background:var(--card);color:var(--card-ink);border-radius:20px;border:2px solid #000;border-bottom-width:6px;padding:18px 20px;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+@media (max-width:640px){.stage{min-height:470px}.card{top:14px;padding:16px}.half{padding:12px}}
+
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:800;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-gold{background:var(--gold);border-color:#B8900A;color:#2A1C00}
+.btn-plain{background:var(--page-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--page-2);color:var(--ink)}
+
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes cardIn{0%{transform:translate(-50%,-14px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
+.card-in{animation:cardIn .35s ease-out both}
+@keyframes flicker{0%,19%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.55}}
+.flicker{animation:flicker 4s linear infinite}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(185,169,214,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(185,169,214,.25) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.03)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:rgba(20,10,38,.96);border-top:1px solid var(--line)}
+.kbd{font-family:var(--f-mono);font-size:.85em;font-weight:700;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-bottom-width:2px;border-radius:5px;padding:.02em .38em;white-space:nowrap}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.pop,.card-in,.flicker{animation:none!important}}
+</style>
+
+<div id="root"><div class="boot">🎰 vs 🎢</div></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+/* =====================================================================
+   YOUR AFFILIATE LINKS: paste your link patterns here, once.
+   Every fare button in this game uses them.
+   Placeholders: {FROM} {TO} = airport codes in capitals (ATL, MCO)
+                 {from} {to} = the same codes in lowercase (atl, mco)
+   ===================================================================== */
+const AFFILIATE = {
+  route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",   // both airports known
+  toOnly:  "https://www.skyscanner.com/transport/flights-to/{to}/",        // destination only (player hasn't picked an airport)
+  general: "https://www.skyscanner.com/",                                  // generic "find cheap flights" buttons
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(), d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase())
+          .replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Fact pool: "V" = Las Vegas, "O" = Orlando ---------- */
+const FACTS = [
+  {"id": "slots", "a": "V", "text": "You can play slot machines right inside the airport", "more": "Harry Reid International has slot machines in its terminals, so the games start at the gate."},
+  {"id": "hoover", "a": "V", "text": "The Hoover Dam is under an hour's drive away", "more": "The dam is roughly 35 miles southeast of the Strip, an easy half-day trip."},
+  {"id": "heat", "a": "V", "text": "Summer highs regularly top 100°F", "more": "July highs average around 104°F, but the desert air is very dry."},
+  {"id": "knights", "a": "V", "text": "Home to the NHL's Golden Knights", "more": "The Golden Knights started play in 2017 and won the Stanley Cup in 2023."},
+  {"id": "elev", "a": "V", "text": "Sits about 2,000 feet above sea level", "more": "That's high desert. Orlando, by comparison, is under 100 feet."},
+  {"id": "sphere", "a": "V", "text": "Home to the giant LED-covered globe called the Sphere", "more": "The Sphere opened in 2023 just east of the Strip, and its outside is one huge screen."},
+  {"id": "redrock", "a": "V", "text": "Red Rock Canyon is a short drive west of town", "more": "Its red sandstone cliffs and hiking trails are about 20 to 30 minutes from the Strip."},
+  {"id": "fremont", "a": "V", "text": "A light-show canopy covers several blocks of its old downtown street", "more": "The Fremont Street Experience canopy turns the street into a giant screen at night."},
+  {"id": "raiders", "a": "V", "text": "Its NFL team moved here from Oakland in 2020", "more": "The Raiders play at Allegiant Stadium, just off the Strip."},
+  {"id": "aces", "a": "V", "text": "Its WNBA team won back-to-back titles in 2022 and 2023", "more": "The Las Vegas Aces were the first team in two decades to repeat as WNBA champions, then won a third title in 2025."},
+  {"id": "bellagio", "a": "V", "text": "A hotel's lake hosts a famous dancing-fountain show", "more": "The Fountains of Bellagio shoot water hundreds of feet in the air, set to music."},
+  {"id": "paradise", "a": "V", "text": "Most of its famous resort strip isn't technically inside the city", "more": "Most of the Strip lies in the unincorporated town of Paradise, not the City of Las Vegas."},
+  {"id": "sign", "a": "V", "text": "Its famous 'Welcome to Fabulous...' sign dates to 1959", "more": "The sign was designed by Betty Willis and was never copyrighted."},
+  {"id": "neon", "a": "V", "text": "A museum here keeps a 'boneyard' of retired neon signs", "more": "The Neon Museum preserves classic signs from old casinos and motels."},
+  {"id": "f1", "a": "V", "text": "A Formula 1 race runs right down its main resort strip", "more": "The Las Vegas Grand Prix has run at night along the Strip since 2023."},
+  {"id": "founded", "a": "V", "text": "It was founded in 1905 as a railroad stop", "more": "A land auction in May 1905 launched the town along a new rail line."},
+  {"id": "mob", "a": "V", "text": "Home to a museum all about organized crime", "more": "The Mob Museum is in a former federal courthouse downtown."},
+  {"id": "mead", "a": "V", "text": "The largest reservoir in the US (when full) is a short drive away", "more": "Lake Mead, created by the Hoover Dam, is about 30 minutes from town."},
+  {"id": "valley", "a": "V", "text": "Its state's oldest state park, full of red rock, is about an hour away", "more": "Valley of Fire became a state park in 1935 and is famous for its fiery red sandstone."},
+  {"id": "rain", "a": "V", "text": "It gets only about 4 inches of rain a year", "more": "That makes it one of the driest major cities in the US."},
+  {"id": "pacific", "a": "V", "text": "It's on Pacific Time", "more": "Orlando is three hours ahead, on Eastern Time."},
+  {"id": "strat", "a": "V", "text": "Home to the tallest freestanding observation tower in the US", "more": "The STRAT tower stands about 1,149 feet tall, with thrill rides on top."},
+  {"id": "roller", "a": "V", "text": "A 550-foot observation wheel overlooks its resort strip", "more": "The High Roller opened in 2014 and was the world's tallest observation wheel at the time."},
+  {"id": "ces", "a": "V", "text": "Hosts the giant CES tech show every January", "more": "CES brings well over 100,000 tech industry visitors to town each year."},
+  {"id": "elvis", "a": "V", "text": "Elvis played hundreds of shows at one of its hotels", "more": "Elvis performed more than 600 shows at the International Hotel, later the Las Vegas Hilton, between 1969 and 1976."},
+  {"id": "drivethru", "a": "V", "text": "You can get married at a drive-through wedding chapel", "more": "Quick weddings are a local tradition, and some chapels let you say 'I do' from your car."},
+  {"id": "atomic", "a": "V", "text": "In the 1950s, tourists watched atomic test blasts from hotel rooftops", "more": "Nuclear tests at the nearby Nevada Test Site became a strange tourist draw."},
+  {"id": "luxor", "a": "V", "text": "A pyramid-shaped hotel shoots a light beam into the night sky", "more": "The Luxor's Sky Beam can be seen from far away on clear nights."},
+  {"id": "flamingo", "a": "V", "text": "Mobster Bugsy Siegel helped open a famous resort here in 1946", "more": "The Flamingo is one of the oldest resorts still operating on the Strip."},
+  {"id": "skiing", "a": "V", "text": "You can go snow skiing about an hour from town", "more": "Lee Canyon, on Mount Charleston, has ski runs in the winter."},
+  {"id": "mccarran", "a": "V", "text": "Its main airport was renamed in 2021", "more": "It was McCarran International before becoming Harry Reid International."},
+  {"id": "meadows", "a": "V", "text": "Its name is Spanish for 'the meadows'", "more": "Spanish-speaking travelers in 1829 named the valley for its spring-fed grasslands."},
+  {"id": "unlv", "a": "V", "text": "Home to the UNLV Runnin' Rebels", "more": "The University of Nevada, Las Vegas won the NCAA men's basketball title in 1990."},
+  {"id": "pinball", "a": "V", "text": "Home to a Pinball Hall of Fame", "more": "The museum is packed with playable vintage pinball machines."},
+  {"id": "sevenmagic", "a": "V", "text": "Seven towers of brightly painted boulders stand in the desert nearby", "more": "Seven Magic Mountains is a public art piece about 25 minutes south of the Strip."},
+  {"id": "nfr", "a": "V", "text": "Hosts the National Finals Rodeo every December", "more": "Rodeo's biggest event brings cowboys and fans to town for ten days."},
+  {"id": "superbowl", "a": "V", "text": "Hosted the Super Bowl in 2024", "more": "Super Bowl LVIII was played at Allegiant Stadium in February 2024."},
+  {"id": "gondola", "a": "V", "text": "You can ride a gondola along an indoor canal", "more": "The Venetian has canals and singing gondoliers inside the resort."},
+  {"id": "eiffel", "a": "V", "text": "A half-scale Eiffel Tower stands on its resort strip", "more": "The tower at Paris Las Vegas has a restaurant and an observation deck."},
+  {"id": "gambling", "a": "V", "text": "Its state legalized casino gambling in 1931", "more": "That decision turned a small desert town into a gaming capital."},
+  {"id": "sincity", "a": "V", "text": "It's nicknamed Sin City", "more": "Its other famous nickname is the Entertainment Capital of the World."},
+  {"id": "springs", "a": "V", "text": "It grew up around natural springs that are now a nature preserve", "more": "The Springs Preserve marks the original water source that made the town possible."},
+  {"id": "record", "a": "V", "text": "It hit 120°F for the first time in July 2024", "more": "The record high came during a long heat wave that summer."},
+  {"id": "mojave", "a": "V", "text": "It sits in the Mojave Desert", "more": "Joshua trees and creosote bushes grow just outside town."},
+  {"id": "skywalk", "a": "V", "text": "A glass skywalk over the Grand Canyon is a popular day trip", "more": "The Grand Canyon Skywalk is a few hours' drive away, on the Hualapai reservation."},
+  {"id": "ufo", "a": "V", "text": "A road nicknamed the Extraterrestrial Highway is a popular road trip from here", "more": "Nevada State Route 375 runs near the famously secret Area 51."},
+  {"id": "biggest", "a": "V", "text": "It's the biggest city in its state", "more": "Orlando is not Florida's biggest city. Jacksonville is."},
+  {"id": "ratpack", "a": "V", "text": "The Rat Pack performed together here in the 1960s", "more": "Frank Sinatra, Dean Martin and Sammy Davis Jr. made the Sands famous."},
+  {"id": "boxing", "a": "V", "text": "Famous for hosting heavyweight boxing title fights", "more": "Many of the sport's biggest fights have been held at its casino arenas."},
+  {"id": "a702", "a": "V", "text": "Its classic area code is 702", "more": "Newer local numbers can get 725. Orlando uses 407, 321 and 689."},
+  {"id": "athletics", "a": "V", "text": "An MLB team is building a ballpark here to move into", "more": "The Athletics' domed ballpark on the Strip is set to open for the 2028 season. Until then they play mostly in West Sacramento."},
+  {"id": "themepark", "a": "O", "text": "Home to the world's most-visited theme park", "more": "Magic Kingdom at Walt Disney World tops global theme park attendance rankings most years."},
+  {"id": "mcco", "a": "O", "text": "Its airport code comes from an old Air Force base", "more": "MCO stands for McCoy, after the former McCoy Air Force Base the airport grew out of."},
+  {"id": "rockets", "a": "O", "text": "Rocket launches can be seen from town on clear days", "more": "Launches from Cape Canaveral, about an hour east, are often visible across the city."},
+  {"id": "storms", "a": "O", "text": "Afternoon thunderstorms are an almost daily summer ritual", "more": "Humid summer afternoons often build into short, heavy storms that pass within an hour or so."},
+  {"id": "magic", "a": "O", "text": "Home to the NBA's Magic", "more": "The Orlando Magic have played in the NBA since 1989."},
+  {"id": "idrive", "a": "O", "text": "International Drive is its famous tourist strip", "more": "\"I-Drive\" is packed with hotels, attractions and restaurants between the big parks."},
+  {"id": "gators", "a": "O", "text": "A park full of alligators has been open here since 1949", "more": "Gatorland is one of the area's oldest attractions, long before the big theme parks arrived."},
+  {"id": "lakes", "a": "O", "text": "Has more than 100 lakes within its city limits", "more": "Central Florida is dotted with lakes, and the downtown skyline sits around Lake Eola."},
+  {"id": "seaworld", "a": "O", "text": "Has a SeaWorld park", "more": "SeaWorld Orlando sits near International Drive. Las Vegas has no SeaWorld."},
+  {"id": "mls", "a": "O", "text": "Home to MLS soccer team Orlando City SC", "more": "Orlando City joined Major League Soccer in 2015."},
+  {"id": "pride", "a": "O", "text": "Its women's soccer team won the NWSL championship in 2024", "more": "The Orlando Pride won their first league title in 2024."},
+  {"id": "swans", "a": "O", "text": "Swan-shaped pedal boats float on a lake downtown", "more": "Lake Eola's swan boats are a local favorite, and real swans live there too."},
+  {"id": "epic", "a": "O", "text": "A brand-new theme park called Epic Universe opened here in 2025", "more": "Universal's Epic Universe was its first new theme park there in more than 20 years."},
+  {"id": "manhattan", "a": "O", "text": "Its most famous resort covers more land than Manhattan", "more": "Walt Disney World spans roughly 25,000 acres."},
+  {"id": "ksc", "a": "O", "text": "Kennedy Space Center is about an hour's drive away", "more": "Visitors can see real rockets and the Space Shuttle Atlantis there."},
+  {"id": "beautiful", "a": "O", "text": "It's nicknamed 'The City Beautiful'", "more": "The nickname dates back to the early 1900s."},
+  {"id": "lowland", "a": "O", "text": "It sits only about 100 feet above sea level", "more": "Las Vegas, by comparison, is about 2,000 feet up."},
+  {"id": "hurricanes", "a": "O", "text": "Hurricane season, June through November, is part of life here", "more": "Being inland helps, but storms can still bring heavy wind and rain."},
+  {"id": "citrusbowl", "a": "O", "text": "Hosts the Citrus Bowl college football game", "more": "The game is played around New Year's at Camping World Stadium."},
+  {"id": "spaceship", "a": "O", "text": "A giant silver geodesic sphere stands in one of its theme parks", "more": "Spaceship Earth at EPCOT has been there since 1982. Not to be confused with Vegas's Sphere!"},
+  {"id": "manatees", "a": "O", "text": "You can see manatees at a natural spring less than an hour away", "more": "In winter, hundreds of manatees gather at Blue Spring State Park's warm water."},
+  {"id": "ucf", "a": "O", "text": "Home to one of the largest universities in the US by enrollment", "more": "The University of Central Florida had about 70,000 students in fall 2025."},
+  {"id": "winterpark", "a": "O", "text": "A neighboring town offers scenic boat tours through its chain of lakes", "more": "The Winter Park Scenic Boat Tour has run for decades."},
+  {"id": "incorporated", "a": "O", "text": "It was first incorporated as a town in 1875", "more": "It had just 85 residents then, and became a city in 1885."},
+  {"id": "reeves", "a": "O", "text": "Legend says it's named after a soldier called Orlando Reeves", "more": "Historians debate the story, but a marker at Lake Eola honors him."},
+  {"id": "beach", "a": "O", "text": "Atlantic beaches are about an hour's drive away", "more": "Cocoa Beach and New Smyrna Beach are popular day trips."},
+  {"id": "daytona", "a": "O", "text": "The Daytona 500 racetrack is about an hour away", "more": "Daytona International Speedway hosts the famous race each February."},
+  {"id": "brightline", "a": "O", "text": "A higher-speed train connects its airport to Miami", "more": "Brightline began running between Orlando's airport and Miami in 2023."},
+  {"id": "sunrail", "a": "O", "text": "Its commuter train is called SunRail", "more": "SunRail connects downtown with towns to the north and south."},
+  {"id": "mcd", "a": "O", "text": "Home to a McDonald's billed as the world's largest entertainment McDonald's", "more": "The I-Drive location has an arcade and a play area on top of the usual menu."},
+  {"id": "wonderworks", "a": "O", "text": "An attraction here looks like a building that landed upside down", "more": "WonderWorks on International Drive is a hands-on science museum."},
+  {"id": "dolphins", "a": "O", "text": "A park here lets you swim with dolphins", "more": "Discovery Cove offers dolphin swims in its lagoons."},
+  {"id": "legoland", "a": "O", "text": "A LEGO theme park is about an hour away", "more": "Legoland Florida is in nearby Winter Haven."},
+  {"id": "hogwarts", "a": "O", "text": "You can visit a recreation of Hogwarts castle here", "more": "It's in the Wizarding World of Harry Potter at Universal."},
+  {"id": "tiffany", "a": "O", "text": "A nearby museum holds the world's most comprehensive Tiffany collection", "more": "The Morse Museum in Winter Park even has a chapel Louis Comfort Tiffany designed."},
+  {"id": "opened71", "a": "O", "text": "Its biggest resort opened in October 1971", "more": "Walt Disney World opened on October 1, 1971."},
+  {"id": "lightning", "a": "O", "text": "Its region is one of the most lightning-prone in the US", "more": "Central Florida's summer storms produce a huge number of strikes."},
+  {"id": "solarbears", "a": "O", "text": "Its pro hockey team is called the Solar Bears", "more": "The Orlando Solar Bears play in the ECHL."},
+  {"id": "kia", "a": "O", "text": "Its NBA team plays at the Kia Center", "more": "The arena was renamed the Kia Center in 2023."},
+  {"id": "eastern", "a": "O", "text": "It's on Eastern Time", "more": "Las Vegas is three hours behind, on Pacific Time."},
+  {"id": "celebration", "a": "O", "text": "Disney built an entire town nearby called Celebration", "more": "The planned community opened in the mid-1990s."},
+  {"id": "blizzard", "a": "O", "text": "A water park here is themed as a melting ski resort", "more": "Disney's Blizzard Beach has a 'snow-capped' mountain with slides."},
+  {"id": "volcano", "a": "O", "text": "A water park here is built around a giant volcano", "more": "Universal's Volcano Bay is centered on a 200-foot volcano."},
+  {"id": "occc", "a": "O", "text": "Its giant convention center is named after its county", "more": "The Orange County Convention Center, about 7 million square feet, is often called the second-largest in the US."},
+  {"id": "county", "a": "O", "text": "Its county is named after a fruit", "more": "It's the seat of Orange County, named for the citrus groves that once covered the area."},
+  {"id": "humid", "a": "O", "text": "Summers here are famously muggy", "more": "Las Vegas summers are hotter, but much drier."},
+  {"id": "sunshine", "a": "O", "text": "It's in the state nicknamed the Sunshine State", "more": "Florida adopted the nickname officially in 1970."},
+  {"id": "treeoflife", "a": "O", "text": "A giant sculpted 'Tree of Life' is the icon of one of its parks", "more": "It stands at the center of Disney's Animal Kingdom."},
+  {"id": "epcotcountries", "a": "O", "text": "A theme park here has pavilions for 11 countries", "more": "EPCOT's World Showcase circles a lagoon, from Mexico to Canada."},
+  {"id": "bok", "a": "O", "text": "A 205-foot singing tower with bells is about an hour away", "more": "Bok Tower Gardens in Lake Wales has carillon concerts daily."},
+  {"id": "palmer", "a": "O", "text": "Home to golf's Arnold Palmer Invitational", "more": "The PGA Tour event is played at Bay Hill each March."},
+  {"id": "a407", "a": "O", "text": "Its main area code is 407", "more": "Las Vegas uses 702 and 725."},
+];
+const ROUND = 10, HALF = ROUND / 2;
+// Daily #1 is Oct 19, 2026; the number goes up by one each local calendar day.
+const LAUNCH = Date.UTC(2026, 9, 19);
+const DAY = (() => {
+  const n = new Date(), today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  return { id: Math.max(1, Math.round((today - LAUNCH) / 864e5) + 1), label: n.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) };
+})();
+// deterministic shuffle so everyone gets the same daily set
+function seeded(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+function shuffle(arr, r) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+// Each city's facts are shuffled once; daily sets walk through them in order, so nothing repeats until the whole pool is used.
+const POOL_V = shuffle(FACTS.filter(f => f.a === "V"), seeded(4242));
+const POOL_O = shuffle(FACTS.filter(f => f.a === "O"), seeded(9191));
+const take = (pool, start) => Array.from({ length: HALF }, (_, i) => pool[(start + i) % pool.length]);
+// 5 Vegas + 5 Orlando, never more than 2 of the same city in a row, so guessing patterns doesn't work
+function arrange(v, o, r) {
+  for (let tries = 0; tries < 200; tries++) {
+    const s = shuffle([...v, ...o], r);
+    if (!s.some((f, i) => i >= 2 && f.a === s[i - 1].a && f.a === s[i - 2].a)) return s;
+  }
+  return v.flatMap((f, i) => [f, o[i]]);
+}
+function pickSet(mode) {
+  if (mode.daily) return arrange(take(POOL_V, (DAY.id - 1) * HALF), take(POOL_O, (DAY.id - 1) * HALF), seeded(DAY.id * 7919));
+  const r = seeded(mode.seed);
+  return arrange(shuffle(POOL_V, r).slice(0, HALF), shuffle(POOL_O, r).slice(0, HALF), r);
+}
+
+const HOMES = {
+  ATL:"Atlanta", AUS:"Austin", BNA:"Nashville", BOS:"Boston", BWI:"Baltimore", CLT:"Charlotte", DEN:"Denver", DFW:"Dallas", DTW:"Detroit",
+  EWR:"Newark", FLL:"Fort Lauderdale", IAD:"Washington Dulles", IAH:"Houston", JFK:"New York", LAS:"Las Vegas", LAX:"Los Angeles",
+  MCO:"Orlando", MIA:"Miami", MSP:"Minneapolis", ORD:"Chicago", PDX:"Portland", PHL:"Philadelphia", PHX:"Phoenix", RDU:"Raleigh-Durham",
+  SAN:"San Diego", SEA:"Seattle", SFO:"San Francisco", SLC:"Salt Lake City", STL:"St. Louis", TPA:"Tampa",
+};
+const flightsLink = (home, dest) => fareLink(home || null, dest);
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+/* ---------- Sound ---------- */
+let AC = null;
+function tone(freqs, type = "square", step = .08, len = .18, vol = .06) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + .01 + i * step;
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination); o.start(t); o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  right: () => tone([784, 988, 1319]),                              // slot-machine "ding ding"
+  wrong: () => tone([196, 147], "sawtooth", .12, .2, .05),
+  jackpot: () => tone([523, 659, 784, 1047, 784, 1047, 1319], "square", .09, .22, .06),
+};
+
+/* ---------- Pieces ---------- */
+function AdSlot({ w, h, size }) {
+  return (
+    <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#4A3A6B]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}>
+      <div className="rounded-md bg-[color:var(--page)] px-3 py-1 text-center">
+        <div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]">Monetization Slot</div>
+        <div className="mono text-[10px] text-[color:var(--muted)]">{size}</div>
+      </div>
+    </div>
+  );
+}
+
+function Skyline({ side }) {
+  // simple silhouettes drawn as shapes: a tower-and-casino line for Vegas, palms and a coaster hill for Orlando
+  return side === "V" ? (
+    <svg className="skyline" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="#0B0418" d="M0 90V62h18V48h10v14h14V30h12v32h10V40l8-6 8 6v50h6V20h4V6h3v14h4v70h8V52h20v-8h10v46h12V36h16v54h12V58h18V44h14v46h10V64h16v26z" />
+      <rect x="66" y="34" width="16" height="4" fill="#FF2E88" className="flicker" />
+      <rect x="172" y="40" width="16" height="3" fill="#FFD23F" />
+    </svg>
+  ) : (
+    <svg className="skyline" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="none" stroke="#0F5C55" strokeWidth="3" d="M150 88 C 170 20, 200 20, 215 60 S 250 80, 300 30" opacity=".55" />
+      <g fill="#0F5C55">
+        <rect x="40" y="40" width="4" height="50" rx="2" /><path d="M42 42c-14-6-24 0-28 6 10-6 20-4 28-6zm0 0c14-6 24 0 28 6-10-6-20-4-28-6zm0 0c-8-12-20-12-24-8 8-2 18 2 24 8zm0 0c8-12 20-12 24-8-8-2-18 2-24 8z" />
+        <rect x="96" y="54" width="3" height="36" rx="1.5" /><path d="M97.5 56c-11-5-19 0-22 5 8-5 16-3 22-5zm0 0c11-5 19 0 22 5-8-5-16-3-22-5zm0 0c-6-9-15-9-19-6 6-2 14 1 19 6z" />
+        <rect x="0" y="84" width="300" height="6" />
+      </g>
+    </svg>
+  );
+}
+
+function HelpModal({ onClose }) {
+  useEffect(() => { const k = e => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center" onClick={onClose} role="dialog" aria-modal="true" aria-label="How to play">
+      <div className="pop relative w-full max-w-md rounded-[22px] border-2 border-b-[6px] border-black bg-[color:var(--card)] p-6 text-[color:var(--card-ink)]" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--card-muted)] hover:bg-black/5" aria-label="Close">✕</button>
+        <h2 className="sign text-[26px]">How to play</h2>
+        <ul className="mt-3 space-y-3 text-[15px]">
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🃏</span><p className="min-w-0">You get {ROUND} facts. Each one is true about exactly one city.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">👆</span><p className="min-w-0">Tap <b>Vegas</b> or <b>Orlando</b>, or press <span className="kbd">←</span> / <span className="kbd">→</span>.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🔥</span><p className="min-w-0">Answers in a row build a streak. A new set of facts comes every day.</p></li>
+        </ul>
+        <button onClick={onClose} className="btn btn-gold mt-5 w-full py-3 text-[17px]">Let's play</button>
+      </div>
+    </div>
+  );
+}
+
+function shareText(set, answers, home, daily) {
+  const right = answers.filter((a, i) => a === set[i].a).length;
+  const grid = set.map((f, i) => answers[i] == null ? "⬜" : answers[i] === f.a ? "🟩" : "🟥").join("");
+  return `🎰 Vegas or Orlando? 🎢 ${daily ? `#${DAY.id}` : "Bonus round"} · ${right}/${ROUND}${home ? ` · from ${home}` : ""}\n${grid}\nPlay: https://skyhop.app/vegas-or-orlando`;
+}
+
+function Countdown() {
+  const calc = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const s = Math.max(0, Math.floor((m - n) / 1000)); return `${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc());
+  useEffect(() => { const i = setInterval(() => setT(calc()), 1000); return () => clearInterval(i); }, []);
+  return <span className="mono">{t}</span>;
+}
+
+function FlightCards({ home }) {
+  const cards = [
+    { code: "LAS", city: "Las Vegas", emoji: "🎰", bg: "linear-gradient(135deg,#2A0E4A,#1A0B2E)", border: "var(--neon)", btn: "var(--neon)", btnD: "var(--neon-d)", ink: "#FFE9F4",
+      tip: "Hotel rates on the Strip often jump on weekends, so a midweek stay can save a lot." },
+    { code: "MCO", city: "Orlando", emoji: "🎢", bg: "linear-gradient(135deg,#FFF6D6,#D6F4F8)", border: "var(--sun)", btn: "var(--sun)", btnD: "var(--sun-d)", ink: "#0D3B38",
+      tip: "Parks and flights are busiest during school holidays. Off-peak weeks are usually calmer and cheaper." },
+  ].filter(c => c.code !== home);
+  return (
+    <div className={`grid gap-3 ${cards.length > 1 ? "sm:grid-cols-2" : ""}`}>
+      {cards.map(c => (
+        <div key={c.code} className="rounded-[20px] border-2 border-b-[6px] p-4" style={{ background: c.bg, borderColor: c.border, color: c.ink }}>
+          <div className="text-[10px] font-extrabold uppercase tracking-[.18em] opacity-75">Sponsored · Fare finder</div>
+          <div className="mt-1 sign text-[24px] leading-tight">{c.emoji} {c.city}</div>
+          <p className="mt-1 text-[13px] font-semibold opacity-85">{c.tip}</p>
+          <a href={flightsLink(home, c.code)} target="_blank" rel="noopener sponsored"
+             className="btn mt-3 block w-full py-3 text-center text-[15px] text-white" style={{ background: c.btn, borderColor: c.btnD }}>
+            Compare flights {home ? `${HOMES[home]} → ` : "to "}{c.city} ↗
+          </a>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- App ---------- */
+const SAVE_KEY = `vegas-orlando-${DAY.id}`;
+
+function App() {
+  const saved = store.get(SAVE_KEY, null);
+  const [mode, setMode] = useState({ daily: true, seed: 0 });
+  const set = useMemo(() => pickSet(mode), [mode]);
+  const [answers, setAnswers] = useState(saved?.answers || []);
+  const [idx, setIdx] = useState(Math.min(saved?.answers?.length || 0, ROUND));
+  const [shown, setShown] = useState(false);                 // current answer revealed
+  const [home, setHome] = useState(() => store.get("vegas-orlando-home", ""));
+  const [sound, setSound] = useState(() => store.get("vegas-orlando-sound", true));
+  const [streak, setStreak] = useState(() => store.get("vegas-orlando-streak", { count: 0, last: 0 }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false), [fallback, setFallback] = useState(false);
+  const taRef = useRef(null);
+
+  const done = idx >= ROUND;
+  const f = set[Math.min(idx, ROUND - 1)];
+  const mine = answers[idx];
+  const right = answers.filter((a, i) => a === set[i].a).length;
+  let run = 0; for (let i = answers.length - 1; i >= 0 && answers[i] === set[i].a; i--) run++;
+  const byCity = { V: [0, 0], O: [0, 0] };
+  set.forEach((q, i) => { if (answers[i] != null) { byCity[q.a][1]++; if (answers[i] === q.a) byCity[q.a][0]++; } });
+
+  useEffect(() => { if (mode.daily) store.set(SAVE_KEY, { answers }); }, [answers, mode.daily]);
+  useEffect(() => { store.set("vegas-orlando-home", home); }, [home]);
+  useEffect(() => { store.set("vegas-orlando-sound", sound); }, [sound]);
+
+  const answer = (city) => {
+    if (done || shown) return;
+    const next = [...answers]; next[idx] = city; setAnswers(next); setShown(true);
+    if (sound) (city === f.a ? SFX.right : SFX.wrong)();
+  };
+  const advance = () => {
+    const n = idx + 1; setShown(false); setIdx(n);
+    if (n >= ROUND) {
+      if (sound) SFX.jackpot();
+      if (mode.daily && streak.last !== DAY.id) { const s = { count: streak.last === DAY.id - 1 ? streak.count + 1 : 1, last: DAY.id }; setStreak(s); store.set("vegas-orlando-streak", s); }
+    }
+  };
+  const restart = (newMode) => { setMode(newMode); setAnswers([]); setIdx(0); setShown(false); setCopied(false); setFallback(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  useEffect(() => {
+    const k = (e) => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.target.tagName === "SELECT") return;
+      if (!done && !shown && (e.key === "ArrowLeft" || e.key.toLowerCase() === "v")) answer("V");
+      else if (!done && !shown && (e.key === "ArrowRight" || e.key.toLowerCase() === "o")) answer("O");
+      else if (shown && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); advance(); }
+    };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  });
+
+  const text = shareText(set, answers, home, mode.daily);
+  const playBonus = () => restart({ daily: false, seed: Math.floor(Math.random() * 1e9) });
+  const backToDaily = () => { const s = store.get(SAVE_KEY, null); setMode({ daily: true, seed: 0 }); setAnswers(s?.answers || []); setIdx(Math.min(s?.answers?.length || 0, ROUND)); setShown(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const copy = () => {
+    const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2200); };
+    const no = () => { setFallback(true); setTimeout(() => taRef.current && taRef.current.select(), 30); };
+    try { navigator.clipboard.writeText(text).then(ok).catch(no); } catch { no(); }
+  };
+  const verdict = right === ROUND ? "JACKPOT! 🎰" : right >= 8 ? "High roller" : right >= 6 ? "Seasoned tourist" : right >= 4 ? "Day-tripper" : "First-time visitor";
+  const vPct = byCity.V[1] ? Math.round(byCity.V[0] / byCity.V[1] * 100) : 0, oPct = byCity.O[1] ? Math.round(byCity.O[0] / byCity.O[1] * 100) : 0;
+  const better = vPct === oPct ? "You know both cities equally well." : vPct > oPct ? "You know Vegas better. Maybe it's calling you? 🎰" : "You know Orlando better. Maybe it's calling you? 🎢";
+  const correct = shown && mine === f.a;
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <header className="flex items-center justify-between gap-3 py-1.5">
+        <div className="min-w-0">
+          <h1 className="sign text-[22px] sm:text-[30px] leading-none">
+            <span style={{ color: "var(--neon)", textShadow: "0 0 14px rgba(255,46,136,.6)" }}>Vegas</span>
+            <span className="mx-2 text-[color:var(--muted)] text-[.7em]">or</span>
+            <span style={{ color: "var(--sun)" }}>Orlando?</span>
+          </h1>
+          <div className="mt-1 truncate text-[12px] font-bold text-[color:var(--muted)]">{mode.daily ? `Daily #${DAY.id} · ${DAY.label}` : "Bonus round · just for fun"}</div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="chip flex items-center gap-1 px-3 py-1.5" title="Daily streak"><span aria-hidden="true">🔥</span><span className="mono text-[15px]">{streak.last >= DAY.id - 1 ? streak.count : 0}</span></div>
+          <button onClick={() => setSound(v => !v)} className="chip grid h-10 w-10 place-items-center text-[16px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
+          <button onClick={() => setShowHelp(true)} className="chip grid h-10 w-10 place-items-center text-[17px] font-extrabold" aria-label="How to play">?</button>
+        </div>
+      </header>
+
+      <div className="mt-3 hidden md:block"><AdSlot w={728} h={90} size="728×90 Leaderboard" /></div>
+
+      {/* progress + score */}
+      <div className="mt-4 flex items-center gap-3">
+        <div className="flex flex-1 gap-1.5" aria-label="Progress">
+          {set.map((q, i) => (
+            <span key={q.id} className="h-2.5 flex-1 rounded-full" style={{ background: answers[i] == null ? (i === idx && !done ? "var(--gold)" : "rgba(255,255,255,.14)") : answers[i] === q.a ? "var(--right)" : "var(--wrong)" }} />
+          ))}
+        </div>
+        <span className="mono text-[14px] text-[color:var(--muted)] tabular-nums">{right}/{ROUND}</span>
+        {run >= 2 && !done && <span className="pop rounded-full bg-[color:var(--gold)] px-2.5 py-0.5 text-[12px] font-extrabold text-[#2A1C00]">🔥 {run} in a row</span>}
+      </div>
+
+      {!done ? (
+        <main className="mt-4">
+          <section className="stage" aria-label="Which city is it?">
+            <div className="half vegas"><div className="stars" /><Skyline side="V" />
+              <button className={`pick v ${shown && f.a !== "V" ? "dim" : ""}`} disabled={shown} onClick={() => answer("V")} aria-label="Las Vegas">
+                🎰 Vegas<small>← or V</small>
+              </button>
+            </div>
+            <div className="half orlando"><div className="sunball" /><Skyline side="O" />
+              <button className={`pick o ${shown && f.a !== "O" ? "dim" : ""}`} disabled={shown} onClick={() => answer("O")} aria-label="Orlando">
+                🎢 Orlando<small>→ or O</small>
+              </button>
+            </div>
+            <div className="seam" aria-hidden="true" />
+
+            <div key={f.id} className="card card-in" aria-live="polite">
+              <div className="flex items-center justify-between gap-2 text-[11px] font-extrabold uppercase tracking-[.16em] text-[color:var(--card-muted)]">
+                <span>Fact {idx + 1} of {ROUND}</span>
+                {shown && <span className="pop rounded-full px-2.5 py-0.5 text-white" style={{ background: correct ? "var(--right)" : "var(--wrong)" }}>{correct ? "Correct!" : "Nope!"}</span>}
+              </div>
+              <h2 className="mt-2 text-[22px] sm:text-[28px] font-extrabold leading-[1.15]">{f.text}</h2>
+              {shown ? (
+                <div className="pop mt-3">
+                  <p className="text-[15px] font-semibold text-[color:var(--card-muted)]">
+                    <b style={{ color: f.a === "V" ? "var(--neon-d)" : "var(--sun-d)" }}>{f.a === "V" ? "Las Vegas." : "Orlando."}</b> {f.more}
+                  </p>
+                  <button onClick={advance} className="btn btn-gold mt-3 w-full py-3 text-[16px]">{idx + 1 < ROUND ? "Next fact →" : "See my score →"}</button>
+                </div>
+              ) : (
+                <p className="mt-2 text-[14px] font-bold text-[color:var(--card-muted)]">Vegas or Orlando? Tap a side.</p>
+              )}
+            </div>
+          </section>
+        </main>
+      ) : (
+        <main className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="pop min-w-0 rounded-[24px] border-2 border-b-[6px] border-black bg-[color:var(--card)] p-5 text-[color:var(--card-ink)] sm:p-6">
+            <div className="text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--card-muted)]">{mode.daily ? `Daily #${DAY.id}` : "Bonus round"} · final score</div>
+            <div className="mt-1 flex flex-wrap items-baseline gap-x-4">
+              <span className="sign text-[56px] leading-none" style={{ color: right >= 8 ? "var(--neon)" : "var(--sun)" }}>{right}/{ROUND}</span>
+              <span className="sign text-[24px]">{verdict}</span>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl p-3 text-[#FFE9F4]" style={{ background: "var(--night)" }}><div className="text-[11px] font-extrabold uppercase tracking-[.14em] opacity-75">🎰 Vegas facts</div><div className="mono text-[24px]">{byCity.V[0]}/{byCity.V[1]}</div></div>
+              <div className="rounded-2xl p-3 text-[#0D3B38]" style={{ background: "var(--day)" }}><div className="text-[11px] font-extrabold uppercase tracking-[.14em] opacity-75">🎢 Orlando facts</div><div className="mono text-[24px]">{byCity.O[0]}/{byCity.O[1]}</div></div>
+            </div>
+            <p className="mt-3 text-[16px] font-extrabold">{better}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button onClick={playBonus} className="btn btn-gold min-w-[12rem] flex-1 py-3 text-[17px]">🎲 {mode.daily ? "Play a bonus round" : "Play again"}</button>
+              {!mode.daily && <button onClick={backToDaily} className="btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]">← Back to today's set</button>}
+            </div>
+            {mode.daily && <p className="mt-2 text-[13px] font-semibold text-[color:var(--card-muted)]">Bonus rounds are just for fun and don't change your daily score.</p>}
+
+            <h3 className="mt-6 text-[18px] font-extrabold">Ready for the real thing?</h3>
+            <p className="text-[14px] font-semibold text-[color:var(--card-muted)]">{home ? `Flights from ${HOMES[home]} (${home}).` : "Pick your airport for flights from where you live."}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <label htmlFor="home-airport" className="text-[14px] font-extrabold">🛫 Flying from</label>
+              <select id="home-airport" value={home} onChange={e => setHome(e.target.value)}
+                className="min-w-0 max-w-full rounded-xl border-2 border-[#D8CCEA] bg-white px-3 py-2 text-[15px] font-bold text-[color:var(--card-ink)]">
+                <option value="">Pick your airport…</option>
+                {Object.keys(HOMES).sort((a, b) => HOMES[a].localeCompare(HOMES[b])).map(c => <option key={c} value={c}>{HOMES[c]} ({c})</option>)}
+              </select>
+            </div>
+            <div className="mt-3"><FlightCards home={home} /></div>
+          </section>
+
+          <aside className="min-w-0 space-y-4">
+            <div className="rounded-[24px] border-2 border-b-[6px] border-black bg-[color:var(--page-2)] p-5">
+              <div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Share card</div>
+              <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 mono text-[13px] leading-relaxed">{text}</pre>
+              {fallback && (
+                <div className="mt-2">
+                  <div className="mb-1 text-[12px] font-bold text-[color:var(--gold)]">Copying is blocked here. The text is selected, so press Ctrl+C or ⌘+C.</div>
+                  <textarea ref={taRef} id="share-fallback" readOnly value={text} rows={3} className="w-full rounded-lg bg-black/30 p-2 mono text-[12px]" />
+                </div>
+              )}
+              <button onClick={copy} className="btn btn-gold mt-3 w-full py-3 text-[17px]">{copied ? "✓ Copied!" : "Copy Result"}</button>
+              <div className="mt-4"><AdSlot w={300} h={250} size="300×250 Medium Rectangle" /></div>
+            </div>
+            <div className="rounded-[24px] border-2 border-black bg-[color:var(--page-2)] p-4 text-center text-[13px] text-[color:var(--muted)]">
+              New facts in <Countdown />
+              <div className="mt-3 grid gap-2">
+                <button onClick={playBonus} className="btn btn-plain py-2.5 text-[15px]">🎲 Bonus round</button>
+                {!mode.daily && <button onClick={backToDaily} className="btn btn-plain py-2.5 text-[15px]">← Back to today's set</button>}
+                {mode.daily && <button onClick={() => restart({ daily: true, seed: 0 })} className="btn btn-plain py-2.5 text-[15px]">↺ Replay today's set</button>}
+              </div>
+            </div>
+          </aside>
+        </main>
+      )}
+
+      <footer className="mt-8 text-center text-[12px] font-semibold text-[color:var(--muted)]">Vegas or Orlando? prototype · spot a fact that's out of date? Let us know</footer>
+      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50 Sticky Banner" /></div>
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>

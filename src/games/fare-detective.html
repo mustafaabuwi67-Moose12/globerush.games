@@ -1,0 +1,566 @@
+<!-- Affiliate links: edit the AFFILIATE block at the top of the main <script>. -->
+<title>Fare Detective</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
+<style>
+/* Layout: a case file on a sky-blue desk. Header, progress strip of 8 "cases", two boarding-pass cards side by side, verdict panel below. */
+:root{
+  --sky:#D9E9FF; --sky-2:#C6DCFB; --card:#FFFFFF; --card-2:#F2F7FF; --ink:#0E1B33; --muted:#566584; --line:#C9D6EC;
+  --tag:#FF6A13; --tag-d:#C44A00; --go:#14A44D; --go-d:#0B7334; --miss:#E11D48; --miss-d:#A3102F; --mark:#FFE36E;
+  --f-display:"Bricolage Grotesque","Avenir Next Condensed",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --sky:#0C1631; --sky-2:#111E40; --card:#18244A; --card-2:#1F2D58; --ink:#EEF3FF; --muted:#9FB0D6; --line:#2C3D6E;
+  --tag:#FF7D33; --tag-d:#B34700; --go:#2BC36A; --go-d:#14803F; --miss:#FF4D6D; --miss-d:#B0213F; --mark:#7A6410; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sky:#0C1631; --sky-2:#111E40; --card:#18244A; --card-2:#1F2D58; --ink:#EEF3FF; --muted:#9FB0D6; --line:#2C3D6E;
+  --tag:#FF7D33; --tag-d:#B34700; --go:#2BC36A; --go-d:#14803F; --miss:#FF4D6D; --miss-d:#B0213F; --mark:#7A6410; color-scheme:dark}
+html,body{background:var(--sky);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:500;font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(1100px 500px at 80% -20%,var(--sky-2),transparent 70%)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em}
+.mono{font-family:var(--f-mono)}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:22px;color:var(--muted)}
+h1,h2,h3{text-wrap:balance}
+
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:800;cursor:pointer;user-select:none;
+  transition:transform .08s ease,border-bottom-width .08s ease,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-tag{background:var(--tag);border-color:var(--tag-d);color:#fff}
+.btn-go{background:var(--go);border-color:var(--go-d);color:#fff}
+.btn-plain{background:var(--card);border-color:var(--line);color:var(--ink)}
+.chip{border-radius:999px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink)}
+
+/* boarding-pass card */
+.pass{position:relative;display:flex;flex-direction:column;text-align:left;width:100%;border-radius:20px;background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-bottom-width:6px;transition:transform .12s ease,border-color .15s,box-shadow .15s;cursor:pointer}
+.pass:hover:not(:disabled){transform:translateY(-3px);border-color:var(--tag);box-shadow:0 14px 30px -18px rgba(14,27,51,.45)}
+.pass:disabled{cursor:default}
+.pass.win{border-color:var(--go)}
+.pass.lose{opacity:.78}
+.perf{position:relative;height:0;border-top:2px dashed var(--line);margin:0 18px}
+.perf::before,.perf::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--sky)}
+.perf::before{left:-31px}.perf::after{right:-31px}
+.hl{background:linear-gradient(transparent 55%,var(--mark) 55%);padding:0 .15em;border-radius:2px}
+.stamp{position:absolute;top:14px;right:14px;border:3px solid currentColor;border-radius:8px;padding:2px 10px;font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:.06em;transform:rotate(-8deg);animation:stamp .35s cubic-bezier(.2,1.6,.4,1) both;background:var(--card)}
+@keyframes stamp{0%{transform:rotate(-8deg) scale(2.2);opacity:0}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+@keyframes rise{0%{transform:translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+.rise{animation:rise .35s ease-out both}
+@keyframes pop{0%{transform:scale(.88);opacity:0}60%{transform:scale(1.03);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.kbd{font-family:var(--f-mono);font-size:.85em;font-weight:700;background:var(--card-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.02em .38em;white-space:nowrap}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),var(--card-2)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:var(--sky);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--tag);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.stamp,.rise,.pop{animation:none!important}.pass:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="root"><div class="boot">🕵️ Opening case files…</div></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+/* =====================================================================
+   YOUR AFFILIATE LINKS: paste your link patterns here, once.
+   Every fare button in this game uses them.
+   Placeholders: {FROM} {TO} = airport codes in capitals (ATL, MCO)
+                 {from} {to} = the same codes in lowercase (atl, mco)
+   ===================================================================== */
+const AFFILIATE = {
+  route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",   // both airports known
+  toOnly:  "https://www.skyscanner.com/transport/flights-to/{to}/",        // destination only (player hasn't picked an airport)
+  general: "https://www.skyscanner.com/",                                  // generic "find cheap flights" buttons
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(), d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase())
+          .replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Case files ----------
+   Each case: same trip, two options that differ in one thing. Prices are illustrative examples of common fare patterns.
+   `lines` itemizes extras so the total is honest. `cheap` marks the cheaper option. */
+/* ---------- Airports ---------- */
+// Home airports players can pick (largest US origins), plus destinations the cases use.
+const HOMES = {
+  ATL:["Atlanta",33.64,-84.43], AUS:["Austin",30.19,-97.67], BNA:["Nashville",36.12,-86.68], BOS:["Boston",42.36,-71.01],
+  BWI:["Baltimore",39.18,-76.67], CLT:["Charlotte",35.21,-80.94], DEN:["Denver",39.86,-104.67], DFW:["Dallas",32.90,-97.04],
+  DTW:["Detroit",42.21,-83.35], EWR:["Newark",40.69,-74.17], FLL:["Fort Lauderdale",26.07,-80.15], IAD:["Washington Dulles",38.95,-77.46],
+  IAH:["Houston",29.98,-95.34], JFK:["New York",40.64,-73.78], LAS:["Las Vegas",36.08,-115.15], LAX:["Los Angeles",33.94,-118.41],
+  MCO:["Orlando",28.43,-81.31], MIA:["Miami",25.80,-80.29], MSP:["Minneapolis",44.88,-93.22], ORD:["Chicago",41.98,-87.90],
+  PDX:["Portland",45.59,-122.60], PHL:["Philadelphia",39.87,-75.24], PHX:["Phoenix",33.43,-112.01], RDU:["Raleigh-Durham",35.88,-78.79],
+  SAN:["San Diego",32.73,-117.19], SEA:["Seattle",47.45,-122.31], SFO:["San Francisco",37.62,-122.38], SLC:["Salt Lake City",40.79,-111.98],
+  STL:["St. Louis",38.75,-90.37], TPA:["Tampa",27.98,-82.53],
+};
+const PLACES = { ...HOMES, LGB:["Long Beach",33.82,-118.15], ASE:["Aspen",39.22,-106.87], LHR:["London",51.47,-0.45], CDG:["Paris",49.01,2.55] };
+// Home airports with nonstop service to London Heathrow (used for the nonstop-vs-connecting case).
+const LONDON_NONSTOP = new Set("ATL AUS BNA BOS BWI CLT DEN DFW DTW EWR IAD IAH JFK LAS LAX MCO MIA MSP ORD PHL PHX RDU SAN SEA SFO TPA".split(" "));
+const toRad = d => d * Math.PI / 180;
+function dist(a, b) {
+  const [, la1, lo1] = PLACES[a], [, la2, lo2] = PLACES[b], R = 3958.8;
+  const h = Math.sin(toRad(la2 - la1) / 2) ** 2 + Math.cos(toRad(la1)) * Math.cos(toRad(la2)) * Math.sin(toRad(lo2 - lo1) / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/* ---------- Case files ----------
+   Each case: same trip, two options that differ in one thing. Prices are illustrative EXAMPLES of common fare patterns, not quotes.
+   `ref` = airport an option's fare is measured to; `lines` itemize extras (third item true = fixed fee that doesn't scale with distance). */
+const BASE = [
+  { id: "lastminute", topic: "Last-minute flights", from: "BOS", to: "LAS", toCity: "Las Vegas", trip: "Round trip · economy · 1 adult",
+    q: c => `Same flights to ${c.toCity}. Which booking is cheaper?`,
+    options: [
+      { label: "Book 6 weeks ahead", detail: ["Departs Thu, returns Mon", "Same airline and times"], key: "6 weeks ahead", price: 312, cheap: true },
+      { label: "Book 2 days before", detail: ["Departs Thu, returns Mon", "Same airline and times"], key: "2 days before", price: 689 },
+    ],
+    pickTo: h => h === "LAS" ? "MCO" : "LAS",
+    tip: "Fares tend to climb in the last two to three weeks as the cheaper seats sell out. For US trips, booking a few weeks to a couple of months ahead is often the sweet spot." },
+  { id: "weekday", topic: "Cheapest days to fly", from: "ORD", to: "MCO", toCity: "Orlando", trip: "Round trip · economy · 1 adult",
+    q: c => `Same trip length to ${c.toCity}. Which dates are cheaper?`,
+    options: [
+      { label: "Fri → Sun", detail: ["Leave Friday evening", "Return Sunday afternoon"], key: "Fri → Sun", price: 418 },
+      { label: "Tue → Sat", detail: ["Leave Tuesday morning", "Return Saturday morning"], key: "Tue → Sat", price: 246, cheap: true },
+    ],
+    pickTo: h => ["MCO","TPA","MIA","FLL"].includes(h) ? "LAS" : "MCO",
+    tip: "Friday and Sunday are peak days for leisure and business travelers alike. Midweek departures, especially Tuesday and Wednesday, are often noticeably cheaper." },
+  { id: "nearby", topic: "Nearby airports", from: "DFW", to: "MIA", toCity: "Miami area", trip: "Round trip · economy · 1 adult",
+    q: c => `Heading to the ${c.toCity}. Which airport is cheaper to fly into?`,
+    options: [
+      { label: "Fort Lauderdale (FLL)", code: "FLL", ref: "FLL", detail: ["About 30 miles from Miami", "Same airline"], key: "FLL", price: 164, cheap: true },
+      { label: "Miami (MIA)", code: "MIA", ref: "MIA", detail: ["Right in Miami", "Same airline"], key: "MIA", price: 287 },
+    ],
+    pickTo: h => ["MIA","FLL","MCO","TPA"].includes(h) ? "LAX" : "MIA",
+    variants: { LAX: { toCity: "Los Angeles area", options: [
+      { label: "Los Angeles (LAX)", code: "LAX", ref: "LAX", detail: ["The main LA airport", "Same airline"], key: "LAX", price: 287 },
+      { label: "Long Beach (LGB)", code: "LGB", ref: "LGB", detail: ["About 20 miles from LA", "Same airline"], key: "Long Beach", price: 164, cheap: true },
+    ] } },
+    tip: "Always check nearby airports. Budget airlines often fly to secondary airports like Fort Lauderdale or Long Beach, which can pull fares well below the main airport's." },
+  { id: "basic", topic: "Budget airline fees", from: "DEN", to: "LAX", toCity: "Los Angeles", trip: "One way · you're bringing a carry-on", fixedPrices: true,
+    q: () => "You need a carry-on bag and want to sit with a friend. Which costs less in total?",
+    options: [
+      { label: "Budget airline, $49 fare", detail: ["Carry-on not included", "Seat choice costs extra"], key: "$49 budget fare",
+        price: 139, lines: [["Base fare", 49], ["Carry-on bag", 65], ["Seat selection", 25]] },
+      { label: "Full-service airline, $128 fare", detail: ["Carry-on included", "Free seat choice"], key: "$128 full fare", price: 128, cheap: true },
+    ],
+    // a short hop of roughly 600–1,100 miles from home keeps these example fares believable
+    pickTo: h => ["LAS","DEN","ORD","ATL","DFW","MCO","LAX","SFO","SEA","PHX","BOS","JFK","MSP"].filter(d => d !== h)
+                  .sort((a, b) => Math.abs(dist(h, a) - 850) - Math.abs(dist(h, b) - 850))[0],
+    tip: "The cheapest fare isn't always the cheapest trip. Add bags and seats before comparing, because budget airline extras can flip the result." },
+  { id: "nonstop", topic: "Nonstop vs connecting", from: "JFK", to: "LHR", toCity: "London", trip: "Round trip · economy · 1 adult",
+    q: c => `${c.fromCity} to London in May. Which is cheaper?`,
+    options: [
+      { label: "Nonstop", detail: ["Fastest way there", "No connection"], key: "Nonstop", price: 812 },
+      { label: "1 stop", detail: ["About 3 hours longer", "Change planes once"], key: "1 stop", price: 596, cheap: true },
+    ],
+    pickTo: h => LONDON_NONSTOP.has(h) ? "LHR" : null,     // no nonstop from home → keep the New York example
+    tip: "Connecting flights usually cost less than nonstops on the same route. If a few extra hours don't bother you, the savings can be big, especially across the Atlantic." },
+  { id: "oneway", topic: "One way vs round trip", from: "SEA", to: "PHX", toCity: "Phoenix", trip: "Out in March, back 5 days later",
+    q: () => "Same dates, same times. Which is cheaper?",
+    options: [
+      { label: "Two one-way tickets", detail: ["Out on one airline", "Back on another"], key: "Two one-ways", price: 198, cheap: true,
+        lines: [["OUT", 89], ["BACK", 109]] },
+      { label: "One round-trip ticket", detail: ["Both ways on one airline", "One booking"], key: "Round trip", price: 241 },
+    ],
+    pickTo: h => h === "PHX" ? "SEA" : "PHX",
+    tip: "On US domestic routes, round trips are usually just two one-ways stuck together. Mixing airlines lets you take the cheapest flight in each direction." },
+  { id: "season", topic: "Cheap flights to Europe", from: "ATL", to: "CDG", toCity: "Paris", trip: "Round trip · 1 week · economy",
+    q: () => "A week in Paris. Which month is cheaper?",
+    options: [
+      { label: "Late September", detail: ["After the summer rush", "Still warm"], key: "September", price: 684, cheap: true },
+      { label: "Mid July", detail: ["Peak summer season", "School holidays"], key: "July", price: 1140 },
+    ],
+    pickTo: () => "CDG",
+    tip: "Shoulder season, roughly spring and early fall, often has much lower fares to Europe than peak summer, with milder crowds too." },
+  { id: "hub", topic: "Fly into a hub", from: "IAH", to: "DEN", toCity: "Colorado ski trip", trip: "Round trip · economy · 1 adult",
+    q: () => "Going skiing near Aspen. Which way costs less in total?",
+    options: [
+      { label: "Fly straight into Aspen", code: "ASE", ref: "ASE", detail: ["Small mountain airport", "Land 10 minutes from the slopes"], key: "Fly into Aspen", price: 612 },
+      { label: "Fly into Denver + shuttle", code: "DEN", ref: "DEN", detail: ["Big hub, lots of airlines", "About 4 hours by shuttle"], key: "Denver + shuttle", price: 308, cheap: true,
+        lines: [["Flight to Denver", 238], ["Mountain shuttle", 70, true]] },
+    ],
+    pickTo: h => h === "DEN" ? null : "DEN",
+    tip: "Small airports have few airlines and little competition. Flying into a nearby hub and driving or taking a shuttle can cut the cost in half." },
+];
+
+// Rough fare-by-distance curve, used only to keep the example prices believable from the player's airport.
+const fareCurve = d => 110 + 0.11 * d;
+function localize(base, home) {
+  const fin = c => { const x = { ...c, fromCity: PLACES[c.from][0] }; return { ...x, q: base.q(x), personal: !!home && c.from === home }; };
+  const fallback = fin(base);
+  if (!home || home === base.from) return fallback;
+  const to = base.pickTo(home);
+  if (!to || to === home) return fallback;
+  const v = (base.variants && base.variants[to]) || {};
+  const opts0 = v.options || base.options;
+  const toCity = v.toCity || (to === base.to ? base.toCity : PLACES[to][0]);
+  const options = base.fixedPrices ? opts0 : opts0.map(o => {
+    const k = fareCurve(dist(home, o.ref || to)) / fareCurve(dist(base.from, o.ref || base.to));
+    if (o.lines) {
+      const lines = o.lines.map(([l, val, fixed]) => [l, fixed ? val : Math.round(val * k), fixed]);
+      return { ...o, lines, price: lines.reduce((t, l) => t + l[1], 0) };
+    }
+    return { ...o, price: Math.round(o.price * k) };
+  });
+  const c = fin({ ...base, from: home, to, toCity, options });
+  const cheap = c.options.filter(o => o.cheap), dear = c.options.filter(o => !o.cheap);
+  if (cheap.length !== 1 || cheap[0].price >= dear[0].price) return fallback; // the lesson must still hold
+  return c;
+}
+const lineLabel = (c, l) => l === "OUT" ? `${c.from} → ${c.to}` : l === "BACK" ? `${c.to} → ${c.from}` : l;
+const DAY = { id: 1, label: "Mon, Oct 19" };
+const SAVE_KEY = "fare-detective-1";
+
+const RANKS = [
+  { min: 8, title: "Master Fare Detective", emoji: "🏆", note: "Perfect case record. Airlines fear you." },
+  { min: 6, title: "Senior Detective", emoji: "🕵️", note: "You spot most fare traps. A couple slipped by." },
+  { min: 4, title: "Detective", emoji: "🔎", note: "Solid instincts. The tips below will sharpen them." },
+  { min: 0, title: "Rookie Detective", emoji: "📋", note: "Every pro started here. Read the tips and try again." },
+];
+const rankFor = n => RANKS.find(r => n >= r.min);
+const money = n => "$" + n.toLocaleString("en-US");
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const skyLink = c => fareLink(c.from, c.to);
+
+/* ---------- Sound ---------- */
+let AC = null;
+function tone(freqs, type = "triangle", step = .09, len = .25, vol = .12) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + .01 + i * step;
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination); o.start(t); o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = { right: () => tone([660, 880, 1320]), wrong: () => tone([220, 175], "sine", .13, .22, .1), done: () => tone([523, 659, 784, 1047, 1319], "triangle", .11, .4, .13) };
+
+/* ---------- Pieces ---------- */
+function AdSlot({ w, h, size }) {
+  return (
+    <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[color:var(--line)]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}>
+      <div className="rounded-md bg-[color:var(--card)] px-3 py-1 text-center">
+        <div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]">Monetization Slot</div>
+        <div className="mono text-[10px] text-[color:var(--muted)]">{size}</div>
+      </div>
+    </div>
+  );
+}
+
+function Pass({ c, opt, letter, picked, revealed, onPick, other }) {
+  const isWin = revealed && opt.cheap, isPick = picked === letter;
+  const diff = Math.abs(opt.price - other.price);
+  return (
+    <button type="button" className={`pass ${revealed ? (isWin ? "win" : "lose") : ""}`} disabled={revealed} onClick={() => onPick(letter)}
+            aria-label={`Option ${letter}: ${opt.label}${revealed ? `, ${money(opt.price)}` : ""}`}>
+      {revealed && isWin && <span className="stamp" style={{ color: "var(--go)" }}>CHEAPER</span>}
+      {revealed && isPick && !isWin && <span className="stamp" style={{ color: "var(--miss)" }}>+{money(diff)}</span>}
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center gap-2">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[color:var(--ink)] text-[15px] font-extrabold text-[color:var(--card)]">{letter}</span>
+          <span className="text-[11px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]">Option {letter}{isPick ? " · your pick" : ""}</span>
+        </div>
+        <div className="mt-3 flex items-baseline gap-2 mono text-[26px] sm:text-[30px] font-bold leading-none">
+          <span>{c.from}</span><span className="text-[18px] text-[color:var(--muted)]" aria-hidden="true">✈</span><span>{opt.code || c.to}</span>
+        </div>
+        <h3 className="mt-3 display text-[21px] sm:text-[23px] leading-tight"><span className="hl">{opt.label}</span></h3>
+        <ul className="mt-2 space-y-0.5 text-[14px] text-[color:var(--muted)]">
+          {opt.detail.map((d, i) => <li key={i}>· {d}</li>)}
+        </ul>
+      </div>
+      <div className="perf" aria-hidden="true" />
+      <div className="flex min-h-[86px] items-center justify-between gap-3 p-4 sm:px-5">
+        <div className="text-[11px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]">Total price<br /><span className="normal-case tracking-normal font-bold">Example fare</span></div>
+        {revealed ? (
+          <div className="pop text-right">
+            <div className="mono text-[28px] font-bold leading-none" style={{ color: isWin ? "var(--go)" : "var(--ink)" }}>{money(opt.price)}</div>
+            {opt.lines && <div className="mt-1 mono text-[11px] leading-snug text-[color:var(--muted)]">{opt.lines.map(([l, v]) => `${lineLabel(c, l)} ${money(v)}`).join(" + ")}</div>}
+          </div>
+        ) : (
+          <div className="rounded-lg bg-[color:var(--tag)] px-3 py-1.5 mono text-[22px] font-bold text-white" aria-hidden="true">$???</div>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function shareText(cases, picks, savings, home) {
+  const grid = cases.map((c, i) => picks[i] == null ? "⬜" : picks[i] ? "🟩" : "🟥").join("");
+  const right = picks.filter(Boolean).length;
+  return `🕵️ Fare Detective #${DAY.id} · ${right}/${cases.length}${home ? ` · flying from ${home}` : ""}\n${grid}\nSavings spotted: ${money(savings)}\nPlay: https://skyhop.app/fare-detective`;
+}
+
+function Countdown() {
+  const calc = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const s = Math.max(0, Math.floor((m - n) / 1000)); return `${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc());
+  useEffect(() => { const i = setInterval(() => setT(calc()), 1000); return () => clearInterval(i); }, []);
+  return <span className="mono font-bold">{t}</span>;
+}
+
+function Summary({ cases, picks, savings, home, onReplay }) {
+  const right = picks.filter(Boolean).length, rank = rankFor(right), text = shareText(cases, picks, savings, home);
+  const [copied, setCopied] = useState(false), [fallback, setFallback] = useState(false);
+  const taRef = useRef(null);
+  const copy = () => {
+    const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2200); };
+    const no = () => { setFallback(true); setTimeout(() => taRef.current && taRef.current.select(), 30); };
+    try { navigator.clipboard.writeText(text).then(ok).catch(no); } catch { no(); }
+  };
+  return (
+    <section className="rise grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]" aria-label="Case closed">
+      <div className="min-w-0 rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5 sm:p-6">
+        <div className="text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]">Case file #{DAY.id} · closed</div>
+        <div className="mt-2 flex items-center gap-4">
+          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-[color:var(--tag)] text-[40px]" aria-hidden="true">{rank.emoji}</div>
+          <div className="min-w-0">
+            <h2 className="display text-[30px] sm:text-[36px] leading-none">{rank.title}</h2>
+            <p className="mt-1 text-[15px] text-[color:var(--muted)]">{rank.note}</p>
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-[color:var(--card-2)] p-3"><div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Cases solved</div><div className="mono text-[28px] font-bold">{right}/{cases.length}</div></div>
+          <div className="rounded-2xl bg-[color:var(--card-2)] p-3"><div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Savings spotted</div><div className="mono text-[28px] font-bold text-[color:var(--go)]">{money(savings)}</div></div>
+        </div>
+
+        <h3 className="mt-6 display text-[22px]">Your cheap-flight playbook</h3>
+        <ol className="mt-2 space-y-2.5">
+          {cases.map((c, i) => (
+            <li key={c.id} className="grid grid-cols-[28px_minmax(0,1fr)] gap-3 rounded-2xl bg-[color:var(--card-2)] p-3">
+              <span className="text-[18px]" aria-hidden="true">{picks[i] ? "✅" : "❌"}</span>
+              <div className="min-w-0">
+                <div className="text-[14px] font-extrabold">{c.topic}</div>
+                <p className="text-[14px] text-[color:var(--muted)]">{c.tip}</p>
+                <a href={skyLink(c)} target="_blank" rel="noopener sponsored" className="mt-1 inline-block text-[13px] font-extrabold text-[color:var(--tag)] hover:underline">
+                  Live fares {c.fromCity} → {c.toCity} ↗
+                </a>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <aside className="min-w-0 space-y-4">
+        <div className="rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5">
+          <div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Share card</div>
+          <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-[color:var(--card-2)] p-3 mono text-[13px] leading-relaxed">{text}</pre>
+          {fallback && (
+            <div className="mt-2">
+              <div className="mb-1 text-[12px] font-bold text-[color:var(--tag)]">Copying is blocked here. The text is selected, so press Ctrl+C or ⌘+C.</div>
+              <textarea ref={taRef} id="share-fallback" readOnly value={text} rows={4} className="w-full rounded-lg border border-[color:var(--line)] bg-[color:var(--card-2)] p-2 mono text-[12px]" />
+            </div>
+          )}
+          <button onClick={copy} className="btn btn-go mt-3 w-full py-3 text-[17px]">{copied ? "✓ Copied!" : "Copy Result"}</button>
+          <div className="mt-4"><AdSlot w={300} h={250} size="300×250 Medium Rectangle" /></div>
+        </div>
+
+        <div className="rounded-[22px] border-2 border-b-[6px] border-[color:var(--tag-d)] bg-[color:var(--tag)] p-5 text-white">
+          <div className="text-[10px] font-extrabold uppercase tracking-[.18em] opacity-85">Sponsored · Fare finder</div>
+          <div className="mt-1 display text-[22px] leading-tight">Put your detective skills to work</div>
+          <p className="mt-1 text-[14px] opacity-90">Compare live fares across hundreds of airlines and travel sites.</p>
+          <a href={fareLink(null, null)} target="_blank" rel="noopener sponsored" className="btn mt-3 block w-full border-[#0E1B33] bg-white py-3 text-center text-[16px] text-[#0E1B33]">Find Cheap Flights on Skyscanner ↗</a>
+        </div>
+
+        <div className="rounded-[22px] border-2 border-[color:var(--line)] bg-[color:var(--card)] p-4 text-center text-[13px] text-[color:var(--muted)]">
+          New case file in <Countdown />
+          <button onClick={onReplay} className="btn btn-plain mt-3 w-full py-2.5 text-[15px]">↺ Replay today's cases</button>
+        </div>
+      </aside>
+    </section>
+  );
+}
+
+function HelpModal({ onClose }) {
+  useEffect(() => { const k = e => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 backdrop-blur-sm sm:items-center" onClick={onClose} role="dialog" aria-modal="true" aria-label="How to play">
+      <div className="pop relative w-full max-w-md rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-6" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--muted)] hover:bg-[color:var(--card-2)]" aria-label="Close">✕</button>
+        <h2 className="display text-[26px]">How to play</h2>
+        <ul className="mt-3 space-y-3 text-[15px]">
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🎟️</span><p className="min-w-0">Each case shows two ways to make the same trip. They differ in one thing, which is highlighted.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">👆</span><p className="min-w-0">Tap the one you think is cheaper, or press <span className="kbd">A</span> or <span className="kbd">B</span>. Watch for hidden fees.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">💡</span><p className="min-w-0">Every answer comes with the real-world trick behind it, so you finish with a cheap-flight playbook.</p></li>
+        </ul>
+        <p className="mt-4 text-[13px] text-[color:var(--muted)]">Prices are realistic examples of common fare patterns, not live quotes. Real fares vary by date and route.</p>
+        <button onClick={onClose} className="btn btn-tag mt-4 w-full py-3 text-[17px]">Start investigating</button>
+      </div>
+    </div>
+  );
+}
+
+function HomePicker({ home, setHome }) {
+  const codes = Object.keys(HOMES).sort((a, b) => HOMES[a][0].localeCompare(HOMES[b][0]));
+  return (
+    <div className={`mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border-2 px-4 py-3 ${home ? "border-[color:var(--line)] bg-[color:var(--card)]" : "border-[color:var(--tag)] bg-[color:var(--card)]"}`}>
+      <label htmlFor="home-airport" className="flex items-center gap-2 text-[15px] font-extrabold">
+        <span aria-hidden="true">🛫</span> Flying from
+      </label>
+      <select id="home-airport" value={home} onChange={e => setHome(e.target.value)}
+        className="min-w-0 max-w-full flex-1 sm:flex-none rounded-xl border-2 border-[color:var(--line)] bg-[color:var(--card-2)] px-3 py-2 text-[15px] font-bold text-[color:var(--ink)]">
+        <option value="">Pick your airport…</option>
+        {codes.map(code => <option key={code} value={code}>{HOMES[code][0]} ({code})</option>)}
+      </select>
+      <span className="text-[13px] font-semibold text-[color:var(--muted)]">
+        {home ? "Trips start from your airport where the trick allows." : "Get trips and fare links from where you fly. Optional."}
+      </span>
+    </div>
+  );
+}
+
+/* ---------- App ---------- */
+function App() {
+  const saved = store.get(SAVE_KEY, null);
+  const [picks, setPicks] = useState(saved?.picks || []);        // true/false per case
+  const [choice, setChoice] = useState(null);                     // letter picked on the current case
+  const [idx, setIdx] = useState(Math.min(saved?.picks?.length || 0, BASE.length));
+  const [home, setHome] = useState(() => store.get("fare-detective-home", ""));
+  const cases = React.useMemo(() => BASE.map(b => localize(b, home || null)), [home]);
+  useEffect(() => { store.set("fare-detective-home", home); }, [home]);
+  const [showHelp, setShowHelp] = useState(false);
+  const [sound, setSound] = useState(() => store.get("fare-detective-sound", true));
+  const [streak, setStreak] = useState(() => store.get("fare-detective-streak", { count: 0, last: 0 }));
+  const verdictRef = useRef(null);
+
+  const done = idx >= cases.length;
+  const c = cases[Math.min(idx, cases.length - 1)];
+  const revealed = choice !== null;
+  const savings = cases.reduce((t, cs, i) => picks[i] ? t + Math.abs(cs.options[0].price - cs.options[1].price) : t, 0);
+
+  useEffect(() => { store.set(SAVE_KEY, { picks }); }, [picks]);
+  useEffect(() => { store.set("fare-detective-sound", sound); }, [sound]);
+
+  const pick = (letter) => {
+    if (revealed || done) return;
+    const opt = c.options[letter === "A" ? 0 : 1], right = !!opt.cheap;
+    setChoice(letter);
+    const next = [...picks]; next[idx] = right; setPicks(next);
+    if (sound) (right ? SFX.right : SFX.wrong)();
+    setTimeout(() => verdictRef.current && verdictRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" }), 120);
+  };
+  const advance = () => {
+    const n = idx + 1; setChoice(null); setIdx(n);
+    if (n >= cases.length) {
+      if (sound) SFX.done();
+      if (streak.last !== DAY.id) { const s = { count: streak.count + 1, last: DAY.id }; setStreak(s); store.set("fare-detective-streak", s); }
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const replay = () => { setPicks([]); setChoice(null); setIdx(0); };
+
+  useEffect(() => {
+    const k = (e) => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey) return;
+      const key = e.key.toLowerCase();
+      if (!revealed && !done && (key === "a" || key === "1")) pick("A");
+      else if (!revealed && !done && (key === "b" || key === "2")) pick("B");
+      else if (revealed && (key === "enter" || key === " ")) { e.preventDefault(); advance(); }
+    };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  });
+
+  const [A, B] = c.options, picked = choice && c.options[choice === "A" ? 0 : 1], gotIt = picked && picked.cheap;
+  const winner = A.cheap ? A : B, loser = A.cheap ? B : A;
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <header className="flex items-center justify-between gap-3 py-1.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-b-[5px] border-[color:var(--tag-d)] bg-[color:var(--tag)] text-[22px]" aria-hidden="true">🕵️</div>
+          <div className="min-w-0">
+            <h1 className="display text-[26px] sm:text-[30px] leading-none">Fare <span className="text-[color:var(--tag)]">Detective</span></h1>
+            <div className="truncate text-[12px] font-bold text-[color:var(--muted)]">Case file #{DAY.id} · {DAY.label}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="chip flex items-center gap-1 px-3 py-1.5" title="Daily streak"><span aria-hidden="true">🔥</span><span className="mono text-[15px] font-bold">{streak.count}</span></div>
+          <button onClick={() => setSound(v => !v)} className="chip grid h-10 w-10 place-items-center text-[16px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
+          <button onClick={() => setShowHelp(true)} className="chip grid h-10 w-10 place-items-center text-[17px] font-extrabold" aria-label="How to play">?</button>
+        </div>
+      </header>
+
+      <div className="mt-3 hidden md:block"><AdSlot w={728} h={90} size="728×90 Leaderboard" /></div>
+
+      {/* Progress: 8 case tabs */}
+      <nav className="mt-4 flex gap-1.5" aria-label="Case progress">
+        {cases.map((cs, i) => {
+          const st = picks[i] === true ? "var(--go)" : picks[i] === false ? "var(--miss)" : i === idx && !done ? "var(--tag)" : "var(--line)";
+          return <span key={cs.id} className="h-2.5 flex-1 rounded-full transition-colors" style={{ background: st }} title={`Case ${i + 1}: ${cs.topic}`} />;
+        })}
+      </nav>
+
+      <HomePicker home={home} setHome={setHome} />
+
+      {done ? (
+        <div className="mt-5"><Summary cases={cases} picks={picks} savings={savings} home={home} onReplay={replay} /></div>
+      ) : (
+        <main className="mt-5">
+          <div key={c.id} className="rise">
+            <div className="flex flex-wrap items-center gap-2 text-[12px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">
+              <span className="rounded-full bg-[color:var(--card)] px-2.5 py-1 text-[color:var(--ink)]">Case {idx + 1} of {cases.length}</span>
+              <span>{c.topic}</span>
+            </div>
+            <h2 className="mt-2 display text-[26px] sm:text-[34px] leading-[1.1]">{c.q}</h2>
+            <p className="mt-1 text-[15px] text-[color:var(--muted)]">{c.fromCity} → {c.toCity} · {c.trip}
+              {home && !c.personal && <span className="ml-1 font-semibold">(example route: this trick needs a trip that doesn't start from {home})</span>}</p>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Pass c={c} opt={A} other={B} letter="A" picked={choice} revealed={revealed} onPick={pick} />
+              <Pass c={c} opt={B} other={A} letter="B" picked={choice} revealed={revealed} onPick={pick} />
+            </div>
+
+            {!revealed && <p className="mt-3 text-center text-[13px] font-bold text-[color:var(--muted)]">Tap the cheaper ticket · or press <span className="kbd">A</span> / <span className="kbd">B</span></p>}
+
+            {revealed && (
+              <section ref={verdictRef} className="rise mt-4 rounded-[22px] border-2 border-b-[6px] p-5" aria-live="polite"
+                       style={{ background: "var(--card)", borderColor: gotIt ? "var(--go)" : "var(--miss)" }}>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="display text-[26px] leading-tight" style={{ color: gotIt ? "var(--go)" : "var(--miss)" }}>
+                      {gotIt ? "Case solved! 🎉" : "Not this time 🙈"}
+                    </div>
+                    <p className="mt-0.5 text-[16px] font-bold">{winner.key} saves {money(loser.price - winner.price)} vs {loser.key}.</p>
+                  </div>
+                  <button onClick={advance} className="btn btn-tag px-6 py-3 text-[17px]">{idx + 1 < cases.length ? "Next case →" : "Close the file →"}</button>
+                </div>
+                <div className="mt-3 rounded-2xl bg-[color:var(--card-2)] p-4">
+                  <div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">💡 The trick</div>
+                  <p className="mt-1 text-[15px] leading-relaxed">{c.tip}</p>
+                </div>
+                <a href={skyLink(c)} target="_blank" rel="noopener sponsored"
+                   className="mt-3 flex items-center justify-between gap-3 rounded-2xl border-2 border-[color:var(--line)] px-4 py-3 text-[15px] font-extrabold hover:border-[color:var(--tag)]">
+                  <span>Check live fares {c.fromCity} → {c.toCity} on Skyscanner</span><span aria-hidden="true">↗</span>
+                </a>
+              </section>
+            )}
+          </div>
+        </main>
+      )}
+
+      <footer className="mt-8 text-center text-[12px] font-semibold text-[color:var(--muted)]">Fare Detective prototype · prices are illustrative examples of common fare patterns, not live quotes</footer>
+      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50 Sticky Banner" /></div>
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>

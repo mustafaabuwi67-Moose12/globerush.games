@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="magic-trip">
+<title>Magic Trip Quiz · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
+<style>
+/* Layout: a sunny vacation morning for kids. Big rounded question bubble, three huge answer buttons, a trail of stars
+   for progress, a suitcase buddy who cheers. Bright but calm: sky blue, sunshine yellow, bubblegum pink, mint for right answers. */
+:root{
+  --sky:#BFE6FF; --sky-2:#E3F4FF; --ink:#1E2A5A; --ink-2:#4B5785; --card:#FFFFFF; --sun:#FFD447; --sun-d:#D9A400; --pink:#FF7EB6; --pink-d:#D24C88;
+  --mint:#4CD6A0; --mint-d:#23A374; --coral:#FF8A65; --coral-d:#D2593A; --purple:#8C7CFF; --purple-d:#5E4ED1;
+  --f-display:"Baloo 2","Comic Sans MS",system-ui,sans-serif; --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--sky);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:800;font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(140px 60px at 12% 14%,#fff 60%,transparent 62%),radial-gradient(180px 70px at 85% 9%,#fff 60%,transparent 62%),radial-gradient(120px 50px at 70% 30%,rgba(255,255,255,.8) 60%,transparent 62%),linear-gradient(180deg,var(--sky),var(--sky-2));background-attachment:fixed}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:28px;color:var(--ink)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:18px;border:3px solid var(--ink);border-bottom-width:7px;font-family:var(--f-display);font-weight:800;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.05)}.btn:active{transform:translateY(4px);border-bottom-width:3px}
+.btn-sun{background:var(--sun);color:var(--ink)}.btn-pink{background:var(--pink);color:#fff}.btn-purple{background:var(--purple);color:#fff}.btn-white{background:#fff;color:var(--ink)}
+.chip{border-radius:999px;border:3px solid var(--ink);border-bottom-width:5px;background:#fff;color:var(--ink)}
+.bubble{position:relative;border-radius:28px;background:var(--card);border:3px solid var(--ink);border-bottom-width:9px;padding:22px 20px;text-align:center}
+.bubble .big{font-size:clamp(56px,14vw,84px);line-height:1}
+.ans{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:72px;padding:12px 16px;border-radius:22px;border:3px solid var(--ink);border-bottom-width:8px;background:#fff;color:var(--ink);font-family:var(--f-display);font-weight:800;font-size:clamp(20px,4.6vw,24px);line-height:1.15;cursor:pointer;transition:transform .1s,background .2s,opacity .2s}
+.ans:nth-child(1){background:#FFF3C4}.ans:nth-child(2){background:#FFE0EE}.ans:nth-child(3){background:#E2DDFF}
+.ans:hover:not(:disabled){transform:translateY(-4px) rotate(-.6deg)}
+.ans:disabled{cursor:default}
+.ans.right{background:var(--mint)!important;color:#fff}.ans.dim{opacity:.35}.ans.oops{background:#FFD0C2!important}
+.stars{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.stars span{font-size:24px;filter:grayscale(1);opacity:.35;transition:all .3s}.stars span.on{filter:none;opacity:1}.stars span.now{opacity:.8;filter:none;transform:scale(1.15)}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.bounce{animation:bounce .6s ease-in-out 2}
+@keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .45s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(240px) rotate(260deg);opacity:0}}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}.confetti i{position:absolute;top:0;font-style:normal;font-size:22px;animation:fall 1.2s ease-in both}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.5)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(227,244,255,.97);border-top:2px solid rgba(30,42,90,.15)}
+:focus-visible{outline:4px solid var(--pink);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.bounce,.pop,.confetti i{animation:none!important}.ans:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">🧳 Packing the suitcase…</div></div>
+<div id="gr-more"></div>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* Links and the site address come from config.js (window.GLOBERUSH).
+   KIDS PAGE NOTES: no sign-ups or personal info here. When you add AdSense to this page, turn on child-directed treatment
+   (non-personalized ads). Sponsored links are in the grown-ups box only. */
+const GR = window.GLOBERUSH;
+const ORLANDO = "MCO";
+const KIDS = [
+// [type, prompt, answer, [2 wrong answers], big emoji or "" ]
+// who = Who am I? (character facts), emo = emoji clue, park = theme park facts. Text only: no character images.
+["who", "I have a pet chameleon named Pascal and very, very long hair. Who am I?", "Rapunzel", ["Belle", "Ariel"], "🦎"], ["who", "I'm a snowman, and I love warm hugs! Who am I?", "Olaf", ["Sven", "Marshmallow"], "⛄"], ["who", "I left a glass slipper behind at the ball. Who am I?", "Cinderella", ["Aurora", "Snow White"], "👠"], ["who", "I'm a clownfish who swam across the ocean to find my son. Who am I?", "Marlin", ["Nemo", "Dory"], "🐠"], ["who", "I'm a blue fish who forgets things, but I just keep swimming! Who am I?", "Dory", ["Nemo", "Squirt"], "🐟"], ["who", "I'm a toy cowboy and a sheriff. Who am I?", "Woody", ["Jessie", "Buzz Lightyear"], "🤠"], ["who", "I'm a space ranger toy with wings. Who am I?", "Buzz Lightyear", ["Woody", "Rex"], "🚀"], ["who", "I'm a lion cub who grows up to be king. Who am I?", "Simba", ["Nala", "Mufasa"], "🦁"], ["who", "We're a meerkat and a warthog who say \"no worries\" in Swahili. Who are we?", "Timon and Pumbaa", ["Zazu and Rafiki", "Chip and Dale"], "🐗"], ["who", "I'm a mermaid who wanted to be part of the human world. Who am I?", "Ariel", ["Moana", "Elsa"], "🧜‍♀️"], ["who", "I'm a crab, and I'm Ariel's friend. Who am I?", "Sebastian", ["Flounder", "Scuttle"], "🦀"], ["who", "I sailed across the ocean with the demigod Maui. Who am I?", "Moana", ["Ariel", "Raya"], "🌊"], ["who", "I'm a very silly rooster who went sailing with Moana. Who am I?", "Heihei", ["Pua", "Sebastian"], "🐓"], ["who", "Everyone in my family got a magic gift except me. Who am I?", "Mirabel", ["Isabela", "Luisa"], "🦋"], ["who", "I'm a queen with icy magic powers. Who am I?", "Elsa", ["Anna", "Belle"], "❄️"], ["who", "I'm Elsa's little sister. Who am I?", "Anna", ["Rapunzel", "Merida"], "👭"], ["who", "I'm Kristoff's reindeer best friend. Who am I?", "Sven", ["Olaf", "Max"], "🦌"], ["who", "I found a magic lamp with a Genie inside. Who am I?", "Aladdin", ["Prince Eric", "Flynn Rider"], "🪔"], ["who", "I'm Aladdin's monkey sidekick. Who am I?", "Abu", ["Rajah", "Iago"], "🐒"], ["who", "I'm Princess Jasmine's pet tiger. Who am I?", "Rajah", ["Abu", "Shere Khan"], "🐯"], ["who", "I love books, and I live in an enchanted castle with a Beast. Who am I?", "Belle", ["Aurora", "Tiana"], "📚"], ["who", "I'm a kind teapot in the Beast's castle. Who am I?", "Mrs. Potts", ["Lumière", "Cogsworth"], "🫖"], ["who", "I'm a big blue furry monster with purple spots. Who am I?", "Sulley", ["Mike Wazowski", "Randall"], "👹"], ["who", "I'm a green monster with just one big eye. Who am I?", "Mike Wazowski", ["Sulley", "Boo"], "👁️"], ["who", "I tied thousands of balloons to my house and flew away. Who am I?", "Carl", ["Russell", "Dug"], "🎈"], ["who", "I'm a rat who dreams of being a chef in Paris. Who am I?", "Remy", ["Emile", "Linguini"], "🐀"], ["who", "I'm race car number 95. Ka-chow! Who am I?", "Lightning McQueen", ["Mater", "Sally"], "🏎️"], ["who", "I'm a rusty tow truck and Lightning McQueen's best friend. Who am I?", "Mater", ["Luigi", "Doc Hudson"], "🛻"], ["who", "I'm the super-speedy kid in the Incredibles family. Who am I?", "Dash", ["Violet", "Jack-Jack"], "⚡"], ["who", "I'm Mickey Mouse's loyal pet dog. Who am I?", "Pluto", ["Goofy", "Max"], "🐶"], ["who", "I'm a duck in a sailor shirt, and I'm famous for my temper. Who am I?", "Donald Duck", ["Daisy Duck", "Scrooge McDuck"], "🦆"], ["who", "I'm a tiny fairy with pixie dust. Who am I?", "Tinker Bell", ["Fairy Godmother", "Flora"], "🧚"], ["who", "I'm a boy who never wants to grow up. Who am I?", "Peter Pan", ["Pinocchio", "Christopher Robin"], "🧒"], ["who", "I'm a baby elephant who can fly with my big ears. Who am I?", "Dumbo", ["Babar", "Timothy"], "🐘"], ["who", "I'm a wooden puppet, and my nose grows when I fib. Who am I?", "Pinocchio", ["Geppetto", "Jiminy Cricket"], "🤥"], ["who", "I'm a bear who loves honey more than anything. Who am I?", "Winnie the Pooh", ["Baloo", "Tigger"], "🍯"], ["who", "I'm a tiger who loves to bounce! Who am I?", "Tigger", ["Rajah", "Pooh"], "🐅"], ["who", "I'm a little red dragon who helps Mulan. Who am I?", "Mushu", ["Maui", "Elliott"], "🐉"], ["who", "I'm a blue alien known as Experiment 626. Who am I?", "Stitch", ["Lilo", "Jumba"], "👽"], ["who", "My dream was to open my own restaurant in New Orleans. Who am I?", "Tiana", ["Moana", "Mulan"], "🍽️"], ["emo", "Which character is this? 🐭 🎩 🎉", "Mickey Mouse", ["Minnie Mouse", "Remy"], ""], ["emo", "Which movie is this? 🏠 🎈 🎈 🎈 👴", "Up", ["Toy Story", "Coco"], ""], ["emo", "Which movie is this? 🎸 💀 🌼 👦", "Coco", ["Encanto", "Moana"], ""], ["emo", "Which movie is this? 😀 😢 😡 😨 🤢", "Inside Out", ["Monsters, Inc.", "Up"], ""], ["emo", "Which movie is this? 🦁 👑 🌅", "The Lion King", ["The Jungle Book", "Zootopia"], ""], ["emo", "Which movie is this? 🐰 🦊 🚓 🏙️", "Zootopia", ["Robin Hood", "Bolt"], ""], ["emo", "Which movie is this? 🍎 👸 💤 7️⃣", "Snow White", ["Sleeping Beauty", "Cinderella"], ""], ["emo", "Which movie is this? 🏮 🗼 💇‍♀️ 🍳", "Tangled", ["Brave", "Frozen"], ""], ["park", "Which park is home to Cinderella Castle?", "Magic Kingdom", ["EPCOT", "Animal Kingdom"], "🏰"], ["park", "Which park has the giant silver ball called Spaceship Earth?", "EPCOT", ["Magic Kingdom", "Hollywood Studios"], "🌐"], ["park", "Which park has the Tree of Life, carved with hundreds of animals?", "Animal Kingdom", ["EPCOT", "Magic Kingdom"], "🌳"], ["park", "Which park is home to Toy Story Land?", "Hollywood Studios", ["Magic Kingdom", "Animal Kingdom"], "🧸"], ["park", "On which ride do you go on a real safari to see giraffes and lions?", "Kilimanjaro Safaris", ["Jungle Cruise", "Test Track"], "🦒"], ["park", "Which ride is a spooky house with 999 happy haunts?", "Haunted Mansion", ["Tower of Terror", "Space Mountain"], "👻"], ["park", "Which boat ride sings about how small the world is?", "\"it's a small world\"", ["Pirates of the Caribbean", "Jungle Cruise"], "🌍"], ["park", "In which park can you visit Pandora, the world of Avatar?", "Animal Kingdom", ["EPCOT", "Hollywood Studios"], "🌿"], ["park", "Which roller coaster is a runaway mine train in the Wild West?", "Big Thunder Mountain", ["Expedition Everest", "Slinky Dog Dash"], "⛰️"], ["park", "How many theme parks are there at Walt Disney World?", "4", ["2", "6"], "🎢"], ["park", "Which Florida city is closest to Walt Disney World?", "Orlando", ["Miami", "Tampa"], "📍"], ["park", "Which coaster races through the Himalayas with a yeti?", "Expedition Everest", ["Big Thunder Mountain", "Space Mountain"], "🏔️"]];
+const ALL = KIDS.map(([type, prompt, answer, wrong, emoji], i) => ({
+  id: i,
+  type,
+  prompt,
+  answer,
+  wrong,
+  emoji
+}));
+const SIZE = 10;
+const DAY = GR.day();
+// Each day mixes 6 character questions, 2 emoji puzzles and 2 park questions.
+const POOLS = {
+  who: GR.shuffled(ALL.filter(q => q.type === "who"), 11),
+  emo: GR.shuffled(ALL.filter(q => q.type === "emo"), 22),
+  park: GR.shuffled(ALL.filter(q => q.type === "park"), 33)
+};
+const MIX = [["who", 6], ["emo", 2], ["park", 2]];
+function buildRounds(mode) {
+  const seed = mode.daily ? DAY.id : mode.seed;
+  const picks = mode.daily ? MIX.flatMap(([t, n]) => Array.from({
+    length: n
+  }, (_, i) => POOLS[t][((DAY.id - 1) * n + i) % POOLS[t].length])) : MIX.flatMap(([t, n]) => GR.shuffled(POOLS[t], seed + n).slice(0, n));
+  return GR.shuffled(picks, seed * 31 + 7).map((q, i) => ({
+    q,
+    options: GR.shuffled([q.answer, ...q.wrong], seed * 97 + i)
+  }));
+}
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+const CHEERS = ["Woohoo! ⭐", "You got it! 🎉", "Amazing! 🌟", "Super star! ✨", "Yes! 🙌", "Magical! 🪄"];
+const NICE_TRY = ["Nice try!", "So close!", "Good guess!", "Almost!"];
+const TYPE_LABEL = {
+  who: "Who am I?",
+  emo: "Emoji puzzle",
+  park: "Park question"
+};
+let AC = null;
+function tone(f, type = "sine", step = .09, len = .25, vol = .09) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    f.forEach((fr, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = fr;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  right: () => tone([784, 988, 1175, 1568], "sine", .07, .3, .08),
+  oops: () => tone([523, 440], "triangle", .14, .3, .06),
+  done: () => tone([523, 659, 784, 1047, 1319, 1568], "sine", .1, .4, .08)
+};
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-[#8FA3C9]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-white px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--ink-2)]"
+  }, "Kid-safe ad slot"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-[color:var(--ink-2)]"
+  }, size)));
+}
+function Confetti() {
+  const bits = useMemo(() => Array.from({
+    length: 14
+  }, (_, i) => ({
+    l: Math.round(Math.random() * 95),
+    d: Math.random() * .3,
+    e: ["⭐", "✨", "🎉", "💖", "🌟"][i % 5]
+  })), []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "confetti",
+    "aria-hidden": "true"
+  }, bits.map((b, i) => /*#__PURE__*/React.createElement("i", {
+    key: i,
+    style: {
+      left: `${b.l}%`,
+      animationDelay: `${b.d}s`
+    }
+  }, b.e)));
+}
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const t = new Date(dateStr + "T00:00:00"),
+    n = new Date();
+  n.setHours(0, 0, 0, 0);
+  const d = Math.round((t - n) / 864e5);
+  return isNaN(d) ? null : d;
+}
+function GrownUps({
+  trip,
+  setTrip
+}) {
+  const d = daysUntil(trip);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[22px] border-[3px] border-b-[7px] border-[color:var(--ink)] bg-white p-4 sm:p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-black uppercase tracking-[.16em] text-[color:var(--ink-2)]"
+  }, "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 For grown-ups"), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "trip-date",
+    className: "mt-2 block text-[15px]"
+  }, "When is your trip?"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 flex flex-wrap items-center gap-3"
+  }, /*#__PURE__*/React.createElement("input", {
+    id: "trip-date",
+    type: "date",
+    value: trip,
+    onChange: e => setTrip(e.target.value),
+    className: "rounded-xl border-[3px] border-[color:var(--ink)] px-3 py-2 text-[16px]"
+  }), d != null && /*#__PURE__*/React.createElement("span", {
+    className: "display text-[20px]"
+  }, d > 0 ? `${d} sleep${d === 1 ? "" : "s"} to go! 🏰` : d === 0 ? "It's trip day! 🎉" : "Hope it was magical! ✨")), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-[12.5px] font-bold text-[color:var(--ink-2)]"
+  }, "Saved only on this device, so kids see their countdown every time they play."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 text-[10px] font-black uppercase tracking-[.18em] text-[color:var(--ink-2)]"
+  }, "Sponsored"), /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(null, ORLANDO),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn btn-sun mt-1 block w-full py-3 text-center text-[18px]"
+  }, "\u2708\uFE0F Compare flights to Orlando \u2197"));
+}
+function App() {
+  const [view, setView] = useState("home"); // home | play | done
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `magic-${DAY.id}`;
+  const LINEUP = useMemo(() => buildRounds({
+    daily: true
+  }).map(r => r.q.id).join(","), []);
+  const rounds = useMemo(() => buildRounds(mode), [mode]);
+  const [answers, setAnswers] = useState(() => {
+    const s = store.get(SAVE_KEY, null);
+    return s && s.lineup === LINEUP && Array.isArray(s.answers) ? s.answers : [];
+  });
+  const [revealed, setRevealed] = useState(false);
+  const [trip, setTrip] = useState(() => store.get("magic-trip", ""));
+  const [sound, setSound] = useState(() => store.get("magic-sound", true));
+  const [cheer, setCheer] = useState("");
+  const nextRef = useRef(null);
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      answers,
+      lineup: LINEUP
+    });
+  }, [answers, mode.daily]);
+  useEffect(() => {
+    store.set("magic-trip", trip);
+  }, [trip]);
+  useEffect(() => {
+    store.set("magic-sound", sound);
+  }, [sound]);
+  useEffect(() => {
+    if (revealed && nextRef.current) nextRef.current.focus({
+      preventScroll: true
+    });
+  }, [revealed]);
+  useEffect(() => {
+    if (view === "play" && answers.length >= SIZE && !revealed) setView("done");
+  }, [view, answers, revealed]);
+  const idx = revealed ? answers.length - 1 : answers.length;
+  const r = rounds[Math.min(idx, SIZE - 1)];
+  const stars = answers.filter((a, i) => a === rounds[i].q.answer).length;
+  const pick = o => {
+    if (revealed) return;
+    const ok = o === r.q.answer;
+    setCheer(ok ? CHEERS[idx % CHEERS.length] : `${NICE_TRY[idx % NICE_TRY.length]} It's ${r.q.answer}.`);
+    if (sound) (ok ? SFX.right : SFX.oops)();
+    setAnswers(a => [...a, o]);
+    setRevealed(true);
+  };
+  const next = () => {
+    setRevealed(false);
+    if (answers.length >= SIZE) {
+      if (sound) SFX.done();
+      setView("done");
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const start = m => {
+    if (!m.daily || answers.length >= SIZE) {
+      setMode(m);
+      if (!m.daily) setAnswers([]);
+    }
+    setRevealed(false);
+    setView(m.daily && answers.length >= SIZE ? "done" : "play");
+  };
+  const bonus = () => {
+    setMode({
+      daily: false,
+      seed: Math.floor(Math.random() * 1e9)
+    });
+    setAnswers([]);
+    setRevealed(false);
+    setView("play");
+    window.scrollTo({
+      top: 0
+    });
+  };
+  const d = daysUntil(trip);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-2xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "mt-1 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[32px] sm:text-[44px] leading-none"
+  }, "Magic Trip Quiz ", /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDFF0")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 text-[13px] text-[color:var(--ink-2)]"
+  }, "Get ready for your theme park vacation! \xB7 ", DAY.label)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-11 w-11 flex-none place-items-center text-[18px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790"
+  })), view === "home" && /*#__PURE__*/React.createElement("main", {
+    className: "mt-5 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bubble pop"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "big bounce",
+    "aria-hidden": "true"
+  }, "\uD83E\uDDF3"), /*#__PURE__*/React.createElement("h2", {
+    className: "display mt-2 text-[28px] sm:text-[34px] leading-tight"
+  }, "Hi! I'm Sunny the Suitcase!"), /*#__PURE__*/React.createElement("p", {
+    className: "mx-auto mt-1 max-w-md text-[17px] text-[color:var(--ink-2)]"
+  }, "Answer ", SIZE, " questions about your favorite characters and the parks. Every right answer earns a star \u2B50"), d != null && d > 0 && /*#__PURE__*/React.createElement("p", {
+    className: "display mt-2 text-[22px] text-[color:var(--pink-d)]"
+  }, "Only ", d, " sleep", d === 1 ? "" : "s", " until your trip!"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => start({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-pink mt-4 w-full max-w-sm py-4 text-[24px]"
+  }, answers.length >= SIZE ? "See today's stars ⭐" : answers.length ? "Keep playing ▶" : "Let's play! ▶")), /*#__PURE__*/React.createElement(GrownUps, {
+    trip: trip,
+    setTrip: setTrip
+  })), view === "play" && /*#__PURE__*/React.createElement("main", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stars",
+    "aria-label": `Question ${idx + 1} of ${SIZE}, ${stars} stars so far`
+  }, Array.from({
+    length: SIZE
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: answers[i] && (i < idx || revealed) && answers[i] === rounds[i].q.answer ? "on" : i === idx ? "now" : "",
+    "aria-hidden": "true"
+  }, "\u2B50"))), /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "bubble pop mt-4"
+  }, revealed && answers[idx] === r.q.answer && /*#__PURE__*/React.createElement(Confetti, null), /*#__PURE__*/React.createElement("div", {
+    className: "text-[13px] font-black uppercase tracking-[.16em] text-[color:var(--purple-d)]"
+  }, TYPE_LABEL[r.q.type], " \xB7 ", idx + 1, " of ", SIZE), r.q.emoji && /*#__PURE__*/React.createElement("div", {
+    className: "big mt-2",
+    "aria-hidden": "true"
+  }, r.q.emoji), /*#__PURE__*/React.createElement("h2", {
+    className: `display mt-2 leading-snug ${r.q.type === "emo" ? "text-[30px] sm:text-[38px]" : "text-[24px] sm:text-[30px]"}`
+  }, r.q.prompt), revealed && /*#__PURE__*/React.createElement("p", {
+    className: "display pop mt-2 text-[24px]",
+    style: {
+      color: answers[idx] === r.q.answer ? "var(--mint-d)" : "var(--coral-d)"
+    }
+  }, cheer)), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid gap-3"
+  }, r.options.map(o => {
+    const cls = !revealed ? "" : o === r.q.answer ? "right" : o === answers[idx] ? "oops" : "dim";
+    return /*#__PURE__*/React.createElement("button", {
+      key: o,
+      className: `ans ${cls}`,
+      disabled: revealed,
+      onClick: () => pick(o)
+    }, revealed && o === r.q.answer && /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true"
+    }, "\u2705"), o);
+  })), revealed && /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: next,
+    className: "btn btn-purple pop mt-4 w-full py-4 text-[22px]"
+  }, answers.length >= SIZE ? "See my stars! 🌟" : "Next question ▶")), view === "done" && /*#__PURE__*/React.createElement("main", {
+    className: "mt-5 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bubble pop overflow-hidden"
+  }, /*#__PURE__*/React.createElement(Confetti, null), /*#__PURE__*/React.createElement("div", {
+    className: "big bounce",
+    "aria-hidden": "true"
+  }, "\uD83C\uDFF0"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 inline-block rounded-full border-[3px] border-[color:var(--ink)] bg-[color:var(--sun)] px-5 py-1 display text-[20px]"
+  }, "TRIP READY! \uD83C\uDF9F\uFE0F"), /*#__PURE__*/React.createElement("h2", {
+    className: "display mt-3 text-[34px] leading-tight"
+  }, "You earned ", stars, " star", stars === 1 ? "" : "s", "!"), /*#__PURE__*/React.createElement("div", {
+    className: "stars mt-2",
+    "aria-hidden": "true"
+  }, Array.from({
+    length: SIZE
+  }, (_, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: answers[i] === rounds[i].q.answer ? "on" : ""
+  }, "\u2B50"))), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[17px] text-[color:var(--ink-2)]"
+  }, stars >= 9 ? "Wow, you're a theme park superstar!" : stars >= 6 ? "Great job! You're almost an expert!" : "Great practice! Play again to earn more stars."), d != null && d > 0 && /*#__PURE__*/React.createElement("p", {
+    className: "display mt-1 text-[20px] text-[color:var(--pink-d)]"
+  }, d, " sleep", d === 1 ? "" : "s", " to go! \uD83C\uDF19"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid gap-3 sm:grid-cols-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: bonus,
+    className: "btn btn-pink py-3 text-[20px]"
+  }, "\uD83C\uDFB2 Play more!"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setView("home");
+      setMode({
+        daily: true,
+        seed: 0
+      });
+      const s = store.get(SAVE_KEY, null);
+      setAnswers(s && s.lineup === LINEUP ? s.answers : []);
+    },
+    className: "btn btn-white py-3 text-[20px]"
+  }, "\uD83C\uDFE0 Start screen")), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-[13px] text-[color:var(--ink-2)]"
+  }, "New questions every day!")), /*#__PURE__*/React.createElement(GrownUps, {
+    trip: trip,
+    setTrip: setTrip
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250"
+  }))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-bold text-[color:var(--ink-2)]"
+  }, "Magic Trip Quiz \xB7 a GlobeRush game \xB7 fan trivia for families, not affiliated with or endorsed by The Walt Disney Company"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750"
+  })));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

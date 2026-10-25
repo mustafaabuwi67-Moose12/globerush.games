@@ -1,0 +1,1737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="hot-takes">
+<!-- Settings: edit SITE and AFFILIATE at the top of the main <script>. Survey data: the TAKES list. -->
+<title>Travel Hot Takes · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Public+Sans:wght@500;600;700;800;900&family=Space+Mono:wght@700&display=swap">
+<style>
+/* Layout: a talk-show "hot seat". One big take card on a warm-to-cool split stage; agree glows ember, disagree glows ice.
+   Deliberately one dark look in every theme: the heat/cool contrast is the design. */
+:root{
+  --bg:#17110F; --bg-2:#221815; --card:#FFF8F0; --card-ink:#1D1210; --card-muted:#7A5E55; --ink:#FFF3EA; --muted:#C9AFA4; --line:rgba(255,255,255,.12);
+  --hot:#FF4D1F; --hot-d:#B8300D; --amber:#FFB020; --cool:#2E9BFF; --cool-d:#1666B8; --ok:#2BC779;
+  --f-display:"Anton","Impact","Arial Narrow Bold",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"Space Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(700px 380px at 0% 0%,rgba(255,77,31,.22),transparent 70%),radial-gradient(700px 380px at 100% 100%,rgba(46,155,255,.16),transparent 70%);background-attachment:fixed}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+.mono{font-family:var(--f-mono)}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:28px;color:var(--hot)}
+h1,h2,h3{text-wrap:balance}
+
+.btn{border-radius:16px;border:2px solid transparent;border-bottom-width:6px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(4px);border-bottom-width:2px}
+.btn:disabled{cursor:default;transform:none;border-bottom-width:6px}
+.btn-hot{background:var(--hot);border-color:var(--hot-d);color:#fff}
+.btn-cool{background:var(--cool);border-color:var(--cool-d);color:#fff}
+.btn-amber{background:var(--amber);border-color:#B87A00;color:#2A1A00}
+.btn-plain{background:var(--bg-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--bg-2);color:var(--ink)}
+
+.take{position:relative;background:var(--card);color:var(--card-ink);border-radius:26px;border:3px solid #000;border-bottom-width:8px;overflow:hidden}
+.take::before{content:"";position:absolute;inset:0 0 auto 0;height:8px;background:linear-gradient(90deg,var(--hot),var(--amber),var(--cool))}
+.quote{font-family:var(--f-display);font-size:120px;line-height:.7;color:var(--hot);opacity:.18;position:absolute;top:22px;left:14px;pointer-events:none}
+
+.split{display:flex;height:54px;border-radius:14px;overflow:hidden;border:2px solid #000}
+.split > div{display:flex;align-items:center;font-family:var(--f-display);font-size:22px;color:#fff;padding:0 12px;white-space:nowrap;transition:width .9s cubic-bezier(.2,.9,.2,1)}
+@keyframes rise{0%{transform:translateY(12px);opacity:0}100%{transform:none;opacity:1}}
+.rise{animation:rise .35s ease-out both}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.12) rotate(3deg)}}
+.flame{display:inline-block;animation:flame 1.2s ease-in-out infinite}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(201,175,164,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(201,175,164,.25) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.03)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(23,17,15,.96);border-top:1px solid var(--line)}
+.kbd{font-family:var(--f-mono);font-size:.85em;background:rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.2);border-bottom-width:2px;border-radius:5px;padding:.02em .38em;white-space:nowrap}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.rise,.pop,.flame{animation:none!important}.split > div{transition:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">🔥 Heating up the hot seat…</div></div>
+<div id="gr-more"></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* =====================================================================
+   YOUR SETTINGS: edit once.
+   SITE.url  = where this game lives (used in the share card)
+   AFFILIATE = your fare links. Placeholders: {FROM} {TO} capitals, {from} {to} lowercase
+   ===================================================================== */
+const SITE = {
+  url: window.GLOBERUSH.gameUrl("hot-takes")
+};
+const AFFILIATE = window.GLOBERUSH && window.GLOBERUSH.affiliate || {
+  route: "https://www.skyscanner.com/transport/flights/{from}/{to}/",
+  toOnly: "https://www.skyscanner.com/transport/flights-to/{to}/",
+  general: "https://www.skyscanner.com/"
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(),
+    d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase()).replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Hot takes, each backed by a published survey ("agree" = % who agreed) ---------- */
+const TAKES = /*TAKES*/[{
+  "id": "recline",
+  "take": "Reclining your plane seat is totally fine",
+  "agree": 55,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [recline their seat] while flying on a commercial airline?\" agree = \"Acceptable\" (55%; unacceptable 26%, not sure 20%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "seat-swap",
+  "take": "It's fine to ask a stranger to swap seats",
+  "agree": 51,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [ask to switch seats with another passenger] while flying on a commercial airline?\" agree = \"Acceptable\" (51%; unacceptable 26%, not sure 23%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "overhead-jacket",
+  "take": "Your jacket belongs in the overhead bin, even on a full flight",
+  "agree": 52,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [put small items (purse, jacket) in the overhead compartment on a full flight] while flying on a commercial airline?\" agree = \"Acceptable\" (52%; unacceptable 29%, not sure 19%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "shoes-off",
+  "take": "Taking your shoes off on a plane is fine",
+  "agree": 30,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [remove their shoes] while flying on a commercial airline?\" agree = \"Acceptable\" (30%; unacceptable 55%, not sure 15%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "stand-at-gate",
+  "take": "Standing up the second the plane lands is fine",
+  "agree": 29,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [stand up immediately after the plane lands] while flying on a commercial airline?\" agree = \"Acceptable\" (29%; unacceptable 50%, not sure 21%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "smelly-food",
+  "take": "Eating strong-smelling food on a plane is fine",
+  "agree": 14,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [eat strong-smelling food] while flying on a commercial airline?\" agree = \"Acceptable\" (14%; unacceptable 68%, not sure 17%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "phone-call",
+  "take": "Making a phone call on a plane is fine",
+  "agree": 37,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [make a phone call] while flying on a commercial airline?\" agree = \"Acceptable\" (37%; unacceptable 43%, not sure 19%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "chatty-seatmate",
+  "take": "Chatting with your seatmate the whole flight is fine",
+  "agree": 46,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [chat with a stranger next to them for the entire flight] while flying on a commercial airline?\" agree = \"Acceptable\" (46%; unacceptable 29%, not sure 26%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "armrest-hog",
+  "take": "Using both armrests next to a stranger is fine",
+  "agree": 11,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [use both armrests when someone is sitting next to them] while flying on a commercial airline?\" agree = \"Acceptable\" (11%; unacceptable 74%, not sure 15%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "small-dog",
+  "take": "Bringing a small dog on board is fine",
+  "agree": 37,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [bring a small dog on board] while flying on a commercial airline?\" agree = \"Acceptable\" (37%; unacceptable 40%, not sure 23%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "empty-row",
+  "take": "An empty row is yours to lie down on",
+  "agree": 48,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [lie down on the seats when sitting in an empty row] while flying on a commercial airline?\" agree = \"Acceptable\" (48%; unacceptable 34%, not sure 18%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "wake-seatmate",
+  "take": "Waking your seatmate to pee is fine",
+  "agree": 72,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [wake up a seatmate to use the bathroom] while flying on a commercial airline?\" agree = \"Acceptable\" (72%; unacceptable 13%, not sure 15%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "deplane-cut",
+  "take": "Exiting before the row in front of you is fine",
+  "agree": 14,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [exit the plane before the people in the row in front of them] while flying on a commercial airline?\" agree = \"Acceptable\" (14%; unacceptable 65%, not sure 21%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "silent-gas",
+  "take": "Silently passing gas on a plane is acceptable",
+  "agree": 32,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [silently pass gas] while flying on a commercial airline?\" agree = \"Acceptable\" (32%; unacceptable 46%, not sure 22%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "skip-safety-demo",
+  "take": "Ignoring the safety demo is fine",
+  "agree": 20,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [not pay attention during the safety demonstration] while flying on a commercial airline?\" agree = \"Acceptable\" (20%; unacceptable 66%, not sure 15%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "overhead-light",
+  "take": "Leaving your reading light on in a dark cabin is fine",
+  "agree": 38,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 23-26 2024, n=1,152. \"Do you consider it generally acceptable or unacceptable for a passenger to [leave their overhead light on when cabin lights are switched off] while flying on a commercial airline?\" agree = \"Acceptable\" (38%; unacceptable 36%, not sure 26%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "no-housekeeping-tip",
+  "take": "Skipping the housekeeping tip is fine",
+  "agree": 35,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 24-27 2024, n=1,147. \"Do you consider it generally acceptable or unacceptable for a guest at a hotel to [not leave a tip for housekeeping]?\" agree = \"Acceptable\" (35%; unacceptable 42%, not sure 23%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "hotel-toiletries",
+  "take": "Taking the hotel's mini shampoos home is fine",
+  "agree": 77,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 24-27 2024, n=1,147. \"Do you consider it generally acceptable or unacceptable for a guest at a hotel to [take small shampoo, conditioner, or toiletry bottles home with them]?\" agree = \"Acceptable\" (77%; unacceptable 16%, not sure 7%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "hotel-pajamas",
+  "take": "Wearing pajamas in the hotel lobby is fine",
+  "agree": 37,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 24-27 2024, n=1,147. \"Do you consider it generally acceptable or unacceptable for a guest at a hotel to [wear pajamas in a common hotel area]?\" agree = \"Acceptable\" (37%; unacceptable 49%, not sure 13%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "one-use-towel",
+  "take": "A fresh towel after every shower is fine",
+  "agree": 72,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 24-27 2024, n=1,147. \"Do you consider it generally acceptable or unacceptable for a guest at a hotel to [change to a different bath towel after a single use]?\" agree = \"Acceptable\" (72%; unacceptable 15%, not sure 13%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "lights-on",
+  "take": "Leaving hotel room lights on when you go out is fine",
+  "agree": 40,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "YouGov, May 24-27 2024, n=1,147. \"Do you consider it generally acceptable or unacceptable for a guest at a hotel to [leave room lights on when not in the room]?\" agree = \"Acceptable\" (40%; unacceptable 46%, not sure 13%).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "window-seat",
+  "take": "Flying solo? The window seat wins",
+  "agree": 48,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question, May 17 2023, n=8,027. \"If traveling alone on a flight, which seat on the airplane would you prefer?\" agree = \"Window\" (48%; aisle 30%, middle 10%, not sure 12%).",
+  "source": "https://yougov.com/en-us/daily-results/20230517-c9cb2-1"
+}, {
+  "id": "window-shade",
+  "take": "The window seat controls the window shade",
+  "agree": 38,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question, May 17 2023, n=8,027. \"In a row of three airplane seats, do you think the person sitting nearest to the window should have exclusive power over the window shade?\" agree = \"Yes, they should\" (38%; no 38%, not sure 24%).",
+  "source": "https://yougov.com/en-us/daily-results/20230517-c9cb2-3"
+}, {
+  "id": "middle-armrests",
+  "take": "The middle seat gets both armrests. Period.",
+  "agree": 11,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Nationally representative survey of 2,500+ US adults, July 29-31 2026. Share saying the middle-seat passenger should automatically get both armrests (11%; 31% share equally, 20% middle gets priority but share, 26% not sure).",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "plane-pajamas",
+  "take": "Pajamas are perfectly good plane attire",
+  "agree": 1,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Nationally representative survey of 2,500+ US adults, July 29-31 2026. Share choosing pajamas as appropriate plane attire (1%; 38% whatever is comfortable, 34% athletic/loungewear).",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "connection-cut",
+  "take": "Tight connection? Cutting ahead to deplane is OK",
+  "agree": 9,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Nationally representative survey of 2,500+ US adults, July 29-31 2026. Share saying cutting ahead when deplaning is appropriate for a tight connection (9%; 65% row by row, 10% move ahead whenever there is an opening).",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "first-class-me",
+  "take": "If we can't both fly first, I'm taking first class",
+  "agree": 34,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question, May 23 2023, n=10,934. Imagine buying one first-class and one economy ticket for you and your significant other: \"Which would you take for yourself?\" agree = \"First-class ticket\" (34%; economy 48%, not sure 18%).",
+  "source": "https://yougov.com/en-us/daily-results/20230523-968bc-1"
+}, {
+  "id": "new-place-yearly",
+  "take": "Same vacation spot every year? Boring.",
+  "agree": 67,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov daily question, Jan 7 2025, n=4,755. \"If cost and responsibilities were not a concern, would you rather go on a vacation...?\" agree = \"To a different place each year\" (67%; same place 8%, no preference 14%, not sure 10%).",
+  "source": "https://yougov.com/en-us/daily-results/20250107-d1e97-1"
+}, {
+  "id": "adults-only-flights",
+  "take": "Airlines should offer adults-only flights",
+  "agree": 67,
+  "who": "US adults (US sample of a 6-country poll)",
+  "pollster": "OnePoll for eDreams ODIGEO",
+  "year": 2024,
+  "method": "OnePoll for eDreams ODIGEO, Apr 5-16 2024, 9,000 respondents in 6 countries incl. 2,000 in the US. 67% of US respondents support adults-only flights (51% across all countries).",
+  "source": "https://www.businesswire.com/news/home/20240704840409/en"
+}, {
+  "id": "ban-reclining",
+  "take": "Airlines should ban seat reclining",
+  "agree": 41,
+  "who": "US adults",
+  "pollster": "Harris Poll for La-Z-Boy",
+  "year": 2024,
+  "method": "Oct 16-18, 2024, n=2,051 US adults; 41% support a ban on passengers reclining their seats on domestic flights.",
+  "source": "https://www.newsweek.com/airlines-ban-reclining-seats-what-americans-think-1985707"
+}, {
+  "id": "etiquette-worse",
+  "take": "Plane etiquette has gotten worse in the last 5 years",
+  "agree": 42,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Survey of 2,500+ US adults (summer 2026); 42% say passenger etiquette got worse 'a lot or somewhat' over the past five years.",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "blame-passengers",
+  "take": "Bad behavior on planes is the passengers' own fault",
+  "agree": 52,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Same survey; asked who is most responsible for poor in-flight behavior, 52% chose passengers themselves (vs 8% airlines, 8% social media).",
+  "source": "https://thepointsguy.com/news/airplane-etiquette-survey/"
+}, {
+  "id": "security-hassle",
+  "take": "Getting through airport security is too much hassle",
+  "agree": 57,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Oct 24-28, 2025, n=1,168 (KnowledgePanel). 'Getting through airport security is too much of a hassle': strongly agree 16% + somewhat agree 41%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "shoes-on-tsa",
+  "take": "Everyone should keep their shoes on at TSA",
+  "agree": 80,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Support for 'Allowing ALL passengers to keep their shoes on when going through security': strongly 40% + somewhat 40%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "bigger-liquids",
+  "take": "TSA should allow more water and baby formula",
+  "agree": 86,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Support for 'Allowing larger quantities of water, breast milk, and/or baby formula to be carried on through TSA checkpoints': strongly 40% + somewhat 46%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "laptops-stay-in",
+  "take": "Laptops should stay in your bag at security",
+  "agree": 74,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Support for 'Allowing ALL passengers to keep their larger electronics (e.g. laptops) in their carry-on bag': strongly 25% + somewhat 49%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "tsa-biometrics",
+  "take": "Face/biometric scans at TSA checkpoints are fine",
+  "agree": 81,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Support use of biometrics at TSA checkpoints: strongly 39% + somewhat 42%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "atc-worry",
+  "take": "America's air traffic control system worries me",
+  "agree": 67,
+  "who": "US adults",
+  "pollster": "Ipsos for U.S. Travel Association",
+  "year": 2025,
+  "method": "Concern about 'The safety and condition of America's air traffic control system': very 26% + moderately 41%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2025-12/U.S.%20Travel%20Topline%2012.9.2025.pdf"
+}, {
+  "id": "afraid-of-flying",
+  "take": "I'm afraid of flying",
+  "agree": 17,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Daily, Feb 19, 2025, n=3,881. 'How do you feel about flying in an airplane?' 'Afraid of it' 17% (34% bothers me slightly, 43% not at all afraid).",
+  "source": "https://yougov.com/en-us/daily-results/20250219-3f0d2-1"
+}, {
+  "id": "safety-record",
+  "take": "Commercial airlines have a good safety record",
+  "agree": 71,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Daily, Feb 19, 2025, n=3,881. Rating of commercial airline safety record: excellent 26% + good 45%.",
+  "source": "https://yougov.com/en-us/daily-results/20250219-3f0d2-2"
+}, {
+  "id": "shutdown-flying",
+  "take": "Flying during a government shutdown feels less safe",
+  "agree": 51,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Daily, Nov 7, 2025, n=6,361. Would you feel more, less, or as safe flying during a shutdown? 'Less safe' 51%.",
+  "source": "https://yougov.com/en-us/daily-results/20251107-0f808-3"
+}, {
+  "id": "board-back-first",
+  "take": "Planes should board from the back first",
+  "agree": 44,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov Daily, May 23, 2023, n=10,934. Should planes board starting from the front (first class) or rear (economy)? Back-to-front 44%, front-to-back 27%.",
+  "source": "https://yougov.com/en-us/daily-results/20230523-968bc-3"
+}, {
+  "id": "airfares-problem",
+  "take": "High airfares are a major problem",
+  "agree": 63,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Nov 25-29, 2025, n=1,108. 'How big of a problem...' High ticket prices: 'major problem' 63%.",
+  "source": "https://yougov.com/en-us/articles/53681-casual-dress-among-passengers-is-at-the-bottom-of-americans-air-travel-concerns"
+}, {
+  "id": "hidden-fees",
+  "take": "Hidden airline fees are a major problem",
+  "agree": 52,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey; 'Extra or hidden airline fees' rated a major problem by 52%.",
+  "source": "https://yougov.com/en-us/articles/53681-casual-dress-among-passengers-is-at-the-bottom-of-americans-air-travel-concerns"
+}, {
+  "id": "cramped-seats",
+  "take": "Cramped airplane seats are a major problem",
+  "agree": 50,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey; 'Cramped or uncomfortable seats' rated a major problem by 50%.",
+  "source": "https://yougov.com/en-us/articles/53681-casual-dress-among-passengers-is-at-the-bottom-of-americans-air-travel-concerns"
+}, {
+  "id": "kids-problem",
+  "take": "Disruptive kids are a major air travel problem",
+  "agree": 21,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey; 'Disruptive children' rated a major problem by 21% (43% minor).",
+  "source": "https://yougov.com/en-us/articles/53681-casual-dress-among-passengers-is-at-the-bottom-of-americans-air-travel-concerns"
+}, {
+  "id": "bad-wifi",
+  "take": "Lousy in-flight Wi-Fi is a major problem",
+  "agree": 14,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey (topline PDF); 'Inadequate wifi' rated a major problem by 14%.",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/Air_Travel_Problems_poll_results.pdf"
+}, {
+  "id": "overbooking",
+  "take": "Overbooked flights are a major problem",
+  "agree": 40,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey; 'Overbooked flights' rated a major problem by 40%.",
+  "source": "https://yougov.com/en-us/articles/53681-casual-dress-among-passengers-is-at-the-bottom-of-americans-air-travel-concerns"
+}, {
+  "id": "airport-food",
+  "take": "Airport dining options are a major problem",
+  "agree": 14,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "Same survey (topline PDF); 'Poor dining options in airports' rated a major problem by 14%.",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/Air_Travel_Problems_poll_results.pdf"
+}, {
+  "id": "flying-pricier",
+  "take": "Flying costs more than it did a year ago",
+  "agree": 77,
+  "who": "US adults",
+  "pollster": "Ipsos",
+  "year": 2026,
+  "method": "May 8-10, 2026, n=1,023 (KnowledgePanel). 'Compared to a year ago... the cost of flying is higher' 77%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-05/Ipsos%20Air%20Travel%20Poll%20Topline%205.14.2026.pdf"
+}, {
+  "id": "airports-worse",
+  "take": "Airports have gotten worse over the past year",
+  "agree": 43,
+  "who": "US adults",
+  "pollster": "Ipsos",
+  "year": 2026,
+  "method": "Same poll. 'Compared to a year ago... the current experience at U.S. airports is' worse 43% (50% same, 5% better).",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-05/Ipsos%20Air%20Travel%20Poll%20Topline%205.14.2026.pdf"
+}, {
+  "id": "carry-on-only",
+  "take": "I've gone carry-on only this year to dodge bag fees",
+  "agree": 30,
+  "who": "US adults",
+  "pollster": "Ipsos",
+  "year": 2026,
+  "method": "Same poll. Since the start of the year, 'Packed only a carry-on or personal item to avoid paying baggage fees': Yes 30%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-05/Ipsos%20Air%20Travel%20Poll%20Topline%205.14.2026.pdf"
+}, {
+  "id": "bag-fee-worry",
+  "take": "Rising bag fees seriously worry me",
+  "agree": 50,
+  "who": "US adults",
+  "pollster": "Ipsos",
+  "year": 2026,
+  "method": "Same poll. Concern about 'Airlines increasing baggage fees': extremely 24% + very 26%.",
+  "source": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-05/Ipsos%20Air%20Travel%20Poll%20Topline%205.14.2026.pdf"
+}, {
+  "id": "basic-economy",
+  "take": "I bought a basic economy fare last year",
+  "agree": 51,
+  "who": "US adults who have ever flown",
+  "pollster": "Ipsos for Airlines for America",
+  "year": 2025,
+  "method": "Jan 7-22, 2025, KnowledgePanel, n=3,230 who have flown. 'At any point in 2024, in exchange for a lower fare, did you purchase a ticket where seat selection and/or baggage cost extra?' Yes 51%.",
+  "source": "https://www.airlines.org/wp-content/uploads/2025/03/A4A-Air-Travel-Survey-Key-Findings-18Mar2025.pdf"
+}, {
+  "id": "price-over-loyalty",
+  "take": "A cheaper fare beats flying my favorite airline",
+  "agree": 70,
+  "who": "US adults planning holiday travel",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "Sept 18-22, 2026, n=2,445 US adults (1,058 holiday travelers). Agree 'price matters more than flying a favorite airline': 70% (25% disagree). Base as reported by TPG for agree/disagree statements (holiday travelers).",
+  "source": "https://thepointsguy.com/news/holiday-travel-survey/"
+}, {
+  "id": "refundable-worth-it",
+  "take": "Refundable flights are worth paying extra for",
+  "agree": 67,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Feb 3-5, 2026, n=2,082 US adults; 67% say paying extra for refundable flights is worth it for flexibility.",
+  "source": "https://www.nerdwallet.com/travel/studies/2024-summer-travel-report"
+}, {
+  "id": "miles-too-complicated",
+  "take": "Airline points and miles are too complicated",
+  "agree": 48,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Same survey; 48% say travel points and miles programs are too complicated.",
+  "source": "https://www.nerdwallet.com/travel/studies/2024-summer-travel-report"
+}, {
+  "id": "auto-refunds",
+  "take": "Canceled-flight refunds should be automatic",
+  "agree": 76,
+  "who": "US likely voters",
+  "pollster": "Data for Progress",
+  "year": 2024,
+  "method": "May 10-14, 2024, n=1,268 likely voters. 76% chose 'airlines should provide refunds in these cases automatically' vs 18% 'only if a passenger requests it'.",
+  "source": "https://dataforprogress.org/blog/2024/5/15/a-bipartisan-majority-of-voters-support-new-faa-rules-requiring-airlines-to-provide-automatic-refunds"
+}, {
+  "id": "drunk-on-plane",
+  "take": "Getting drunk on a flight is acceptable",
+  "agree": 9,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "May 23-26, 2024, n=1,152. 'Generally acceptable or unacceptable for a passenger to... Get drunk': acceptable 9%, unacceptable 82%.",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "skip-airplane-mode",
+  "take": "Skipping airplane mode is no big deal",
+  "agree": 16,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Same survey. 'Not set their devices to airplane mode': acceptable 16%, unacceptable 64%.",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Airplane_Etiquette.pdf"
+}, {
+  "id": "porter-no-tip",
+  "take": "Not tipping the bellhop who brings your bags is fine",
+  "agree": 14,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "May 24-27, 2024, n=1,147. 'Is it acceptable or unacceptable for someone to... not tip a porter who brings bags to their room?' Agree = 'acceptable' (14%; 65% unacceptable, 22% not sure).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "late-checkout-no-ask",
+  "take": "Checking out an hour late without asking is fine",
+  "agree": 10,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Check out of their room an hour late without asking'. Agree = 'acceptable' (10%; 79% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "hotel-visitors",
+  "take": "Bringing visitors to your hotel room without asking is fine",
+  "agree": 58,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Bring visitors into their room without prior approval'. Agree = 'acceptable' (58%; 28% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "kids-jump-beds",
+  "take": "Letting kids jump on hotel beds is fine",
+  "agree": 24,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Allow their children to jump on the beds'. Agree = 'acceptable' (24%; 65% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "leave-linens",
+  "take": "No need to strip the bed when you check out",
+  "agree": 78,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Leave the linens on the bed when checking out'. Agree = 'acceptable' (78%; 12% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "hotel-bible",
+  "take": "Taking the hotel Bible home is fine",
+  "agree": 19,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Take bibles home with them'. Agree = 'acceptable' (19%; 67% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "leave-trash",
+  "take": "Leaving trash around your hotel room at checkout is fine",
+  "agree": 15,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Leave trash around the room when checking out'. Agree = 'acceptable' (15%; 78% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "noise-complaint",
+  "take": "Calling the front desk on noisy neighbors is fine",
+  "agree": 82,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Call reception to complain about noisy neighbors'. Agree = 'acceptable' (82%; 9% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "overstuff-room",
+  "take": "Squeezing extra people into your hotel room is fine",
+  "agree": 17,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Hotel Etiquette survey, May 24-27, 2024, n=1,147. Item 'Exceed the maximum number of guests allowed to stay in a room'. Agree = 'acceptable' (17%; 70% unacceptable).",
+  "source": "https://ygo-assets-websites-editorial-emea.yougov.net/documents/crosstabs_Hotel_Etiquette.pdf"
+}, {
+  "id": "tip-screens",
+  "take": "Pre-filled tip screens are annoying",
+  "agree": 38,
+  "who": "US adults",
+  "pollster": "YouGov for Bankrate",
+  "year": 2025,
+  "method": "Bankrate Tipping Survey, YouGov, April 23-25, 2025, n=2,277. Share of US adults who said they are annoyed with pre-entered tip screens (38%).",
+  "source": "https://www.bankrate.com/press-releases/63-of-americans-have-a-negative-view-about-tipping-with-41-saying-tipping-culture-has-gotten-out-of-control/"
+}, {
+  "id": "tipping-out-of-control",
+  "take": "Tipping culture has gotten out of control",
+  "agree": 41,
+  "who": "US adults",
+  "pollster": "YouGov for Bankrate",
+  "year": 2025,
+  "method": "Bankrate Tipping Survey, YouGov, April 23-25, 2025, n=2,277. Share of US adults who say tipping culture has gotten out of control (41%, up from 35% in 2024).",
+  "source": "https://www.bankrate.com/press-releases/63-of-americans-have-a-negative-view-about-tipping-with-41-saying-tipping-culture-has-gotten-out-of-control/"
+}, {
+  "id": "suggested-tips",
+  "take": "Businesses suggesting tip amounts is fine",
+  "agree": 24,
+  "who": "US adults",
+  "pollster": "Pew Research Center",
+  "year": 2023,
+  "method": "American Trends Panel, Aug 7-27, 2023, n=11,945. Agree = favor businesses suggesting tip amounts to customers (24%); 40% oppose, 32% neither.",
+  "source": "https://www.pewresearch.org/2023/11/09/tipping-culture-in-america-public-sees-a-changed-landscape/"
+}, {
+  "id": "auto-service-charge",
+  "take": "Automatic service charges on the bill are fine",
+  "agree": 10,
+  "who": "US adults",
+  "pollster": "Pew Research Center",
+  "year": 2023,
+  "method": "American Trends Panel, Aug 7-27, 2023, n=11,945. Agree = favor businesses including automatic service charges or tips on customers' bills (10%); about 72% oppose.",
+  "source": "https://www.pewresearch.org/2023/11/09/tipping-culture-in-america-public-sees-a-changed-landscape/"
+}, {
+  "id": "skip-budget-trip",
+  "take": "I'd rather skip vacation than travel on a budget",
+  "agree": 42,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Online, Feb 3-5, 2026, n=2,082. Share of Americans who say they'd rather skip a vacation altogether than book budget airfare and lodging (42%).",
+  "source": "https://www.nerdwallet.com/travel/studies/summer-travel-report"
+}, {
+  "id": "points-too-complicated",
+  "take": "Travel points and miles are way too complicated",
+  "agree": 48,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Online, Feb 3-5, 2026, n=2,082. Share of Americans who say travel points and miles programs are too complicated (48%).",
+  "source": "https://www.nerdwallet.com/travel/studies/summer-travel-report"
+}, {
+  "id": "travel-insurance-worth-it",
+  "take": "Paying extra for travel insurance is worth it",
+  "agree": 62,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Online, Feb 3-5, 2026, n=2,082. Share of Americans who say paying extra for travel insurance is worth it (62%; same item for refundable flights was 67%).",
+  "source": "https://www.nerdwallet.com/travel/studies/summer-travel-report"
+}, {
+  "id": "refundable-fares",
+  "take": "Refundable flights are worth the extra money",
+  "agree": 67,
+  "who": "US adults",
+  "pollster": "Harris Poll for NerdWallet",
+  "year": 2026,
+  "method": "Online, Feb 3-5, 2026, n=2,082. Share of Americans who say paying extra for refundable flights is worth it for the flexibility (67%).",
+  "source": "https://www.nerdwallet.com/travel/studies/summer-travel-report"
+}, {
+  "id": "vacation-debt",
+  "take": "I'm going into debt for my summer vacation",
+  "agree": 29,
+  "who": "US adults planning summer travel",
+  "pollster": "YouGov for Bankrate",
+  "year": 2025,
+  "method": "Bankrate 2025 Summer Travel Survey, YouGov, March 10-12, 2025, n=2,238. Share of prospective summer travelers who plan to go into debt for their trip (29%, down from 36% in 2024). Behavior, phrased as the take.",
+  "source": "https://www.bankrate.com/credit-cards/news/survey-summer-vacation/"
+}, {
+  "id": "unused-pto",
+  "take": "I don't use all my paid vacation days",
+  "agree": 46,
+  "who": "US workers with paid time off",
+  "pollster": "Pew Research Center",
+  "year": 2023,
+  "method": "American Trends Panel, Feb 6-12, 2023, n=5,188 non-self-employed workers. Share of workers with paid time off who take less time off than their employer offers (46%). Behavior, phrased as the take.",
+  "source": "https://www.pewresearch.org/short-reads/2023/08/10/more-than-4-in-10-u-s-workers-dont-take-all-their-paid-time-off/"
+}, {
+  "id": "annual-vacation-must",
+  "take": "A yearly vacation is important to me",
+  "agree": 75,
+  "who": "US adults",
+  "pollster": "Ipsos for Allianz Partners USA",
+  "year": 2025,
+  "method": "Vacation Confidence Index, Ipsos online omnibus, April 14-15, 2025, n=2,005. Share of Americans who consider annual vacations important to them (75%).",
+  "source": "https://www.allianzworldwidepartners.com/media-center/press-releases/Summer-vacation-confidence-and-spend-reach-record-highs-despite-ongoing-economic-uncertainty.html"
+}, {
+  "id": "limit-airbnb",
+  "take": "Tourist cities should limit Airbnb-style rentals",
+  "agree": 38,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Surveys: Serviced, Aug 4-5, 2025, n=1,206. Share supporting limits on short-term rentals like Airbnb as an overtourism measure (38%).",
+  "source": "https://yougov.com/en-us/articles/52776-what-americans-say-about-overtourism-and-how-theyre-changing-travel-habits"
+}, {
+  "id": "tourist-taxes",
+  "take": "Tourists should pay extra tourist taxes",
+  "agree": 29,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Surveys: Serviced, Aug 4-5, 2025, n=1,206. Share supporting tourist taxes and sustainability fees to manage overtourism (29%).",
+  "source": "https://yougov.com/en-us/articles/52776-what-americans-say-about-overtourism-and-how-theyre-changing-travel-habits"
+}, {
+  "id": "overtourism-worry",
+  "take": "I'm worried about overtourism",
+  "agree": 41,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Surveys: Serviced, Aug 4-5, 2025, n=1,206. Concern about overtourism: very concerned (11%) + somewhat concerned (30%) = 41%.",
+  "source": "https://yougov.com/en-us/articles/52776-what-americans-say-about-overtourism-and-how-theyre-changing-travel-habits"
+}, {
+  "id": "ai-trip-planner",
+  "take": "I'm happy to let AI plan my trip",
+  "agree": 30,
+  "who": "US travelers",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Surveys: Serviced, July 2025, n=880 US travelers (traveled in past 24 months or plan to in next 12). Share comfortable using AI for trip planning (30%; 40% not comfortable).",
+  "source": "https://yougov.com/en-us/articles/52770-comfort-with-ai-in-travel-planning-dips-among-younger-americans"
+}, {
+  "id": "book-last-minute",
+  "take": "I book trips less than a month out",
+  "agree": 26,
+  "who": "US summer travelers",
+  "pollster": "YouGov",
+  "year": 2024,
+  "method": "Aug 26-27, 2024, n=1,155 US adults; among summer 2024 travelers, share who booked hotel and flights less than a month before the trip (26%). Behavior, phrased as the take.",
+  "source": "https://yougov.com/en-us/articles/50451-are-americans-more-likely-to-book-travel-early-on-or-last-minute-us-travel-booking-trends-explained"
+}, {
+  "id": "space-flight-pay",
+  "take": "If I could afford it, I'd ride a commercial space flight",
+  "agree": 31,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov daily question (Apr 16, 2025, n=4,390): 'If you could afford it, would you pay to be a passenger on a short commercial space flight?' Yes = 31% (No 55%, Not sure 14%).",
+  "source": "https://yougov.com/en-us/daily-results/20250416-38ce4-1"
+}, {
+  "id": "space-tourist-astronaut",
+  "take": "Space tourists count as real astronauts",
+  "agree": 10,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov daily question (Apr 16, 2025, n=4,390): 'Do you consider someone who was a passenger on a short commercial space flight to be an astronaut?' Yes = 10%.",
+  "source": "https://yougov.com/en-us/daily-results/20250416-38ce4-2"
+}, {
+  "id": "space-tourism-routine",
+  "take": "Space vacations will be routine within 50 years",
+  "agree": 55,
+  "who": "US adults",
+  "pollster": "Pew Research Center",
+  "year": 2023,
+  "method": "Pew ATP survey (May 30-Jun 4, 2023, 10,000+ adults): 55% expect people will routinely travel to space as tourists by 2073; 44% say this won't happen.",
+  "source": "https://www.pewresearch.org/science/2023/07/20/americans-views-of-space-u-s-role-nasa-priorities-and-impact-of-private-companies/"
+}, {
+  "id": "quiet-beach",
+  "take": "A quiet, empty beach beats a lively, packed one",
+  "agree": 74,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov daily question (Jul 10, 2025, n=8,900): 'Which of the following beach experiences would you prefer?' A quiet, uncrowded beach = 74% (lively beach 12%, neither 7%, not sure 7%).",
+  "source": "https://yougov.com/en-us/daily-results/20250710-5ae48-3"
+}, {
+  "id": "beach-love",
+  "take": "A day at the beach is always a good idea",
+  "agree": 79,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov daily question (Jul 10, 2025, n=8,900): 'How do you feel about going to the beach?' Love it 39% + Like it 40% = 79%.",
+  "source": "https://yougov.com/en-us/daily-results/20250710-5ae48-1"
+}, {
+  "id": "ocean-swim",
+  "take": "Swimming in the ocean is fun",
+  "agree": 53,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov poll (Jul 1-3, 2025, n=1,019) rating summer activities: 'Swimming in the ocean' Love it 21% + Like it 32% = 53%. Take framed as liking ocean swimming; agree = love+like.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Summer_Activities_and_Heat_poll_results.pdf"
+}, {
+  "id": "sunbathing",
+  "take": "Sunbathing is a great way to spend a vacation day",
+  "agree": 46,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov poll (Jul 1-3, 2025, n=1,019): 'Sunbathing' Love it 14% + Like it 32% = 46%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Summer_Activities_and_Heat_poll_results.pdf"
+}, {
+  "id": "camping-fun",
+  "take": "Camping is genuinely fun",
+  "agree": 57,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov poll (Jul 1-3, 2025, n=1,019): 'Camping' Love it 23% + Like it 34% = 57% (dislike 21%, hate 12%, not sure 10%).",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Summer_Activities_and_Heat_poll_results.pdf"
+}, {
+  "id": "amusement-parks",
+  "take": "Amusement parks are fun, even as an adult",
+  "agree": 62,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov poll (Jul 1-3, 2025, n=1,019): 'Going to an amusement park' Love it 25% + Like it 37% = 62% (dislike 22%, hate 11%).",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Summer_Activities_and_Heat_poll_results.pdf"
+}, {
+  "id": "water-parks",
+  "take": "Water parks are a blast, even for adults",
+  "agree": 59,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov poll (Jul 1-3, 2025, n=1,019): 'Going to a water park' Love it 23% + Like it 36% = 59%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Summer_Activities_and_Heat_poll_results.pdf"
+}, {
+  "id": "road-trips",
+  "take": "Road trips are fun, period",
+  "agree": 83,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 10, 2023, n=9,289): 'What is your opinion of road trips?' Love them 40% + Like them 43% = 83%.",
+  "source": "https://yougov.com/en-us/daily-results/20230510-2487c-1"
+}, {
+  "id": "scenic-route",
+  "take": "On a road trip, take the scenic route, not the fast one",
+  "agree": 59,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 10, 2023, n=9,289): 'If you were taking a road trip, which route would you most prefer to take?' The most scenic route = 59% (fastest 28%, not sure 12%).",
+  "source": "https://yougov.com/en-us/daily-results/20230510-2487c-3"
+}, {
+  "id": "road-trip-plan",
+  "take": "Road trips should be planned down to every detail",
+  "agree": 50,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 10, 2023, n=9,289): 'Which would come closer to your approach to deciding where to go on a road trip?' Plan every detail = 50% (be spontaneous 37%, not sure 13%).",
+  "source": "https://yougov.com/en-us/daily-results/20230510-2487c-2"
+}, {
+  "id": "summer-best-season",
+  "take": "Summer is the best season for a vacation",
+  "agree": 36,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 8, 2023, n=32,561): 'Which is your favorite season for taking vacations?' Summer = 36% (spring 19%, fall 18%, winter 15%, not sure 12%).",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-1"
+}, {
+  "id": "summer-go-colder",
+  "take": "Summer vacation? Take me somewhere colder",
+  "agree": 19,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 8, 2023, n=32,561): 'If you were going on a vacation this summer, would you rather go somewhere...?' Colder than where you live = 19% (warmer 26%, same temp 43%).",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-3"
+}, {
+  "id": "anticipation",
+  "take": "Looking forward to a trip beats actually taking it",
+  "agree": 18,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov daily question (May 8, 2023, n=32,561): 'What is generally your favorite part of the vacation process?' Anticipating it before it starts = 18% (experiencing it 65%, remembering it 7%).",
+  "source": "https://yougov.com/en-us/daily-results/20230508-68e2d-2"
+}, {
+  "id": "passport",
+  "take": "I've got a valid US passport",
+  "agree": 43,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2023,
+  "method": "YouGov poll (Aug 2-4, 2023, n=1,000 US adult citizens): 43% hold a passport, 52% do not.",
+  "source": "https://yougov.com/en-us/articles/46028-adults-under-30-more-likely-have-us-passport"
+}, {
+  "id": "never-abroad-leisure",
+  "take": "I never travel abroad for vacation",
+  "agree": 60,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov US International Traveler Outlook 2026 survey (Oct 20-Nov 11, 2025, n=1,506 US adults): '60% of Americans never travel abroad for leisure.'",
+  "source": "https://yougov.com/en-us/articles/53736-americans-pull-back-on-global-travel-heading-into-2026"
+}, {
+  "id": "five-countries",
+  "take": "I've been to five or more foreign countries",
+  "agree": 26,
+  "who": "US adults",
+  "pollster": "Pew Research Center",
+  "year": 2023,
+  "method": "Pew American Trends Panel (analysis published Dec 2023, drawing on 2021-2023 surveys): 26% of Americans have been to five or more other countries (76% at least one; 23% none). Pew does not say which of the 2021-2023 waves asked the travel question; year set to publication.",
+  "source": "https://www.pewresearch.org/short-reads/2023/12/06/americans-who-have-traveled-internationally-stand-out-in-their-views-and-knowledge-of-foreign-affairs/"
+}, {
+  "id": "all-50-states",
+  "take": "Visiting all 50 states is a goal of mine",
+  "agree": 30,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Travel survey (Jun 24-26, 2025, n=1,016): 'Has it ever been a goal of yours to visit all 50 states in your lifetime?' Yes = 30% (No 65%).",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Travel_poll_results.pdf"
+}, {
+  "id": "state-visit-full-trip",
+  "take": "A state only counts if you took a full sightseeing trip",
+  "agree": 21,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Travel survey (Jun 24-26, 2025): minimum travel that counts as 'visiting' a state. 'A full trip including sightseeing' = 21%; this is the strictest option, so only that group would agree.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Travel_poll_results.pdf"
+}, {
+  "id": "leisure-priority",
+  "take": "Vacation travel is a top priority in my life",
+  "agree": 33,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Travel survey (Jun 24-26, 2025): 'How much of a priority is leisure travel for you?' The top priority 8% + A high priority 25% = 33%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Travel_poll_results.pdf"
+}, {
+  "id": "never-travel",
+  "take": "Honestly, I basically never travel",
+  "agree": 24,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov Travel survey (Jun 24-26, 2025): 'About how often do you travel now?' Never = 24%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Travel_poll_results.pdf"
+}, {
+  "id": "overtourism",
+  "take": "Overtourism is a real problem that worries me",
+  "agree": 41,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov survey (Aug 4-5, 2025, n=1,206): concerned about overtourism, very 11% + somewhat 30% = 41%.",
+  "source": "https://yougov.com/en-us/articles/52776-what-americans-say-about-overtourism-and-how-theyre-changing-travel-habits"
+}, {
+  "id": "tourist-tax",
+  "take": "Tourist taxes on visitors are a good idea",
+  "agree": 29,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2025,
+  "method": "YouGov survey (Aug 4-5, 2025, n=1,206): 29% support tourist taxes and sustainability fees as a way to address overtourism (multi-select list of measures).",
+  "source": "https://yougov.com/en-us/articles/52776-what-americans-say-about-overtourism-and-how-theyre-changing-travel-habits"
+}, {
+  "id": "cruise-illness",
+  "take": "Cruise ships are safe from serious illness",
+  "agree": 31,
+  "who": "US adults",
+  "pollster": "YouGov",
+  "year": 2026,
+  "method": "YouGov daily question (May 16, 2026, n=6,482): 'How safe do you believe people who go on cruise ships are from contracting serious illness?' Completely safe 4% + Somewhat safe 27% = 31%.",
+  "source": "https://yougov.com/en-us/daily-results/20260516-f2e15-2"
+}, {
+  "id": "week-vacation-unaffordable",
+  "take": "A weeklong vacation is out of my budget",
+  "agree": 60,
+  "who": "US adults",
+  "pollster": "ABC News/Washington Post/Ipsos",
+  "year": 2026,
+  "method": "ABC/WaPo/Ipsos KnowledgePanel poll (Feb 12-17, 2026, n=2,589): 60% say a weeklong vacation is unaffordable for their household.",
+  "source": "https://abcnews.com/Politics/half-americans-health-care-weeklong-vacation-new-car/story?id=130538412"
+}, {
+  "id": "one-week-ideal",
+  "take": "One week is the perfect vacation length",
+  "agree": 41,
+  "who": "US adults",
+  "pollster": "Marist Poll",
+  "year": 2025,
+  "method": "Marist Poll (Jun 23-25, 2025, n=1,381): ideal vacation length, one week = 41% (two weeks 35%, more than two weeks 13%, long weekend 12%).",
+  "source": "https://maristpoll.marist.edu/polls/summer-travel-july-2025/"
+}, {
+  "id": "national-parks-interest",
+  "take": "I'm keen to visit national parks",
+  "agree": 75,
+  "who": "US adult citizens",
+  "pollster": "YouGov",
+  "year": 2022,
+  "method": "YouGov National Parks survey (Sep 26-29, 2022, n=1,000): 'How interested are you in visiting national parks in the U.S.?' Very 38% + Somewhat 37% = 75%.",
+  "source": "https://d3nkl3psvxxpe9.cloudfront.net/documents/crosstabs_National_Parks.pdf"
+}, {
+  "id": "holiday-stay-home",
+  "take": "I'm not traveling anywhere over the holidays",
+  "agree": 55,
+  "who": "US adults",
+  "pollster": "YouGov for The Points Guy",
+  "year": 2026,
+  "method": "TPG-commissioned YouGov survey (Sep 18-22, 2026, n=2,445): 55% said they weren't planning to travel between Thanksgiving and New Year's.",
+  "source": "https://thepointsguy.com/news/holiday-travel-survey/"
+}] /*END_TAKES*/;
+const ROUND = Math.min(10, TAKES.length);
+const LAUNCH = Date.UTC(2026, 9, 19);
+const DAY = (() => {
+  const n = new Date(),
+    today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  return {
+    id: Math.max(1, Math.round((today - LAUNCH) / 864e5) + 1),
+    label: n.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    })
+  };
+})();
+function seeded(seed) {
+  let s = seed >>> 0;
+  return () => (s = s * 1664525 + 1013904223 >>> 0) / 4294967296;
+}
+function shuffle(arr, r) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const POOL = shuffle(TAKES, seeded(2468));
+// Daily sets walk through the shuffled pool, so no take repeats until all have been used.
+function pickSet(mode) {
+  if (mode.daily) return Array.from({
+    length: ROUND
+  }, (_, i) => POOL[((DAY.id - 1) * ROUND + i) % POOL.length]);
+  return shuffle(POOL, seeded(mode.seed)).slice(0, ROUND);
+}
+// Your side vs the survey: "crowd" if most people agreed with you, "hot" if you're in the minority, "split" at 50/50.
+const sideOf = (vote, t) => {
+  const mine = vote === "A" ? t.agree : 100 - t.agree;
+  return mine > 50 ? "crowd" : mine < 50 ? "hot" : "split";
+};
+const sq = s => s === "hot" ? "🔥" : s === "split" ? "⚖️" : "✅";
+const SPICE = [{
+  min: 7,
+  label: "Extra Spicy",
+  icon: "🔥🔥🔥",
+  note: "You live in the hot seat. Your travel opinions are rare, and loud."
+}, {
+  min: 5,
+  label: "Hot",
+  icon: "🌶️🌶️🌶️",
+  note: "Half the time you're with the crowd, half the time you're starting arguments."
+}, {
+  min: 3,
+  label: "Medium",
+  icon: "🌶️🌶️",
+  note: "Mostly mainstream, with a few takes that would start a fight at the gate."
+}, {
+  min: 1,
+  label: "Mild",
+  icon: "🌶️",
+  note: "You agree with most travelers. A crowd favorite in seat 14C."
+}, {
+  min: 0,
+  label: "Crowd Pleaser",
+  icon: "🧊",
+  note: "You sided with the majority every time. Nobody's fighting you for the armrest."
+}];
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+
+/* ---------- Sound ---------- */
+let AC = null;
+function tone(freqs, type = "triangle", step = .08, len = .22, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  crowd: () => tone([660, 880]),
+  hot: () => tone([220, 330, 440, 660], "sawtooth", .06, .2, .05),
+  done: () => tone([523, 659, 784, 1047], "triangle", .1, .35, .11)
+};
+
+/* ---------- Pieces ---------- */
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#4A3832]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--bg)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "mono text-[10px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "mono"
+  }, t);
+}
+function Split({
+  agree,
+  vote
+}) {
+  const [w, setW] = useState(50);
+  useEffect(() => {
+    const t = setTimeout(() => setW(agree), 60);
+    return () => clearTimeout(t);
+  }, [agree]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "split",
+    role: "img",
+    "aria-label": `${agree}% agree, ${100 - agree}% disagree`
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: `${Math.max(w, 14)}%`,
+      background: "var(--hot)",
+      outline: vote === "A" ? "3px solid #fff" : "none",
+      outlineOffset: -5
+    }
+  }, "\uD83D\uDC4D ", agree, "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: `${Math.max(100 - w, 14)}%`,
+      background: "var(--cool)",
+      justifyContent: "flex-end",
+      outline: vote === "D" ? "3px solid #fff" : "none",
+      outlineOffset: -5
+    }
+  }, 100 - agree, "% \uD83D\uDC4E"));
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative w-full max-w-md rounded-[24px] border-[3px] border-b-[8px] border-black bg-[color:var(--card)] p-6 text-[color:var(--card-ink)]",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--card-muted)] hover:bg-black/5",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[30px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "You'll get ", ROUND, " travel hot takes. Tap ", /*#__PURE__*/React.createElement("b", null, "Agree"), " or ", /*#__PURE__*/React.createElement("b", null, "Disagree"), ", or press ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "\u2190"), " / ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "\u2192"), ".")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCCA"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Then see how real people answered in a published survey, with the source linked.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDF36\uFE0F"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Every time you side with the minority, your spice level goes up. There are no wrong answers, only hot ones."))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-hot mt-5 w-full py-3 text-[17px]"
+  }, "Take the hot seat")));
+}
+function shareText(set, votes, daily) {
+  const hots = set.filter((t, i) => votes[i] && sideOf(votes[i], t) === "hot").length;
+  const spice = SPICE.find(s => hots >= s.min);
+  return `🔥 Travel Hot Takes ${daily ? `#${DAY.id}` : "· Bonus round"}\nSpice level: ${spice.label} ${spice.icon} (${hots}/${set.length} hot takes)\n${set.map((t, i) => votes[i] ? sq(sideOf(votes[i], t)) : "⬜").join("")}\nPlay: ${SITE.url}`;
+}
+
+/* ---------- App ---------- */
+function App() {
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `hot-takes-${DAY.id}`;
+  const set = useMemo(() => pickSet(mode), [mode]);
+  const [votes, setVotes] = useState(() => store.get(SAVE_KEY, null)?.votes || []);
+  const [idx, setIdx] = useState(() => Math.min(store.get(SAVE_KEY, null)?.votes?.length || 0, ROUND));
+  const [shown, setShown] = useState(false);
+  const [sound, setSound] = useState(() => store.get("hot-takes-sound", true));
+  const [streak, setStreak] = useState(() => store.get("hot-takes-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null),
+    nextRef = useRef(null);
+  const done = idx >= ROUND;
+  const t = set[Math.min(idx, ROUND - 1)];
+  const vote = votes[idx];
+  const sides = set.map((x, i) => votes[i] ? sideOf(votes[i], x) : null);
+  const hots = sides.filter(s => s === "hot").length;
+  const spice = SPICE.find(s => hots >= s.min);
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      votes
+    });
+  }, [votes, mode.daily]);
+  useEffect(() => {
+    store.set("hot-takes-sound", sound);
+  }, [sound]);
+  const cast = v => {
+    if (done || shown) return;
+    const next = [...votes];
+    next[idx] = v;
+    setVotes(next);
+    setShown(true);
+    if (sound) (sideOf(v, t) === "hot" ? SFX.hot : SFX.crowd)();
+    setTimeout(() => nextRef.current && nextRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    }), 400);
+  };
+  const advance = () => {
+    const n = idx + 1;
+    setIdx(n);
+    setShown(false);
+    if (n >= ROUND) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) {
+        const s = {
+          count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+          last: DAY.id
+        };
+        setStreak(s);
+        store.set("hot-takes-streak", s);
+      }
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const restart = m => {
+    setMode(m);
+    setVotes([]);
+    setIdx(0);
+    setShown(false);
+    setCopied(false);
+    setFallback(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const playBonus = () => restart({
+    daily: false,
+    seed: Math.floor(Math.random() * 1e9)
+  });
+  const backToDaily = () => {
+    const s = store.get(SAVE_KEY, null);
+    setMode({
+      daily: true,
+      seed: 0
+    });
+    setVotes(s?.votes || []);
+    setIdx(Math.min(s?.votes?.length || 0, ROUND));
+    setShown(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey) return;
+      if (!done && !shown && (e.key === "ArrowLeft" || e.key.toLowerCase() === "a")) cast("A");else if (!done && !shown && (e.key === "ArrowRight" || e.key.toLowerCase() === "d")) cast("D");else if (shown && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        advance();
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+  const text = shareText(set, votes, mode.daily);
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+  const side = shown && sideOf(vote, t);
+  const mineShare = shown ? vote === "A" ? t.agree : 100 - t.agree : 0;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-4xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "flex items-center justify-between gap-3 py-1.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[30px] sm:text-[40px] leading-none"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "flame",
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), " Travel ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--hot)"
+    }
+  }, "Hot Takes")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 truncate text-[12px] font-bold text-[color:var(--muted)]"
+  }, mode.daily ? `Daily #${DAY.id} · ${DAY.label}` : "Bonus round · just for fun")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDCC5"), /*#__PURE__*/React.createElement("span", {
+    className: "mono text-[15px]"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-black",
+    "aria-label": "How to play"
+  }, "?"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-1 gap-1.5",
+    "aria-label": "Progress"
+  }, set.map((x, i) => /*#__PURE__*/React.createElement("span", {
+    key: x.id + i,
+    className: "h-2.5 flex-1 rounded-full",
+    style: {
+      background: sides[i] === "hot" ? "var(--hot)" : sides[i] ? "var(--cool)" : i === idx && !done ? "var(--amber)" : "rgba(255,255,255,.14)"
+    }
+  }))), /*#__PURE__*/React.createElement("span", {
+    className: "mono text-[13px] text-[color:var(--muted)]"
+  }, "\uD83D\uDD25 ", hots)), !done ? /*#__PURE__*/React.createElement("main", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement("section", {
+    key: t.id + idx,
+    className: "take rise p-6 pt-10 sm:p-9 sm:pt-12",
+    "aria-live": "polite"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "quote",
+    "aria-hidden": "true"
+  }, "\u201C"), /*#__PURE__*/React.createElement("div", {
+    className: "relative text-[12px] font-black uppercase tracking-[.18em] text-[color:var(--card-muted)]"
+  }, "Hot take ", idx + 1, " of ", ROUND), /*#__PURE__*/React.createElement("h2", {
+    className: "relative mt-2 display text-[38px] sm:text-[54px] leading-[1.02]"
+  }, t.take), !shown ? /*#__PURE__*/React.createElement("div", {
+    className: "relative mt-7 grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => cast("A"),
+    className: "btn btn-hot py-5 text-[20px] sm:text-[24px]"
+  }, "\uD83D\uDC4D Agree"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => cast("D"),
+    className: "btn btn-cool py-5 text-[20px] sm:text-[24px]"
+  }, "\uD83D\uDC4E Disagree")) : /*#__PURE__*/React.createElement("div", {
+    className: "relative mt-6 rise"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-2 flex flex-wrap items-center justify-between gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[13px] font-black uppercase tracking-[.14em] text-[color:var(--card-muted)]"
+  }, "You said: ", vote === "A" ? "👍 Agree" : "👎 Disagree"), /*#__PURE__*/React.createElement("span", {
+    className: "pop rounded-full px-3 py-1 text-[13px] font-black text-white",
+    style: {
+      background: side === "hot" ? "var(--hot)" : side === "split" ? "var(--amber)" : "var(--ok)"
+    }
+  }, side === "hot" ? "🔥 HOT TAKE!" : side === "split" ? "⚖️ Dead even" : "✅ With the crowd")), /*#__PURE__*/React.createElement(Split, {
+    agree: t.agree,
+    vote: vote
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-[17px] font-extrabold"
+  }, side === "hot" ? `Only ${mineShare}% of people see it your way.` : side === "split" ? "People are split right down the middle on this one." : `${mineShare}% of people are with you.`), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-[12px] font-semibold text-[color:var(--card-muted)]"
+  }, t.pollster, t.year ? `, ${t.year}` : "", " \xB7 ", t.who, t.source && /*#__PURE__*/React.createElement(React.Fragment, null, " \xB7 ", /*#__PURE__*/React.createElement("a", {
+    href: t.source,
+    target: "_blank",
+    rel: "noopener",
+    className: "underline"
+  }, "source"))), /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: advance,
+    className: "btn btn-amber mt-5 w-full py-3.5 text-[18px]"
+  }, idx + 1 < ROUND ? "Next hot take →" : "See my spice level →"))), !shown && /*#__PURE__*/React.createElement("p", {
+    className: "mt-3 text-center text-[13px] font-bold text-[color:var(--muted)]"
+  }, "No wrong answers. Just hot ones.")) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "take pop min-w-0 p-6 sm:p-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-black uppercase tracking-[.18em] text-[color:var(--card-muted)]"
+  }, mode.daily ? `Daily #${DAY.id}` : "Bonus round", " \xB7 your spice level"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex flex-wrap items-baseline gap-x-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "display text-[56px] sm:text-[72px] leading-none",
+    style: {
+      color: "var(--hot)"
+    }
+  }, spice.label), /*#__PURE__*/React.createElement("span", {
+    className: "text-[34px]",
+    "aria-hidden": "true"
+  }, spice.icon)), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[17px] font-extrabold"
+  }, hots, " of ", ROUND, " hot takes. ", spice.note), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-wrap gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: playBonus,
+    className: "btn btn-hot min-w-[12rem] flex-1 py-3 text-[17px]"
+  }, "\uD83C\uDFB2 ", mode.daily ? "Play a bonus round" : "Play again"), !mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: backToDaily,
+    className: "btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]"
+  }, "\u2190 Back to today's takes")), mode.daily && /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[13px] text-[color:var(--card-muted)]"
+  }, "Bonus rounds are just for fun and don't change your daily result."), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-6 display text-[24px]"
+  }, "Your takes vs. everyone"), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-2 space-y-2"
+  }, set.map((x, i) => /*#__PURE__*/React.createElement("li", {
+    key: x.id + i,
+    className: "grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl bg-black/[.05] px-3 py-2.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, votes[i] ? sq(sides[i]) : "⬜"), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0 text-[14px] font-bold leading-snug"
+  }, x.take, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    className: "text-[12px] font-semibold text-[color:var(--card-muted)]"
+  }, "You: ", votes[i] === "A" ? "Agree" : "Disagree", " \xB7 ", x.pollster, " ", x.year)), /*#__PURE__*/React.createElement("span", {
+    className: "mono text-[13px] text-right"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--hot-d)"
+    }
+  }, x.agree, "%"), " agree")))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-6 rounded-2xl border-[3px] border-b-[6px] border-black p-4 text-white",
+    style: {
+      background: "linear-gradient(135deg,var(--hot),#C2410C)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-black uppercase tracking-[.18em] opacity-85"
+  }, "Sponsored \xB7 Fare finder"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 display text-[24px] leading-tight"
+  }, "Our hottest take: never book without comparing fares"), /*#__PURE__*/React.createElement("a", {
+    href: fareLink(null, null),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn mt-3 block w-full border-black bg-white py-3 text-center text-[16px] text-[#1D1210]"
+  }, "Find Cheap Flights \u2197"))), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-b-[6px] border-black bg-[color:var(--bg-2)] p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-black uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 mono text-[12px] leading-relaxed"
+  }, text), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold text-[color:var(--amber)]"
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    id: "share-fallback",
+    readOnly: true,
+    value: text,
+    rows: 4,
+    className: "w-full rounded-lg bg-black/30 p-2 mono text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-amber mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy Result"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-black bg-[color:var(--bg-2)] p-4 text-center text-[13px] text-[color:var(--muted)]"
+  }, "New hot takes in ", /*#__PURE__*/React.createElement(Countdown, null), mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
+  }, "\u21BA Replay today's takes")))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-semibold text-[color:var(--muted)]"
+  }, "Travel Hot Takes \xB7 a GlobeRush game \xB7 percentages come from the published surveys linked on each take"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

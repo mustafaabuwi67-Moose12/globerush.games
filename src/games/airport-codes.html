@@ -1,0 +1,342 @@
+<title>Airport Code Quiz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Space+Mono:wght@700&family=Barlow:wght@500;600;700;800;900&display=swap">
+<style>
+/* Layout: the bag-tag printer at check-in. Each code prints on a big luggage tag (tall mono letters, barcode, punch hole),
+   four destination buttons below like a check-in screen. One look: terminal slate, bag-tag white, airline yellow, routing green. */
+:root{
+  --slate:#1D232E; --slate-2:#262E3C; --panel:#2F3949; --ink:#F2F4F7; --muted:#AAB3C2; --line:rgba(255,255,255,.12);
+  --tag:#FDFDF8; --tag-ink:#141414; --yellow:#FFD23F; --yellow-d:#B8930C; --green:#21A366; --green-d:#15693F; --red:#E04848; --red-d:#9A2828;
+  --f-display:"Oswald","Impact",system-ui,sans-serif; --f-mono:"Space Mono",ui-monospace,Menlo,Consolas,monospace; --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--slate);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:linear-gradient(0deg,rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:700;letter-spacing:.01em;text-transform:uppercase}
+.mono{font-family:var(--f-mono);font-weight:700}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-mono);font-size:22px;color:var(--yellow)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:10px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn-yellow{background:var(--yellow);border-color:var(--yellow-d);color:#231B00}
+.btn-plain{background:var(--slate-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--slate-2);color:var(--ink)}
+.tag{position:relative;margin:0 auto;max-width:34rem;border-radius:14px 14px 22px 22px;background:var(--tag);color:var(--tag-ink);border:3px solid #000;border-bottom-width:9px;padding:26px 22px 18px;box-shadow:0 22px 44px -24px #000}
+.tag::before{content:"";position:absolute;top:12px;left:50%;width:34px;height:14px;transform:translateX(-50%);border-radius:999px;background:var(--slate);border:3px solid #000}
+.tag .band{margin:14px -22px 0;height:12px;background:repeating-linear-gradient(90deg,var(--yellow) 0 18px,#000 18px 20px)}
+.tag .code{font-family:var(--f-mono);font-size:clamp(72px,20vw,128px);line-height:1;letter-spacing:.06em;text-align:center}
+.tag .bar{height:40px;margin-top:12px;background:repeating-linear-gradient(90deg,#141414 0 2px,transparent 2px 4px,#141414 4px 7px,transparent 7px 9px,#141414 9px 10px,transparent 10px 13px)}
+.opt{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:10px 14px;border-radius:10px;border:2px solid #000;border-bottom-width:6px;background:var(--panel);color:var(--ink);font-weight:800;font-size:17px;text-align:left;cursor:pointer;transition:transform .1s,background .2s,opacity .2s}
+.opt:hover:not(:disabled){transform:translateY(-3px);background:#3A4659}
+.opt:disabled{cursor:default}
+.opt .k{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:rgba(0,0,0,.35);font-family:var(--f-mono);font-size:13px;color:var(--yellow)}
+.opt.right{background:var(--green);border-color:var(--green-d);color:#fff}.opt.wrong{background:var(--red);border-color:var(--red-d);color:#fff}.opt.dim{opacity:.4}
+@keyframes print{0%{transform:translateY(-14px);opacity:0}100%{transform:none;opacity:1}}.print{animation:print .35s ease-out both}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(170,179,194,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(170,179,194,.25) 50%,transparent calc(50% + .5px)),rgba(0,0,0,.15)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(29,35,46,.97);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.print,.pop{animation:none!important}.opt:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="root"><div class="boot">🏷️ Printing bag tags…</div></div>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+/* Links and the site address come from config.js (window.GLOBERUSH). */
+const GR = window.GLOBERUSH;
+
+const CODES = [
+  // [airport code, city, airport name, fun fact (optional)]
+  ["ATL", "Atlanta", "Hartsfield–Jackson Atlanta International", "One of the busiest airports in the world by passengers."],
+  ["LAX", "Los Angeles", "Los Angeles International", "The X is just filler, added when airport codes went from two letters to three."],
+  ["ORD", "Chicago", "O'Hare International", "ORD comes from its old name, Orchard Field."],
+  ["DFW", "Dallas–Fort Worth", "Dallas Fort Worth International", ""],
+  ["DEN", "Denver", "Denver International", ""],
+  ["JFK", "New York", "John F. Kennedy International", "Named for President John F. Kennedy."],
+  ["SFO", "San Francisco", "San Francisco International", ""],
+  ["SEA", "Seattle", "Seattle–Tacoma International", ""],
+  ["LAS", "Las Vegas", "Harry Reid International", ""],
+  ["MCO", "Orlando", "Orlando International", "MCO comes from McCoy Air Force Base, which used to be there."],
+  ["MIA", "Miami", "Miami International", ""],
+  ["PHX", "Phoenix", "Phoenix Sky Harbor International", ""],
+  ["IAH", "Houston", "George Bush Intercontinental", "The I stands for Intercontinental."],
+  ["BOS", "Boston", "Logan International", ""],
+  ["MSP", "Minneapolis", "Minneapolis–Saint Paul International", ""],
+  ["DTW", "Detroit", "Detroit Metropolitan Wayne County", ""],
+  ["PHL", "Philadelphia", "Philadelphia International", ""],
+  ["LGA", "New York", "LaGuardia", ""],
+  ["EWR", "Newark", "Newark Liberty International", ""],
+  ["CLT", "Charlotte", "Charlotte Douglas International", ""],
+  ["BWI", "Baltimore", "Baltimore/Washington International", ""],
+  ["IAD", "Washington, D.C.", "Washington Dulles International", ""],
+  ["DCA", "Washington, D.C.", "Ronald Reagan Washington National", "DCA is usually said to stand for District of Columbia Airport."],
+  ["SAN", "San Diego", "San Diego International", ""],
+  ["TPA", "Tampa", "Tampa International", ""],
+  ["PDX", "Portland", "Portland International (Oregon)", "Its old teal carpet became so famous it was sold on socks."],
+  ["HNL", "Honolulu", "Daniel K. Inouye International", ""],
+  ["AUS", "Austin", "Austin–Bergstrom International", ""],
+  ["BNA", "Nashville", "Nashville International", "BNA comes from its old name, Berry Field Nashville."],
+  ["MSY", "New Orleans", "Louis Armstrong New Orleans International", "MSY comes from Moisant Stock Yards, the land it was built on."],
+  ["SLC", "Salt Lake City", "Salt Lake City International", ""],
+  ["MCI", "Kansas City", "Kansas City International", "MCI stands for Mid-Continent International."],
+  ["STL", "St. Louis", "St. Louis Lambert International", ""],
+  ["RDU", "Raleigh–Durham", "Raleigh–Durham International", ""],
+  ["SJC", "San Jose", "San José Mineta International", ""],
+  ["SNA", "Santa Ana", "John Wayne Airport (Orange County)", ""],
+  ["OAK", "Oakland", "Oakland's main airport", ""],
+  ["SMF", "Sacramento", "Sacramento International", ""],
+  ["CLE", "Cleveland", "Cleveland Hopkins International", ""],
+  ["PIT", "Pittsburgh", "Pittsburgh International", ""],
+  ["CVG", "Cincinnati", "Cincinnati/Northern Kentucky International", "The airport is actually in Kentucky, near Covington."],
+  ["IND", "Indianapolis", "Indianapolis International", ""],
+  ["CMH", "Columbus", "John Glenn Columbus International (Ohio)", ""],
+  ["ANC", "Anchorage", "Ted Stevens Anchorage International", ""],
+  ["FLL", "Fort Lauderdale", "Fort Lauderdale–Hollywood International", ""],
+  ["SAT", "San Antonio", "San Antonio International", ""],
+  ["ABQ", "Albuquerque", "Albuquerque International Sunport", ""],
+  ["OKC", "Oklahoma City", "OKC Will Rogers International", ""],
+  ["MEM", "Memphis", "Memphis International", ""],
+  ["JAX", "Jacksonville", "Jacksonville International", ""],
+  ["LHR", "London", "Heathrow", ""],
+  ["LGW", "London", "Gatwick", ""],
+  ["CDG", "Paris", "Charles de Gaulle", "Named for French president Charles de Gaulle."],
+  ["FRA", "Frankfurt", "Frankfurt Airport", ""],
+  ["AMS", "Amsterdam", "Schiphol", ""],
+  ["MAD", "Madrid", "Adolfo Suárez Madrid–Barajas", ""],
+  ["BCN", "Barcelona", "Josep Tarradellas Barcelona–El Prat", ""],
+  ["FCO", "Rome", "Leonardo da Vinci–Fiumicino", "FCO comes from Fiumicino, the town it's in."],
+  ["MXP", "Milan", "Milan Malpensa", ""],
+  ["MUC", "Munich", "Munich Airport", ""],
+  ["ZRH", "Zurich", "Zurich Airport", ""],
+  ["VIE", "Vienna", "Vienna International", ""],
+  ["CPH", "Copenhagen", "Copenhagen Airport", ""],
+  ["ARN", "Stockholm", "Stockholm Arlanda", "ARN comes from Arlanda."],
+  ["OSL", "Oslo", "Oslo Airport, Gardermoen", ""],
+  ["HEL", "Helsinki", "Helsinki Airport", ""],
+  ["DUB", "Dublin", "Dublin Airport", ""],
+  ["KEF", "Reykjavík", "Keflavík International", "Iceland's main airport is in Keflavík, about 50 km from Reykjavík."],
+  ["LIS", "Lisbon", "Humberto Delgado Airport", ""],
+  ["ATH", "Athens", "Athens International", ""],
+  ["IST", "Istanbul", "Istanbul Airport", ""],
+  ["DXB", "Dubai", "Dubai International", ""],
+  ["DOH", "Doha", "Hamad International", ""],
+  ["HND", "Tokyo", "Haneda", ""],
+  ["NRT", "Tokyo", "Narita International", ""],
+  ["ICN", "Seoul", "Incheon International", ""],
+  ["PEK", "Beijing", "Beijing Capital International", "PEK comes from Peking, the old English spelling of Beijing."],
+  ["PVG", "Shanghai", "Shanghai Pudong International", ""],
+  ["HKG", "Hong Kong", "Hong Kong International", ""],
+  ["SIN", "Singapore", "Changi", ""],
+  ["BKK", "Bangkok", "Suvarnabhumi", ""],
+  ["DEL", "Delhi", "Indira Gandhi International", ""],
+  ["BOM", "Mumbai", "Chhatrapati Shivaji Maharaj International", "BOM comes from Bombay, the city's former name."],
+  ["SYD", "Sydney", "Sydney Kingsford Smith", ""],
+  ["MEL", "Melbourne", "Melbourne Airport", ""],
+  ["AKL", "Auckland", "Auckland Airport", ""],
+  ["YYZ", "Toronto", "Toronto Pearson International", "Canadian codes start with Y; YYZ even inspired a famous Rush song."],
+  ["YVR", "Vancouver", "Vancouver International", ""],
+  ["YUL", "Montreal", "Montréal–Trudeau International", ""],
+  ["MEX", "Mexico City", "Mexico City International", ""],
+  ["CUN", "Cancún", "Cancún International", ""],
+  ["GRU", "São Paulo", "São Paulo/Guarulhos International", "GRU comes from Guarulhos, the city it's in."],
+  ["GIG", "Rio de Janeiro", "Rio de Janeiro/Galeão International", "GIG comes from Galeão."],
+  ["EZE", "Buenos Aires", "Ministro Pistarini (Ezeiza)", "EZE comes from Ezeiza, the area it's in."],
+  ["BOG", "Bogotá", "El Dorado International", ""],
+  ["LIM", "Lima", "Jorge Chávez International", ""],
+  ["JNB", "Johannesburg", "O. R. Tambo International", ""],
+  ["CPT", "Cape Town", "Cape Town International", ""],
+  ["CAI", "Cairo", "Cairo International", ""],
+  ["SJU", "San Juan", "Luis Muñoz Marín International", ""],
+  ["NAS", "Nassau", "Lynden Pindling International", ""],
+  ["PUJ", "Punta Cana", "Punta Cana International", ""],
+  ["MBJ", "Montego Bay", "Sangster International", ""],
+];
+
+const ALL = CODES.map(([code, city, airport, fact]) => ({ code, city, airport, fact }));
+const SIZE = 10;
+const DAY = GR.day();
+const POOL = GR.shuffled(ALL, 3141);
+function buildRounds(mode) {
+  const picks = mode.daily ? Array.from({ length: SIZE }, (_, i) => POOL[((DAY.id - 1) * SIZE + i) % POOL.length]) : GR.shuffled(POOL, mode.seed).slice(0, SIZE);
+  return picks.map((a, i) => {
+    const seed = (mode.daily ? DAY.id * 7919 : mode.seed) + i * 104729;
+    const cities = [...new Set(GR.shuffled(ALL, seed).map(x => x.city))].filter(c => c !== a.city).slice(0, 3);
+    return { a, options: GR.shuffled([a.city, ...cities], seed + 1) };
+  });
+}
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const RANKS = [[10, "Air Traffic Controller", "🗼"], [8, "Captain", "👨‍✈️"], [6, "Frequent Flyer", "✈️"], [0, "Lost Luggage", "🧳"]];
+const rankFor = n => RANKS.find(([m]) => n >= m);
+
+let AC = null;
+function tone(f, type = "triangle", step = .07, len = .2, vol = .1) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); f.forEach((fr, i) => { const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + .01 + i * step; o.type = type; o.frequency.value = fr; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + len); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + len + .05); }); } catch {} }
+const SFX = { right: () => tone([988, 1319], "sine", .08, .25, .09), wrong: () => tone([220, 165], "sawtooth", .12, .25, .05), done: () => tone([523, 659, 784, 1047], "triangle", .1, .3, .1) };
+
+function AdSlot({ w, h, size }) {
+  return <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#4A5568]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}><div className="rounded-md bg-[color:var(--slate)] px-3 py-1 text-center"><div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]">Monetization Slot</div><div className="text-[11px] text-[color:var(--muted)]">{size}</div></div></div>;
+}
+function Countdown() {
+  const calc = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const s = Math.max(0, Math.floor((m - n) / 1000)); return `${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc()); useEffect(() => { const i = setInterval(() => setT(calc()), 1000); return () => clearInterval(i); }, []);
+  return <span className="font-extrabold tabular-nums">{t}</span>;
+}
+function HelpModal({ onClose }) {
+  useEffect(() => { const k = e => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center" onClick={onClose} role="dialog" aria-modal="true" aria-label="How to play">
+      <div className="pop relative w-full max-w-md rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--tag)] p-6 text-[color:var(--tag-ink)]" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full hover:bg-black/5" aria-label="Close">✕</button>
+        <h2 className="display text-[26px]">How to play</h2>
+        <ul className="mt-3 space-y-3 text-[15px]">
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🏷️</span><p className="min-w-0">Every bag tag shows a three-letter airport code. Where is that bag going?</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">✅</span><p className="min-w-0">Pick the city from 4 choices (keys <b>1</b>–<b>4</b>), then learn where the code comes from.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">📅</span><p className="min-w-0">{SIZE} new codes every day, from 100 airports worldwide.</p></li>
+        </ul>
+        <button onClick={onClose} className="btn btn-yellow mt-5 w-full py-3 text-[17px]">Start check-in</button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [mode, setMode] = useState({ daily: true, seed: 0 });
+  const SAVE_KEY = `codes-${DAY.id}`;
+  const LINEUP = useMemo(() => buildRounds({ daily: true }).map(r => r.a.code).join(","), []);
+  const loadDaily = () => { const s = store.get(SAVE_KEY, null); return s && s.lineup === LINEUP && Array.isArray(s.answers) ? s.answers : []; };
+  const rounds = useMemo(() => buildRounds(mode), [mode]);
+  const [answers, setAnswers] = useState(loadDaily);
+  const [revealed, setRevealed] = useState(false);
+  const [sound, setSound] = useState(() => store.get("codes-sound", true));
+  const [streak, setStreak] = useState(() => store.get("codes-streak", { count: 0, last: 0 }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false), [fallback, setFallback] = useState(false);
+  const taRef = useRef(null), nextRef = useRef(null);
+
+  const idx = revealed ? answers.length - 1 : answers.length;
+  const done = answers.length >= SIZE && !revealed;
+  const r = rounds[Math.min(idx, SIZE - 1)];
+  const pick = revealed ? answers[idx] : null;
+  const right = answers.filter((a, i) => a === rounds[i].a.city).length;
+
+  useEffect(() => { if (mode.daily) store.set(SAVE_KEY, { answers, lineup: LINEUP }); }, [answers, mode.daily]);
+  useEffect(() => { store.set("codes-sound", sound); }, [sound]);
+  useEffect(() => { if (revealed && nextRef.current) nextRef.current.focus({ preventScroll: true }); }, [revealed]);
+
+  const choose = (c) => { if (revealed || done) return; if (sound) (c === r.a.city ? SFX.right : SFX.wrong)(); setAnswers(p => [...p, c]); setRevealed(true); };
+  const next = () => {
+    setRevealed(false);
+    if (answers.length >= SIZE) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) { const st = { count: streak.last === DAY.id - 1 ? streak.count + 1 : 1, last: DAY.id }; setStreak(st); store.set("codes-streak", st); }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+  const restart = (m) => { setMode(m); setAnswers([]); setRevealed(false); setCopied(false); setFallback(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const backToDaily = () => { setMode({ daily: true, seed: 0 }); setAnswers(loadDaily()); setRevealed(false); };
+
+  useEffect(() => {
+    const k = (e) => { if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey || done || revealed) return; const n = +e.key; if (n >= 1 && n <= 4) choose(r.options[n - 1]); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  });
+
+  const [, rName, rIcon] = rankFor(right);
+  const shareTxt = done ? `🏷️ Airport Code Quiz ${mode.daily ? `#${DAY.id}` : "· Bonus round"}\n${answers.map((a, i) => a === rounds[i].a.city ? "🟩" : "🟥").join("")}\n${right}/${SIZE} · ${rName} ${rIcon}\nPlay: ${GR.gameUrl("airport-codes")}` : "";
+  const copy = () => { const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2200); }; const no = () => { setFallback(true); setTimeout(() => taRef.current && taRef.current.select(), 30); }; try { navigator.clipboard.writeText(shareTxt).then(ok).catch(no); } catch { no(); } };
+
+  return (
+    <div className="mx-auto max-w-3xl">
+      <header className="mt-1 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="display text-[30px] sm:text-[42px] leading-none text-[color:var(--yellow)]">Airport Code Quiz</h1>
+          <div className="mono mt-1 truncate text-[12px] uppercase tracking-[.1em] text-[color:var(--muted)]">{mode.daily ? `Check-in #${DAY.id} · ${DAY.label}` : "Bonus round · just for fun"}</div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="chip flex items-center gap-1 px-3 py-1.5" title="Daily streak"><span aria-hidden="true">🔥</span><span className="text-[15px] font-extrabold tabular-nums">{streak.last >= DAY.id - 1 ? streak.count : 0}</span></div>
+          <button onClick={() => setSound(x => !x)} className="chip grid h-10 w-10 place-items-center text-[16px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
+          <button onClick={() => setShowHelp(true)} className="chip grid h-10 w-10 place-items-center text-[17px] font-extrabold" aria-label="How to play">?</button>
+        </div>
+      </header>
+      <div className="mt-4 hidden md:block"><AdSlot w={728} h={90} size="728×90 Leaderboard" /></div>
+
+      {!done ? (
+        <main className="mt-5">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-1 gap-1" aria-label={`Bag ${idx + 1} of ${SIZE}`}>{Array.from({ length: SIZE }, (_, i) => <span key={i} className="h-2.5 flex-1 rounded-full" style={{ background: answers[i] && (i < idx || revealed) ? (answers[i] === rounds[i].a.city ? "var(--green)" : "var(--red)") : i === idx ? "var(--yellow)" : "rgba(255,255,255,.14)" }} />)}</div>
+            <span className="mono text-[13px] text-[color:var(--muted)]">{idx + 1}/{SIZE}</span>
+          </div>
+          <div key={idx} className="mt-5">
+            <div className="tag print">
+              <div className="mono flex justify-between text-[11px] tracking-[.12em] text-[#666]"><span>BAG {String(idx + 1).padStart(2, "0")}</span><span>GLOBERUSH AIR</span></div>
+              <div className="code mt-3" aria-label={`Airport code ${r.a.code.split("").join(" ")}`}>{r.a.code}</div>
+              {revealed ? (
+                <div className="pop mt-2 text-center">
+                  <div className="text-[18px] font-black" style={{ color: pick === r.a.city ? "var(--green-d)" : "var(--red-d)" }}>{pick === r.a.city ? "Bag routed correctly!" : `Lost bag! It's going to ${r.a.city}.`}</div>
+                  <div className="mt-1 text-[14.5px] font-bold">{r.a.airport}</div>
+                  {r.a.fact && <p className="mt-1 text-[14px] text-[#444]">{r.a.fact}</p>}
+                </div>
+              ) : <p className="mt-2 text-center text-[14px] font-bold text-[#555]">Where is this bag going?</p>}
+              <div className="bar" aria-hidden="true" />
+              <div className="band" aria-hidden="true" />
+            </div>
+            {!revealed ? (
+              <div className="mx-auto mt-4 grid max-w-[34rem] gap-2.5 sm:grid-cols-2">
+                {r.options.map((c, k) => <button key={c} className="opt" onClick={() => choose(c)}><span className="k" aria-hidden="true">{k + 1}</span><span className="min-w-0">{c}</span></button>)}
+              </div>
+            ) : (
+              <div className="mx-auto mt-4 grid max-w-[34rem] gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                <a href={GR.flightLink(null, r.a.code)} target="_blank" rel="noopener sponsored" className="btn btn-plain block py-3 text-center text-[15px]">✈️ Flights to {r.a.code} ↗</a>
+                <button ref={nextRef} onClick={next} className="btn btn-yellow px-6 py-3 text-[17px]">{answers.length >= SIZE ? "See my score →" : "Next bag →"}</button>
+              </div>
+            )}
+          </div>
+        </main>
+      ) : (
+        <main className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <section className="min-w-0">
+            <div className="tag pop !max-w-none">
+              <div className="mono text-[11px] tracking-[.12em] text-[#666]">{mode.daily ? `CHECK-IN #${DAY.id}` : "BONUS ROUND"} · ALL BAGS ROUTED</div>
+              <div className="mt-2 flex items-center gap-4"><span className="text-[56px] leading-none" aria-hidden="true">{rIcon}</span><div><div className="mono text-[48px] leading-none">{right}/{SIZE}</div><div className="display text-[22px]">{rName}</div></div></div>
+              <ol className="mt-4 grid gap-1.5 sm:grid-cols-2">
+                {rounds.map((rr, i) => (
+                  <li key={rr.a.code} className="flex items-center gap-2 rounded-lg border-2 border-black/10 px-2.5 py-1.5 text-[14px]">
+                    <span aria-hidden="true">{answers[i] === rr.a.city ? "🟩" : "🟥"}</span><b className="mono">{rr.a.code}</b><span className="min-w-0 flex-1 truncate">{rr.a.city}</span>
+                    <a href={GR.flightLink(null, rr.a.code)} target="_blank" rel="noopener sponsored" className="text-[12px] font-extrabold text-[#1F5FBF] underline underline-offset-2" aria-label={`Flights to ${rr.a.city}`}>Fly ↗</a>
+                  </li>
+                ))}
+              </ol>
+              <div className="band" aria-hidden="true" />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button onClick={() => restart({ daily: false, seed: Math.floor(Math.random() * 1e9) })} className="btn btn-yellow min-w-[12rem] flex-1 py-3 text-[17px]">🎲 {mode.daily ? "Play a bonus round" : "Play again"}</button>
+              {!mode.daily && <button onClick={backToDaily} className="btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]">← Back to today's codes</button>}
+            </div>
+          </section>
+          <aside className="min-w-0 space-y-4">
+            <div className="rounded-[18px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-5">
+              <div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Share card</div>
+              <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 text-[13px] font-bold leading-relaxed" style={{ fontFamily: "ui-monospace,Menlo,Consolas,monospace" }}>{shareTxt}</pre>
+              {fallback && <div className="mt-2"><div className="mb-1 text-[12px] font-bold text-[color:var(--yellow)]">Copying is blocked here. The text is selected, so press Ctrl+C or ⌘+C.</div><textarea ref={taRef} readOnly value={shareTxt} rows={5} className="w-full rounded-lg bg-black/30 p-2 text-[12px]" /></div>}
+              <button onClick={copy} className="btn btn-yellow mt-3 w-full py-3 text-[17px]">{copied ? "✓ Copied!" : "Copy & Challenge a Friend"}</button>
+              <div className="mt-4"><AdSlot w={300} h={250} size="300×250 Medium Rectangle" /></div>
+            </div>
+            <div className="rounded-[18px] border-2 border-black bg-[color:var(--panel)] p-4 text-center text-[13px] text-[color:var(--muted)]">New codes in <Countdown />
+              {mode.daily && <button onClick={() => restart({ daily: true, seed: 0 })} className="btn btn-plain mt-3 w-full py-2.5 text-[15px]">↺ Replay today's codes</button>}</div>
+          </aside>
+        </main>
+      )}
+      <footer className="mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]">Airport Code Quiz · a GlobeRush game</footer>
+      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50 Sticky Banner" /></div>
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>

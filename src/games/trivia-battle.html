@@ -1,0 +1,453 @@
+<title>Travel Trivia Battle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+/* Layout: a TV quiz-show stage. Split scoreboard (you vs rival) on top, a countdown bar like a game-show clock,
+   the question on a lit panel and four buzzer buttons. One look: stage purple, spotlight gold, player cyan vs rival magenta. */
+:root{
+  --stage:#1A1035; --stage-2:#24174A; --panel:#2E1F5E; --ink:#F7F3FF; --muted:#BDB2E0; --line:rgba(255,255,255,.14);
+  --gold:#FFCF3F; --gold-d:#B38C10; --you:#33D6F5; --you-d:#168BA3; --rival:#FF4FA8; --rival-d:#B02370; --ok:#2BD47D; --ok-d:#178A4F; --bad:#FF5A5A; --bad-d:#A83030;
+  --f-display:"Russo One","Impact",system-ui,sans-serif; --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--stage);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:700;font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(600px 380px at 20% -10%,rgba(51,214,245,.16),transparent 70%),radial-gradient(600px 380px at 80% -10%,rgba(255,79,168,.16),transparent 70%),radial-gradient(900px 500px at 50% 120%,rgba(255,207,63,.12),transparent 70%)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:400;letter-spacing:.01em}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:24px;color:var(--gold)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:6px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(3px);border-bottom-width:3px}
+.btn-gold{background:var(--gold);border-color:var(--gold-d);color:#2A1E00}
+.btn-you{background:var(--you);border-color:var(--you-d);color:#002A33}
+.btn-rival{background:var(--rival);border-color:var(--rival-d);color:#fff}
+.btn-plain{background:var(--stage-2);border-color:#000;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--stage-2);color:var(--ink)}
+.board{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;gap:10px}
+.side{border-radius:16px;border:2px solid #000;border-bottom-width:6px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:0}
+.side.you{background:linear-gradient(135deg,#0E4A5A,#123B4F)}.side.rival{background:linear-gradient(225deg,#5A0E3B,#4A1240);flex-direction:row-reverse;text-align:right}
+.side .av{font-size:34px;line-height:1}.side .nm{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side .sc{font-family:var(--f-display);font-size:30px;line-height:1}
+.vs{display:grid;place-items:center;font-family:var(--f-display);font-size:20px;color:var(--gold)}
+.clock{height:14px;border-radius:999px;background:rgba(255,255,255,.12);border:2px solid #000;overflow:hidden}
+.clock>span{display:block;height:100%;background:linear-gradient(90deg,var(--bad),var(--gold) 40%,var(--ok));transition:width .1s linear}
+.qpanel{border-radius:20px;border:3px solid #000;border-bottom-width:9px;background:var(--panel);padding:20px;box-shadow:0 0 0 4px rgba(255,207,63,.25),0 20px 40px -20px #000}
+.buzz{display:flex;align-items:center;gap:10px;width:100%;min-height:62px;padding:12px 14px;border-radius:14px;border:3px solid #000;border-bottom-width:7px;background:#3A2A78;color:var(--ink);font-weight:900;font-size:16.5px;text-align:left;cursor:pointer;transition:transform .1s,background .2s,opacity .2s}
+.buzz:hover:not(:disabled){transform:translateY(-3px);background:#4A389A}
+.buzz:disabled{cursor:default}
+.buzz .k{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:rgba(0,0,0,.35);color:var(--gold);font-size:14px}
+.buzz.right{background:var(--ok);border-color:var(--ok-d);color:#04210F}.buzz.wrong{background:var(--bad);border-color:var(--bad-d);color:#fff}.buzz.dim{opacity:.4}
+.tagp{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:900;border:2px solid #000}
+.tagp.you{background:var(--you);color:#002A33}.tagp.rival{background:var(--rival);color:#fff}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes rise{0%{transform:translateY(10px);opacity:0}100%{transform:none;opacity:1}}.rise{animation:rise .3s ease-out both}
+@keyframes ping{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}.ping{animation:ping .4s ease-out}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(189,178,224,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(189,178,224,.25) 50%,transparent calc(50% + .5px)),rgba(0,0,0,.15)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(26,16,53,.97);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.pop,.rise,.ping{animation:none!important}.buzz:hover:not(:disabled){transform:none}.clock>span{transition:none}}
+</style>
+
+<div id="root"><div class="boot">🎤 Warming up the studio…</div></div>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+/* Links and the site address come from config.js (window.GLOBERUSH). */
+const GR = window.GLOBERUSH;
+
+const TRIVIA = [
+  // [category, question, answer, [3 wrong], fun fact]
+  ["🌍 Geography", "What is the capital of Australia?", "Canberra", ["Sydney", "Melbourne", "Perth"], "Canberra was purpose-built as a compromise between Sydney and Melbourne."],
+  ["🌍 Geography", "What is the capital of Canada?", "Ottawa", ["Toronto", "Vancouver", "Montreal"], ""],
+  ["🌍 Geography", "Which is the largest country in the world by area?", "Russia", ["Canada", "China", "United States"], ""],
+  ["🌍 Geography", "Which is the smallest country in the world?", "Vatican City", ["Monaco", "San Marino", "Liechtenstein"], "It's smaller than many city parks."],
+  ["🌍 Geography", "What is the longest river in South America?", "The Amazon", ["The Paraná", "The Orinoco", "The Magdalena"], ""],
+  ["🌍 Geography", "Mount Everest sits on the border of Nepal and which other country?", "China", ["India", "Bhutan", "Pakistan"], "The northern side is in Tibet, an autonomous region of China."],
+  ["🌍 Geography", "Which U.S. state has the most coastline?", "Alaska", ["Florida", "California", "Hawaii"], ""],
+  ["🌍 Geography", "By official count, which country has the most islands?", "Sweden", ["Greece", "Japan", "Canada"], "Sweden has over 200,000 islands, though most are tiny and uninhabited."],
+  ["🌍 Geography", "Which desert is the largest hot desert in the world?", "The Sahara", ["The Gobi", "The Kalahari", "The Mojave"], ""],
+  ["🌍 Geography", "Which ocean is the largest?", "Pacific", ["Atlantic", "Indian", "Arctic"], ""],
+  ["🌍 Geography", "Machu Picchu is in which country?", "Peru", ["Bolivia", "Chile", "Ecuador"], ""],
+  ["🌍 Geography", "Which two countries share the longest international border?", "Canada and the U.S.", ["Russia and China", "Argentina and Chile", "Russia and Kazakhstan"], ""],
+  ["🌍 Geography", "Which city is known as the \"Big Easy\"?", "New Orleans", ["Nashville", "Memphis", "Miami"], ""],
+  ["🌍 Geography", "Which country is home to the most UNESCO World Heritage Sites?", "Italy", ["China", "France", "Spain"], "Italy and China trade the top spot as new sites are added."],
+  ["🌍 Geography", "Iceland's capital is Reykjavík. What's Greenland's capital?", "Nuuk", ["Tórshavn", "Tromsø", "Ilulissat"], ""],
+  ["🌍 Geography", "Which U.S. state is made up entirely of islands?", "Hawaii", ["Alaska", "Rhode Island", "Florida"], ""],
+
+  ["🏛️ Landmarks", "In which city is the Sagrada Família?", "Barcelona", ["Madrid", "Seville", "Lisbon"], ""],
+  ["🏛️ Landmarks", "The Taj Mahal is in which Indian city?", "Agra", ["Delhi", "Jaipur", "Mumbai"], ""],
+  ["🏛️ Landmarks", "Petra, the city carved into rock, is in which country?", "Jordan", ["Egypt", "Israel", "Morocco"], ""],
+  ["🏛️ Landmarks", "Which landmark was a gift from France to the United States?", "The Statue of Liberty", ["The Golden Gate Bridge", "The Washington Monument", "The Liberty Bell"], ""],
+  ["🏛️ Landmarks", "Angkor Wat is in which country?", "Cambodia", ["Thailand", "Vietnam", "Laos"], ""],
+  ["🏛️ Landmarks", "Which city has the leaning tower that's famous for tilting?", "Pisa", ["Florence", "Bologna", "Venice"], ""],
+  ["🏛️ Landmarks", "Christ the Redeemer overlooks which city?", "Rio de Janeiro", ["São Paulo", "Buenos Aires", "Lima"], ""],
+  ["🏛️ Landmarks", "Which is the tallest building in the world?", "Burj Khalifa", ["Shanghai Tower", "One World Trade Center", "Petronas Towers"], ""],
+  ["🏛️ Landmarks", "The Great Barrier Reef lies off the coast of which Australian state?", "Queensland", ["New South Wales", "Western Australia", "Victoria"], ""],
+  ["🏛️ Landmarks", "Neuschwanstein Castle, which inspired fairy-tale castles, is in which country?", "Germany", ["Austria", "Switzerland", "France"], ""],
+  ["🏛️ Landmarks", "Chichén Itzá is an ancient city of which civilization?", "The Maya", ["The Aztecs", "The Inca", "The Olmecs"], ""],
+  ["🏛️ Landmarks", "Which city is home to the Brandenburg Gate?", "Berlin", ["Munich", "Vienna", "Prague"], ""],
+  ["🏛️ Landmarks", "Mount Rushmore is in which U.S. state?", "South Dakota", ["Wyoming", "Montana", "North Dakota"], ""],
+  ["🏛️ Landmarks", "Which river flows past the Pyramids of Giza area and through Cairo?", "The Nile", ["The Tigris", "The Euphrates", "The Jordan"], ""],
+  ["🏛️ Landmarks", "Which city is home to the Little Mermaid statue?", "Copenhagen", ["Oslo", "Stockholm", "Amsterdam"], ""],
+  ["🏛️ Landmarks", "The Alhambra palace is in which Spanish city?", "Granada", ["Seville", "Córdoba", "Valencia"], ""],
+
+  ["✈️ Flying", "What does the \"red-eye\" flight mean?", "An overnight flight", ["A delayed flight", "A first-class flight", "A flight with no meals"], ""],
+  ["✈️ Flying", "On a plane, which side is \"port\"?", "Left", ["Right", "Front", "Back"], ""],
+  ["✈️ Flying", "What is the phonetic alphabet word for the letter A?", "Alpha", ["Apple", "Able", "Alpine"], ""],
+  ["✈️ Flying", "What do pilots say on the radio to declare an emergency?", "Mayday", ["SOS", "Code red", "Help help"], "It comes from the French \"m'aider\", meaning \"help me\"."],
+  ["✈️ Flying", "What is the liquid limit per container in U.S. airport carry-on security?", "3.4 oz (100 ml)", ["5 oz (150 ml)", "8 oz (237 ml)", "1 oz (30 ml)"], "It's often called the 3-1-1 rule."],
+  ["✈️ Flying", "Which country's flag carrier is Qantas?", "Australia", ["New Zealand", "Ireland", "South Africa"], ""],
+  ["✈️ Flying", "The Wright brothers made their first powered flight near which town?", "Kitty Hawk", ["Dayton", "Cape Canaveral", "Wichita"], "It happened in 1903, in North Carolina."],
+  ["✈️ Flying", "What is the largest passenger airliner ever built?", "Airbus A380", ["Boeing 747", "Boeing 777X", "Airbus A350"], ""],
+  ["✈️ Flying", "What does \"layover\" mean?", "A stop between connecting flights", ["Sleeping on the plane", "A canceled flight", "An upgrade to a lie-flat seat"], ""],
+  ["✈️ Flying", "Which is the busiest airport in the world by passengers in most recent years?", "Atlanta (ATL)", ["Dubai (DXB)", "London Heathrow (LHR)", "Tokyo Haneda (HND)"], ""],
+  ["✈️ Flying", "What is the black box on a plane actually colored?", "Orange", ["Black", "Red", "Yellow"], "Bright orange makes it easier to find after an accident."],
+  ["✈️ Flying", "What does TSA stand for?", "Transportation Security Administration", ["Travel Safety Agency", "Transit Screening Authority", "Terminal Security Association"], ""],
+
+  ["🍽️ Food", "Which country is the origin of the croissant's ancestor, the kipferl?", "Austria", ["France", "Italy", "Belgium"], ""],
+  ["🍽️ Food", "Paella comes from which Spanish region?", "Valencia", ["Andalusia", "Catalonia", "Galicia"], ""],
+  ["🍽️ Food", "Which country is famous for pierogi?", "Poland", ["Hungary", "Greece", "Portugal"], ""],
+  ["🍽️ Food", "Pho is a noodle soup from which country?", "Vietnam", ["Thailand", "Japan", "Korea"], ""],
+  ["🍽️ Food", "Which city is the birthplace of pizza Margherita?", "Naples", ["Rome", "Milan", "Florence"], ""],
+  ["🍽️ Food", "Poutine (fries, cheese curds and gravy) comes from which Canadian province?", "Quebec", ["Ontario", "Nova Scotia", "Alberta"], ""],
+  ["🍽️ Food", "Which country gave the world feta cheese?", "Greece", ["Turkey", "Italy", "Cyprus"], ""],
+  ["🍽️ Food", "Where did the Cuban sandwich, as Americans know it, take shape?", "Florida", ["Puerto Rico", "New York", "Texas"], "Tampa and Miami both claim it."],
+  ["🍽️ Food", "Kimchi is a staple side dish in which country?", "South Korea", ["Japan", "China", "Thailand"], ""],
+  ["🍽️ Food", "Which country is the world's largest producer of coffee?", "Brazil", ["Colombia", "Vietnam", "Ethiopia"], ""],
+  ["🍽️ Food", "Which city is famous for deep-dish pizza?", "Chicago", ["New York", "Philadelphia", "Boston"], ""],
+  ["🍽️ Food", "Tapas are small plates from which country?", "Spain", ["Portugal", "Mexico", "Italy"], ""],
+
+  ["💱 Money & Culture", "What is the currency of Japan?", "Yen", ["Won", "Yuan", "Ringgit"], ""],
+  ["💱 Money & Culture", "What is the currency of the United Kingdom?", "Pound sterling", ["Euro", "Crown", "Shilling"], ""],
+  ["💱 Money & Culture", "Which country uses the rand?", "South Africa", ["Botswana", "Kenya", "Nigeria"], ""],
+  ["💱 Money & Culture", "Which of these countries does NOT use the euro?", "Switzerland", ["Austria", "Portugal", "Finland"], "Switzerland uses the Swiss franc."],
+  ["💱 Money & Culture", "In which country is it customary to bow as a greeting?", "Japan", ["Brazil", "Italy", "Australia"], ""],
+  ["💱 Money & Culture", "Which country celebrates Día de los Muertos?", "Mexico", ["Spain", "Argentina", "Chile"], ""],
+  ["💱 Money & Culture", "Which festival is famous for throwing tomatoes in Spain?", "La Tomatina", ["San Fermín", "Las Fallas", "Feria de Abril"], ""],
+  ["💱 Money & Culture", "In which country do people drive on the left?", "Japan", ["Germany", "Brazil", "Canada"], ""],
+  ["💱 Money & Culture", "What language is mainly spoken in Brazil?", "Portuguese", ["Spanish", "Brazilian", "French"], ""],
+  ["💱 Money & Culture", "Which city hosts the world-famous Oktoberfest?", "Munich", ["Berlin", "Vienna", "Hamburg"], ""],
+  ["💱 Money & Culture", "How many time zones does mainland China officially use?", "1", ["3", "4", "5"], ""],
+  ["💱 Money & Culture", "Carnival in Rio happens right before which season?", "Lent", ["Advent", "Ramadan", "Summer break"], ""],
+
+  ["🎢 Vacation Spots", "Which U.S. city is home to the original Disneyland?", "Anaheim", ["Orlando", "Los Angeles", "San Diego"], "It opened in 1955."],
+  ["🎢 Vacation Spots", "The Las Vegas Strip is in which U.S. state?", "Nevada", ["Arizona", "California", "Utah"], ""],
+  ["🎢 Vacation Spots", "Bora Bora is part of which island group?", "French Polynesia", ["Hawaii", "Fiji", "The Cook Islands"], ""],
+  ["🎢 Vacation Spots", "Santorini is a Greek island in which sea?", "The Aegean", ["The Ionian", "The Adriatic", "The Tyrrhenian"], ""],
+  ["🎢 Vacation Spots", "Which U.S. national park was the first in the world?", "Yellowstone", ["Yosemite", "Grand Canyon", "Zion"], "It was established in 1872."],
+  ["🎢 Vacation Spots", "Cancún is on which body of water?", "The Caribbean Sea", ["The Gulf of California", "The Pacific Ocean", "The Coral Sea"], ""],
+  ["🎢 Vacation Spots", "Which island is known as the \"Island of the Gods\"?", "Bali", ["Maui", "Phuket", "Crete"], ""],
+  ["🎢 Vacation Spots", "Times Square is in which New York City borough?", "Manhattan", ["Brooklyn", "Queens", "The Bronx"], ""],
+  ["🎢 Vacation Spots", "Which country is home to the Swiss Alps resort of Zermatt and the Matterhorn?", "Switzerland", ["Austria", "Italy only", "France"], "The Matterhorn sits on the Swiss–Italian border."],
+  ["🎢 Vacation Spots", "Which Caribbean island is home to Montego Bay?", "Jamaica", ["Barbados", "Bahamas", "Aruba"], ""],
+  ["🎢 Vacation Spots", "The Florida Keys end at which city?", "Key West", ["Key Largo", "Marathon", "Islamorada"], ""],
+  ["🎢 Vacation Spots", "Which city is known as the \"City of Canals\" in Italy?", "Venice", ["Milan", "Naples", "Turin"], ""],
+];
+
+const Q = TRIVIA.map(([cat, q, answer, wrong, fact], i) => ({ id: i, cat, q, answer, wrong, fact }));
+const SIZE = 10, TIME = 10;                      // questions per battle, seconds per question
+const DAY = GR.day();
+const POOL = GR.shuffled(Q, 2718);
+// A new rival every day: how often they're right and how fast they buzz in.
+const RIVALS = [
+  { name: "Captain Kim", av: "👩‍✈️", tag: "Airline pilot", acc: .78, fast: [2, 6] },
+  { name: "Backpacker Bo", av: "🎒", tag: "40 countries and counting", acc: .66, fast: [3, 8] },
+  { name: "Points Pete", av: "💳", tag: "Lives for airline miles", acc: .62, fast: [2, 5] },
+  { name: "Gate Agent Gwen", av: "🧑‍💼", tag: "Has heard every excuse", acc: .7, fast: [3, 7] },
+  { name: "Tour Guide Tomás", av: "🚩", tag: "Knows every landmark", acc: .74, fast: [3, 7] },
+  { name: "Flight Attendant Fran", av: "🧑‍✈️", tag: "Never misses a detail", acc: .7, fast: [2, 6] },
+  { name: "Nomad Nia", av: "💻", tag: "Works from a new city monthly", acc: .68, fast: [3, 8] },
+];
+function seeded(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+function buildBattle(mode) {
+  const seed = mode.daily ? DAY.id * 7919 : mode.seed;
+  const qs = mode.daily ? Array.from({ length: SIZE }, (_, i) => POOL[((DAY.id - 1) * SIZE + i) % POOL.length]) : GR.shuffled(POOL, seed).slice(0, SIZE);
+  const rival = RIVALS[mode.daily ? (DAY.id - 1) % RIVALS.length : seed % RIVALS.length];
+  const r = seeded(seed + 99);
+  return {
+    rival,
+    rounds: qs.map((q, i) => {
+      const options = GR.shuffled([q.answer, ...q.wrong], seed + i * 104729);
+      const right = r() < rival.acc, t = rival.fast[0] + r() * (rival.fast[1] - rival.fast[0]);
+      const wrongs = options.filter(o => o !== q.answer);
+      return { q, options, rival: { pick: right ? q.answer : wrongs[Math.floor(r() * 3)], t: Math.round(t * 10) / 10 } };
+    }),
+  };
+}
+const pointsFor = (correct, left) => correct ? 50 + Math.round(left * 5) : 0;     // 50 for right + up to 50 for speed
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+let AC = null;
+function tone(f, type = "triangle", step = .07, len = .2, vol = .1) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); f.forEach((fr, i) => { const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + .01 + i * step; o.type = type; o.frequency.value = fr; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + len); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + len + .05); }); } catch {} }
+const SFX = { buzz: () => tone([300], "square", .05, .1, .06), rival: () => tone([700], "sine", .05, .08, .05), right: () => tone([660, 880, 1175]), wrong: () => tone([220, 165], "sawtooth", .12, .25, .05), win: () => tone([523, 659, 784, 1047, 1319], "triangle", .1, .35, .11), lose: () => tone([392, 330, 262], "triangle", .15, .4, .08) };
+
+function AdSlot({ w, h, size }) {
+  return <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#5A4A99]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}><div className="rounded-md bg-[color:var(--stage)] px-3 py-1 text-center"><div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]">Monetization Slot</div><div className="text-[11px] text-[color:var(--muted)]">{size}</div></div></div>;
+}
+function Countdown() {
+  const calc = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const s = Math.max(0, Math.floor((m - n) / 1000)); return `${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc()); useEffect(() => { const i = setInterval(() => setT(calc()), 1000); return () => clearInterval(i); }, []);
+  return <span className="font-extrabold tabular-nums">{t}</span>;
+}
+function Board({ left, right, pulseL, pulseR }) {
+  return (
+    <div className="board">
+      <div className="side you"><span className="av" aria-hidden="true">{left.av}</span><div className="min-w-0"><div className="nm">{left.name}</div><div className={`sc tabular-nums ${pulseL ? "ping" : ""}`}>{left.score}</div></div></div>
+      <div className="vs">VS</div>
+      <div className="side rival"><span className="av" aria-hidden="true">{right.av}</span><div className="min-w-0"><div className="nm">{right.name}</div><div className={`sc tabular-nums ${pulseR ? "ping" : ""}`}>{right.score}</div></div></div>
+    </div>
+  );
+}
+function HelpModal({ onClose }) {
+  useEffect(() => { const k = e => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center" onClick={onClose} role="dialog" aria-modal="true" aria-label="How to play">
+      <div className="pop relative w-full max-w-md rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-6" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--muted)] hover:bg-white/10" aria-label="Close">✕</button>
+        <h2 className="display text-[26px] text-[color:var(--gold)]">How to play</h2>
+        <ul className="mt-3 space-y-3 text-[15px]">
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">⚔️</span><p className="min-w-0"><b>Daily battle:</b> face today's rival in {SIZE} travel questions. You get {TIME} seconds each (keys <b>1</b>–<b>4</b>).</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">⚡</span><p className="min-w-0">A right answer is worth 50 points, plus up to 50 more for speed. Wrong or too slow: 0.</p></li>
+          <li className="grid grid-cols-[24px_minmax(0,1fr)] gap-2"><span aria-hidden="true">👥</span><p className="min-w-0"><b>2 players:</b> pass the phone. Each player answers the same question without peeking.</p></li>
+        </ul>
+        <button onClick={onClose} className="btn btn-gold mt-5 w-full py-3 text-[17px]">Let's battle</button>
+      </div>
+    </div>
+  );
+}
+
+/* One question screen with a running clock. Calls onAnswer(pick | null, secondsLeft). */
+function Question({ round, num, onAnswer, sound, rivalTime }) {
+  const [left, setLeft] = useState(TIME);
+  const [rivalIn, setRivalIn] = useState(false);
+  const start = useRef(performance.now()), doneRef = useRef(false);
+  useEffect(() => {
+    const id = setInterval(() => {
+      const l = Math.max(0, TIME - (performance.now() - start.current) / 1000);
+      setLeft(l);
+      if (rivalTime != null && !rivalIn && TIME - l >= rivalTime) { setRivalIn(true); if (sound) SFX.rival(); }
+      if (l <= 0 && !doneRef.current) { doneRef.current = true; onAnswer(null, 0); }
+    }, 100);
+    return () => clearInterval(id);
+  });
+  const pick = (o) => { if (doneRef.current) return; doneRef.current = true; if (sound) SFX.buzz(); onAnswer(o, Math.max(0, TIME - (performance.now() - start.current) / 1000)); };
+  useEffect(() => {
+    const k = (e) => { if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey) return; const n = +e.key; if (n >= 1 && n <= 4) pick(round.options[n - 1]); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  });
+  return (
+    <div className="rise">
+      <div className="mt-4 flex items-center gap-3"><div className="clock flex-1" aria-hidden="true"><span style={{ width: `${(left / TIME) * 100}%` }} /></div><span className="display w-10 text-right text-[20px] tabular-nums text-[color:var(--gold)]" aria-label={`${Math.ceil(left)} seconds left`}>{Math.ceil(left)}</span></div>
+      <div className="qpanel mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] font-black uppercase tracking-[.14em] text-[color:var(--muted)]"><span>{round.q.cat}</span><span>Question {num} of {SIZE}</span></div>
+        <h2 className="mt-2 text-[22px] sm:text-[27px] font-black leading-snug">{round.q.q}</h2>
+        {rivalTime != null && <div className="mt-2 h-5 text-[13px] font-black text-[color:var(--rival)]">{rivalIn ? "🔔 Your rival locked in an answer!" : ""}</div>}
+      </div>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        {round.options.map((o, k) => <button key={o} className="buzz" onClick={() => pick(o)}><span className="k" aria-hidden="true">{k + 1}</span><span className="min-w-0">{o}</span></button>)}
+      </div>
+    </div>
+  );
+}
+
+/* The reveal after a question: who picked what. */
+function Reveal({ round, picks, names, onNext, last }) {
+  const ref = useRef(null);
+  useEffect(() => { ref.current && ref.current.focus({ preventScroll: true }); }, []);
+  return (
+    <div className="pop">
+      <div className="qpanel mt-4">
+        <div className="text-[12px] font-black uppercase tracking-[.14em] text-[color:var(--muted)]">{round.q.cat}</div>
+        <h2 className="mt-2 text-[20px] sm:text-[24px] font-black leading-snug">{round.q.q}</h2>
+        {round.q.fact && <p className="mt-2 text-[14px] text-[color:var(--muted)]">💡 {round.q.fact}</p>}
+      </div>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        {round.options.map((o, k) => {
+          const isAns = o === round.q.answer, who = picks.map((p, i) => p.pick === o ? i : -1).filter(i => i >= 0);
+          return (
+            <div key={o} className={`buzz ${isAns ? "right" : who.length ? "wrong" : "dim"}`}>
+              <span className="k" aria-hidden="true">{isAns ? "✓" : k + 1}</span><span className="min-w-0 flex-1">{o}</span>
+              {who.map(i => <span key={i} className={`tagp ${i === 0 ? "you" : "rival"}`}>{names[i]}</span>)}
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[14px] font-black">
+        {picks.map((p, i) => <div key={i} className="rounded-xl border-2 border-black bg-black/25 px-3 py-2" style={{ color: i === 0 ? "var(--you)" : "var(--rival)" }}>{names[i]}: {p.pick == null ? "⏰ time's up" : p.pts ? `+${p.pts}` : "+0"}</div>)}
+      </div>
+      <div className="mt-4 flex justify-end"><button ref={ref} onClick={onNext} className="btn btn-gold min-w-[11rem] px-6 py-3 text-[17px]">{last ? "Final scores →" : "Next question →"}</button></div>
+    </div>
+  );
+}
+
+function Results({ names, avs, scores, onAgain, againLabel, onHome, share, flightNote }) {
+  const [copied, setCopied] = useState(false), [fallback, setFallback] = useState(false), taRef = useRef(null);
+  const copy = () => { const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2200); }; const no = () => { setFallback(true); setTimeout(() => taRef.current && taRef.current.select(), 30); }; try { navigator.clipboard.writeText(share).then(ok).catch(no); } catch { no(); } };
+  const tie = scores[0] === scores[1], w = scores[0] > scores[1] ? 0 : 1;
+  return (
+    <main className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <section className="pop min-w-0 rounded-[22px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-5 sm:p-7 text-center">
+        <div className="text-[56px] leading-none" aria-hidden="true">{tie ? "🤝" : avs[w]}</div>
+        <h2 className="display mt-2 text-[34px] sm:text-[44px] leading-none text-[color:var(--gold)]">{tie ? "It's a tie!" : `${names[w]} wins!`}</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {[0, 1].map(i => <div key={i} className="rounded-2xl border-2 border-black p-3" style={{ background: i === 0 ? "#0E4A5A" : "#5A0E3B" }}><div className="text-[13px] text-[color:var(--muted)]">{avs[i]} {names[i]}</div><div className="display text-[38px] tabular-nums">{scores[i]}</div></div>)}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button onClick={onAgain} className="btn btn-gold min-w-[11rem] flex-1 py-3 text-[17px]">{againLabel}</button>
+          <button onClick={onHome} className="btn btn-plain min-w-[11rem] flex-1 py-3 text-[16px]">← Battle menu</button>
+        </div>
+        <div className="mt-6 rounded-2xl border-2 border-b-[6px] border-[color:var(--gold-d)] bg-[color:var(--stage-2)] p-4 text-left">
+          <div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]">Sponsored</div>
+          <div className="display mt-1 text-[19px] leading-tight">{flightNote}</div>
+          <a href={GR.flightLink()} target="_blank" rel="noopener sponsored" className="btn btn-gold mt-3 block w-full py-3 text-center text-[16px]">Find cheap flights ↗</a>
+        </div>
+      </section>
+      <aside className="min-w-0 space-y-4">
+        <div className="rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-5">
+          <div className="text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]">Share card</div>
+          <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 text-[13px] font-bold leading-relaxed" style={{ fontFamily: "ui-monospace,Menlo,Consolas,monospace" }}>{share}</pre>
+          {fallback && <div className="mt-2"><div className="mb-1 text-[12px] font-bold text-[color:var(--gold)]">Copying is blocked here. The text is selected, so press Ctrl+C or ⌘+C.</div><textarea ref={taRef} readOnly value={share} rows={5} className="w-full rounded-lg bg-black/30 p-2 text-[12px]" /></div>}
+          <button onClick={copy} className="btn btn-rival mt-3 w-full py-3 text-[17px]">{copied ? "✓ Copied!" : "Copy & Challenge a Friend"}</button>
+          <div className="mt-4"><AdSlot w={300} h={250} size="300×250 Medium Rectangle" /></div>
+        </div>
+        <div className="rounded-[20px] border-2 border-black bg-[color:var(--panel)] p-4 text-center text-[13px] text-[color:var(--muted)]">New rival in <Countdown /></div>
+      </aside>
+    </main>
+  );
+}
+
+/* ---------- Solo battle vs today's rival ---------- */
+function Solo({ mode, sound, onHome, onBonus }) {
+  const { rival, rounds } = useMemo(() => buildBattle(mode), [mode]);
+  const SAVE_KEY = `ttb-${DAY.id}`, LINEUP = rounds.map(r => r.q.id).join(",");
+  const [log, setLog] = useState(() => { if (!mode.daily) return []; const s = store.get(SAVE_KEY, null); return s && s.lineup === LINEUP && Array.isArray(s.log) ? s.log : []; });
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => { if (mode.daily) store.set(SAVE_KEY, { log, lineup: LINEUP }); }, [log]);
+  const idx = revealed ? log.length - 1 : log.length, done = log.length >= SIZE && !revealed;
+  const you = log.reduce((s, l) => s + l.pts, 0), them = log.reduce((s, l, i) => s + (rounds[i].rival.pick === rounds[i].q.answer ? pointsFor(true, TIME - rounds[i].rival.t) : 0), 0);
+  const answer = (pick, left) => { const r = rounds[idx], ok = pick === r.q.answer; if (sound) (ok ? SFX.right : SFX.wrong)(); setLog(l => [...l, { pick, pts: pointsFor(ok, left) }]); setRevealed(true); };
+  const next = () => { setRevealed(false); if (log.length >= SIZE) { if (sound) (you >= them ? SFX.win : SFX.lose)(); window.scrollTo({ top: 0, behavior: "smooth" }); } };
+  useEffect(() => { if (done && mode.daily) { const st = store.get("ttb-record", { w: 0, l: 0, last: 0 }); if (st.last !== DAY.id) store.set("ttb-record", { w: st.w + (you > them ? 1 : 0), l: st.l + (you < them ? 1 : 0), last: DAY.id }); } }, [done]);
+
+  if (done) {
+    const share = `⚔️ Travel Trivia Battle ${mode.daily ? `#${DAY.id}` : "· Bonus battle"}\n${you > them ? "I beat" : you < them ? "I lost to" : "I tied"} ${rival.name} ${rival.av}, ${you}–${them}\n${log.map(l => l.pts >= 80 ? "⚡" : l.pts ? "🟩" : "🟥").join("")}\nCan you beat them? ${GR.gameUrl("trivia-battle")}`;
+    return <Results names={["You", rival.name]} avs={["🧳", rival.av]} scores={[you, them]} onAgain={onBonus} againLabel="🎲 Bonus battle" onHome={onHome} share={share} flightNote="Won the trivia? Go see the world for real." />;
+  }
+  const r = rounds[Math.min(idx, SIZE - 1)];
+  const shownThem = log.slice(0, revealed ? log.length : log.length).reduce((s, l, i) => s + (rounds[i].rival.pick === rounds[i].q.answer ? pointsFor(true, TIME - rounds[i].rival.t) : 0), 0);
+  return (
+    <main className="mt-5">
+      <Board left={{ av: "🧳", name: "You", score: you }} right={{ av: rival.av, name: rival.name, score: shownThem }} />
+      {!revealed
+        ? <Question key={idx} round={r} num={idx + 1} sound={sound} rivalTime={r.rival.t} onAnswer={answer} />
+        : <Reveal round={r} picks={[log[idx], { pick: r.rival.pick, pts: r.rival.pick === r.q.answer ? pointsFor(true, TIME - r.rival.t) : 0 }]} names={["You", rival.name.split(" ").slice(-1)[0]]} onNext={next} last={log.length >= SIZE} />}
+    </main>
+  );
+}
+
+/* ---------- 2 players, pass the phone ---------- */
+function Duo({ sound, onHome }) {
+  const [names, setNames] = useState(() => store.get("ttb-names", ["Player 1", "Player 2"]));
+  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
+  const { rounds } = useMemo(() => buildBattle({ daily: false, seed }), [seed]);
+  const [stage, setStage] = useState("setup");         // setup | handoff | ask | reveal | done
+  const [turn, setTurn] = useState(0), [idx, setIdx] = useState(0);
+  const [log, setLog] = useState([]);                  // per question: [p0, p1]
+  useEffect(() => { store.set("ttb-names", names); }, [names]);
+  const scores = [0, 1].map(p => log.reduce((s, l) => s + (l[p] ? l[p].pts : 0), 0));
+  const r = rounds[idx];
+  const answer = (pick, left) => {
+    const ok = pick === r.q.answer, entry = { pick, pts: pointsFor(ok, left) };
+    setLog(l => { const c = l.slice(); c[idx] = [...(c[idx] || [])]; c[idx][turn] = entry; return c; });
+    if (turn === 0) { setTurn(1); setStage("handoff"); } else { if (sound) SFX.right(); setStage("reveal"); }
+  };
+  const next = () => { if (idx + 1 >= SIZE) { setStage("done"); if (sound) SFX.win(); window.scrollTo({ top: 0, behavior: "smooth" }); } else { setIdx(idx + 1); setTurn(0); setStage("handoff"); } };
+  const again = () => { setSeed(Math.floor(Math.random() * 1e9)); setLog([]); setIdx(0); setTurn(0); setStage("handoff"); };
+
+  if (stage === "setup") return (
+    <main className="mx-auto mt-6 max-w-lg pop rounded-[22px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-6">
+      <h2 className="display text-[26px] text-[color:var(--gold)]">2-player battle</h2>
+      <p className="mt-1 text-[color:var(--muted)]">One phone, two travelers. Take turns answering the same {SIZE} questions.</p>
+      <form className="mt-4 space-y-3" onSubmit={e => { e.preventDefault(); setStage("handoff"); }}>
+        {[0, 1].map(i => <label key={i} className="block text-[13px] font-black" style={{ color: i === 0 ? "var(--you)" : "var(--rival)" }}>{i === 0 ? "🧳 Player 1" : "🎒 Player 2"}
+          <input id={`p${i}`} value={names[i]} maxLength={14} onChange={e => { const n = names.slice(); n[i] = e.target.value; setNames(n); }} className="mt-1 block w-full rounded-xl border-2 border-black bg-black/30 px-3 py-2.5 text-[16px] text-white" /></label>)}
+        <button type="submit" className="btn btn-gold w-full py-3 text-[17px]">Start the battle</button>
+      </form>
+      <button onClick={onHome} className="mt-3 w-full text-center text-[14px] font-black text-[color:var(--muted)] underline underline-offset-2">← Back</button>
+    </main>
+  );
+  const nm = names.map((n, i) => n.trim() || `Player ${i + 1}`);
+  if (stage === "done") return <Results names={nm} avs={["🧳", "🎒"]} scores={scores} onAgain={again} againLabel="🔁 Rematch" onHome={onHome}
+    share={`⚔️ Travel Trivia Battle · 2 players\n${nm[0]} ${scores[0]} – ${scores[1]} ${nm[1]}\n${scores[0] === scores[1] ? "Dead heat!" : `${nm[scores[0] > scores[1] ? 0 : 1]} takes the crown 👑`}\nPlay: ${GR.gameUrl("trivia-battle")}`} flightNote="Plan the trip you two keep talking about." />;
+  return (
+    <main className="mt-5">
+      <Board left={{ av: "🧳", name: nm[0], score: stage === "reveal" ? scores[0] : scores[0] - (log[idx] && log[idx][0] ? log[idx][0].pts : 0) }} right={{ av: "🎒", name: nm[1], score: stage === "reveal" ? scores[1] : scores[1] - (log[idx] && log[idx][1] ? log[idx][1].pts : 0) }} />
+      {stage === "handoff" && (
+        <div className="pop mx-auto mt-6 max-w-lg rounded-[22px] border-2 border-b-[6px] border-black bg-[color:var(--panel)] p-6 text-center">
+          <div className="text-[44px]" aria-hidden="true">{turn === 0 ? "🧳" : "🎒"}</div>
+          <h2 className="display mt-1 text-[26px]" style={{ color: turn === 0 ? "var(--you)" : "var(--rival)" }}>{nm[turn]}, you're up!</h2>
+          <p className="mt-1 text-[color:var(--muted)]">Question {idx + 1} of {SIZE}. {turn === 1 ? `No peeking, ${nm[0]}!` : "Hand the phone over if you need to."}</p>
+          <button onClick={() => setStage("ask")} className={`btn ${turn === 0 ? "btn-you" : "btn-rival"} mt-4 w-full py-3 text-[17px]`} autoFocus>I'm ready</button>
+        </div>
+      )}
+      {stage === "ask" && <Question key={`${idx}-${turn}`} round={r} num={idx + 1} sound={sound} rivalTime={null} onAnswer={answer} />}
+      {stage === "reveal" && <Reveal round={r} picks={log[idx]} names={nm} onNext={next} last={idx + 1 >= SIZE} />}
+    </main>
+  );
+}
+
+function App() {
+  const [view, setView] = useState("menu");             // menu | solo | duo
+  const [mode, setMode] = useState({ daily: true, seed: 0 });
+  const [sound, setSound] = useState(() => store.get("ttb-sound", true));
+  const [showHelp, setShowHelp] = useState(false);
+  useEffect(() => { store.set("ttb-sound", sound); }, [sound]);
+  const todays = buildBattle({ daily: true }).rival, rec = store.get("ttb-record", { w: 0, l: 0, last: 0 });
+  const home = () => { setView("menu"); setMode({ daily: true, seed: 0 }); window.scrollTo({ top: 0 }); };
+  return (
+    <div className="mx-auto max-w-3xl">
+      <header className="mt-1 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="display text-[28px] sm:text-[40px] leading-none"><span className="text-[color:var(--you)]">Trivia</span> <span className="text-[color:var(--rival)]">Battle</span> <span aria-hidden="true">⚔️</span></h1>
+          <div className="mt-1 truncate text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]">Travel edition · #{DAY.id} · {DAY.label}</div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button onClick={() => setSound(x => !x)} className="chip grid h-10 w-10 place-items-center text-[16px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
+          <button onClick={() => setShowHelp(true)} className="chip grid h-10 w-10 place-items-center text-[17px] font-extrabold" aria-label="How to play">?</button>
+        </div>
+      </header>
+      <div className="mt-4 hidden md:block"><AdSlot w={728} h={90} size="728×90 Leaderboard" /></div>
+
+      {view === "menu" && (
+        <main className="mt-5 grid gap-4 sm:grid-cols-2">
+          <button onClick={() => { setMode({ daily: true, seed: 0 }); setView("solo"); }} className="pop rounded-[22px] border-2 border-b-[8px] border-black p-5 text-left transition-transform hover:-translate-y-1" style={{ background: "linear-gradient(160deg,#4A1240,#2E1F5E)" }}>
+            <div className="text-[12px] font-black uppercase tracking-[.16em] text-[color:var(--rival)]">Daily battle · today's rival</div>
+            <div className="mt-3 flex items-center gap-3"><span className="text-[54px] leading-none" aria-hidden="true">{todays.av}</span><div><div className="display text-[24px] leading-tight">{todays.name}</div><div className="text-[14px] text-[color:var(--muted)]">{todays.tag}</div></div></div>
+            <div className="mt-4 text-[14px] text-[color:var(--muted)]">{SIZE} questions · {TIME} seconds each · your record: <b className="text-white">{rec.w}W–{rec.l}L</b></div>
+            <div className="btn btn-rival mt-4 py-3 text-center text-[17px]">⚔️ Start the battle</div>
+          </button>
+          <button onClick={() => setView("duo")} className="pop rounded-[22px] border-2 border-b-[8px] border-black p-5 text-left transition-transform hover:-translate-y-1" style={{ background: "linear-gradient(160deg,#0E4A5A,#2E1F5E)" }}>
+            <div className="text-[12px] font-black uppercase tracking-[.16em] text-[color:var(--you)]">Pass the phone</div>
+            <div className="mt-3 flex items-center gap-3"><span className="text-[54px] leading-none" aria-hidden="true">👥</span><div><div className="display text-[24px] leading-tight">2-player battle</div><div className="text-[14px] text-[color:var(--muted)]">Settle who's the real travel expert</div></div></div>
+            <div className="mt-4 text-[14px] text-[color:var(--muted)]">Same questions for both · new set every match</div>
+            <div className="btn btn-you mt-4 py-3 text-center text-[17px]">👥 Play with a friend</div>
+          </button>
+        </main>
+      )}
+      {view === "solo" && <Solo key={JSON.stringify(mode)} mode={mode} sound={sound} onHome={home} onBonus={() => { setMode({ daily: false, seed: Math.floor(Math.random() * 1e9) }); window.scrollTo({ top: 0 }); }} />}
+      {view === "duo" && <Duo sound={sound} onHome={home} />}
+
+      <footer className="mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]">Travel Trivia Battle · a GlobeRush game</footer>
+      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50 Sticky Banner" /></div>
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>

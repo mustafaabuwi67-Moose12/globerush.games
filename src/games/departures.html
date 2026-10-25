@@ -1,0 +1,705 @@
+<!-- Affiliate links: edit the AFFILIATE block at the top of the main <script>. -->
+<title>Mystery Departures</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800;900&family=Overpass+Mono:wght@500;600;700&display=swap">
+<style>
+/* Layout: an airport concourse. Signage-yellow header strip, the split-flap board as the hero, guess desk + clue panel beneath. Single deliberate dark look (it's a departure board). */
+:root{
+  --bg:#121317; --bg-2:#1A1C22; --board:#0A0A0C; --tile:#232328; --tile-2:#18181C;
+  --ink:#F3EFE3; --muted:#9C9CA6; --line:rgba(255,255,255,.09);
+  --sign:#FFC72C; --sign-d:#B88A00; --go:#3DDC84; --go-d:#1E9A58; --stop:#FF5A4E; --amber:#FF9F1C;
+  --f-sign:"Overpass","Highway Gothic","Arial Narrow",system-ui,sans-serif;
+  --f-flap:"Overpass Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-sign);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:linear-gradient(180deg,rgba(255,199,44,.05),transparent 240px)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.mono{font-family:var(--f-flap)}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-flap);letter-spacing:.2em;color:var(--sign)}
+
+/* split-flap tiles */
+.flaps{display:inline-flex;gap:2px;font-family:var(--f-flap);font-weight:700;line-height:1}
+.flap{position:relative;display:inline-grid;place-items:center;width:.82em;height:1.32em;border-radius:2px;
+  background:linear-gradient(180deg,var(--tile) 0 49.5%,#0d0d10 49.5% 50.5%,var(--tile-2) 50.5% 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 0 rgba(0,0,0,.6);color:var(--ink)}
+.flap.dim{color:#3a3a42}
+.flap.flip{animation:flip .09s linear}
+@keyframes flip{0%{transform:scaleY(1)}50%{transform:scaleY(.55)}100%{transform:scaleY(1)}}
+
+/* tactile buttons */
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:5px;font-weight:900;letter-spacing:.02em;cursor:pointer;user-select:none;
+  transition:transform .08s ease,border-bottom-width .08s ease,filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;border-bottom-width:5px;filter:none}
+.btn-sign{background:var(--sign);border-color:var(--sign-d);color:#1A1400}
+.btn-go{background:var(--go);border-color:var(--go-d);color:#06210F}
+.btn-ghost{background:var(--bg-2);border-color:#050507;color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #050507;border-bottom-width:4px;background:var(--bg-2)}
+
+.kbd{font-family:var(--f-flap);font-size:.86em;font-weight:700;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-bottom-width:2px;border-radius:5px;padding:.02em .38em;white-space:nowrap}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(156,156,166,.22) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(156,156,166,.22) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.02)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:rgba(18,19,23,.96);border-top:1px solid var(--line)}
+
+/* board rows: one line on desktop, two lines on phones */
+.row{display:grid;align-items:center;column-gap:14px;row-gap:4px;
+  grid-template-columns:auto minmax(0,1fr) auto auto auto;grid-template-areas:"time dest flight gate status"}
+.c-time{grid-area:time}.c-dest{grid-area:dest;min-width:0}.c-flight{grid-area:flight}.c-gate{grid-area:gate}.c-status{grid-area:status}
+@media (max-width:639px){
+  .row{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"time dest dest" ". flight status";column-gap:8px}
+  .c-gate{display:none}
+}
+@keyframes wiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.wiggle{animation:wiggle .45s ease both}
+@keyframes pop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes blink{50%{opacity:.25}}
+.blink{animation:blink 1.1s steps(2,start) infinite}
+:focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.flap.flip,.wiggle,.pop,.blink{animation:none!important}}
+</style>
+
+<div id="root"><div class="boot">FLIPPING BOARD…</div></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+/* =====================================================================
+   YOUR AFFILIATE LINKS: paste your link patterns here, once.
+   Every fare button in this game uses them.
+   Placeholders: {FROM} {TO} = airport codes in capitals (ATL, MCO)
+                 {from} {to} = the same codes in lowercase (atl, mco)
+   ===================================================================== */
+const AFFILIATE = {
+  route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",   // both airports known
+  toOnly:  "https://www.skyscanner.com/transport/flights-to/{to}/",        // destination only (player hasn't picked an airport)
+  general: "https://www.skyscanner.com/",                                  // generic "find cheap flights" buttons
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(), d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase())
+          .replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Airports players can guess ---------- */
+const GUESSABLE = [
+  ["ATL","Atlanta","United States",33.64,-84.43],["LAX","Los Angeles","United States",33.94,-118.41],["ORD","Chicago","United States",41.98,-87.90],
+  ["DFW","Dallas","United States",32.90,-97.04],["DEN","Denver","United States",39.86,-104.67],["JFK","New York","United States",40.64,-73.78],
+  ["LGA","New York LaGuardia","United States",40.78,-73.87],["EWR","Newark","United States",40.69,-74.17],["SFO","San Francisco","United States",37.62,-122.38],
+  ["SEA","Seattle","United States",47.45,-122.31],["LAS","Las Vegas","United States",36.08,-115.15],["MCO","Orlando","United States",28.43,-81.31],
+  ["MIA","Miami","United States",25.80,-80.29],["BOS","Boston","United States",42.36,-71.01],["PHX","Phoenix","United States",33.43,-112.01],
+  ["IAH","Houston","United States",29.98,-95.34],["MSP","Minneapolis","United States",44.88,-93.22],["DTW","Detroit","United States",42.21,-83.35],
+  ["PHL","Philadelphia","United States",39.87,-75.24],["CLT","Charlotte","United States",35.21,-80.94],["SLC","Salt Lake City","United States",40.79,-111.98],
+  ["HNL","Honolulu","United States",21.32,-157.92],["OGG","Kahului (Maui)","United States",20.90,-156.43],["ANC","Anchorage","United States",61.17,-149.99],
+  ["SJU","San Juan","Puerto Rico",18.44,-66.00],["YYZ","Toronto","Canada",43.68,-79.62],["YVR","Vancouver","Canada",49.19,-123.18],["YUL","Montréal","Canada",45.47,-73.74],
+  ["MEX","Mexico City","Mexico",19.44,-99.07],["CUN","Cancún","Mexico",21.04,-86.87],["HAV","Havana","Cuba",22.99,-82.41],["PTY","Panama City","Panama",9.07,-79.38],
+  ["BOG","Bogotá","Colombia",4.70,-74.15],["LIM","Lima","Peru",-12.02,-77.11],["GRU","São Paulo","Brazil",-23.43,-46.47],["GIG","Rio de Janeiro","Brazil",-22.81,-43.25],
+  ["EZE","Buenos Aires","Argentina",-34.82,-58.54],["SCL","Santiago","Chile",-33.39,-70.79],
+  ["LHR","London Heathrow","United Kingdom",51.47,-0.45],["LGW","London Gatwick","United Kingdom",51.15,-0.19],["DUB","Dublin","Ireland",53.42,-6.27],
+  ["KEF","Reykjavík","Iceland",63.99,-22.61],["CDG","Paris","France",49.01,2.55],["AMS","Amsterdam","Netherlands",52.31,4.76],["FRA","Frankfurt","Germany",50.04,8.56],
+  ["MUC","Munich","Germany",48.35,11.79],["ZRH","Zürich","Switzerland",47.46,8.55],["VIE","Vienna","Austria",48.11,16.57],["MAD","Madrid","Spain",40.47,-3.56],
+  ["BCN","Barcelona","Spain",41.30,2.08],["LIS","Lisbon","Portugal",38.77,-9.13],["OPO","Porto","Portugal",41.24,-8.68],["FCO","Rome","Italy",41.80,12.25],
+  ["CPH","Copenhagen","Denmark",55.62,12.65],["OSL","Oslo","Norway",60.19,11.10],["ARN","Stockholm","Sweden",59.65,17.92],["HEL","Helsinki","Finland",60.32,24.96],
+  ["ATH","Athens","Greece",37.94,23.94],["IST","Istanbul","Türkiye",41.26,28.74],["CAI","Cairo","Egypt",30.12,31.41],["CMN","Casablanca","Morocco",33.37,-7.59],
+  ["LOS","Lagos","Nigeria",6.58,3.32],["ADD","Addis Ababa","Ethiopia",8.98,38.80],["NBO","Nairobi","Kenya",-1.32,36.93],["JNB","Johannesburg","South Africa",-26.13,28.24],
+  ["DXB","Dubai","United Arab Emirates",25.25,55.36],["AUH","Abu Dhabi","United Arab Emirates",24.43,54.65],["DOH","Doha","Qatar",25.27,51.61],
+  ["DEL","Delhi","India",28.56,77.10],["BOM","Mumbai","India",19.09,72.87],["MLE","Malé","Maldives",4.19,73.53],["BKK","Bangkok","Thailand",13.69,100.75],
+  ["SIN","Singapore","Singapore",1.36,103.99],["KUL","Kuala Lumpur","Malaysia",2.75,101.71],["CGK","Jakarta","Indonesia",-6.13,106.66],["DPS","Bali","Indonesia",-8.75,115.17],
+  ["MNL","Manila","Philippines",14.51,121.02],["HKG","Hong Kong","China",22.31,113.91],["PEK","Beijing","China",40.08,116.58],["PVG","Shanghai","China",31.14,121.81],
+  ["TPE","Taipei","Taiwan",25.08,121.23],["ICN","Seoul","South Korea",37.46,126.44],["HND","Tokyo Haneda","Japan",35.55,139.78],["NRT","Tokyo Narita","Japan",35.77,140.39],
+  ["SYD","Sydney","Australia",-33.94,151.18],["MEL","Melbourne","Australia",-37.67,144.84],["AKL","Auckland","New Zealand",-37.01,174.79],["PPT","Tahiti","French Polynesia",-17.55,-149.61],
+].map(([code, city, country, lat, lon]) => ({ code, city, country, lat, lon }));
+const AP = Object.fromEntries(GUESSABLE.map(a => [a.code, a]));
+
+/* ---------- Mystery boards ----------
+   Rows are ordered from vague to giveaway. Flight numbers and times are illustrative, not live schedules. */
+const BOARDS = {
+  HNL: { place: "Honolulu, Hawaiʻi", airline: "Hawaiian Airlines", country: "United States", flag: "🇺🇸", utc: -10,
+    weather: "29°C · trade winds, passing showers",
+    fact: "Honolulu is one of the most isolated major airports on Earth: Los Angeles, the nearest big mainland hub, is about 2,560 miles away.",
+    rows: [["06:10","LOS ANGELES","HA 2","B4","BOARDING"],["06:55","TOKYO-HANEDA","HA 863","C2","ON TIME"],["07:30","LAS VEGAS","HA 18","B7","ON TIME"],
+      ["08:05","SEATTLE","HA 21","B9","ON TIME"],["08:40","SYDNEY","HA 451","C6","ON TIME"],["09:15","SEOUL-INCHEON","HA 459","C4","DELAYED"],
+      ["09:50","SAN FRANCISCO","HA 11","B2","ON TIME"],["10:25","PAGO PAGO","HA 465","C1","ON TIME"],["11:00","KONA","HA 112","A12","ON TIME"],
+      ["11:35","LIHUE","HA 141","A9","ON TIME"],["12:10","KAHULUI","HA 198","A4","ON TIME"]] },
+  KEF: { place: "Keflavík, Iceland", airline: "Icelandair", country: "Iceland", flag: "🇮🇸", utc: 0, title: "BROTTFARIR",
+    weather: "6°C · gusty winds, low cloud",
+    fact: "Iceland sits almost exactly between North America and Europe, which is why so many transatlantic connections run through Keflavík.",
+    rows: [["07:20","LONDON-HEATHROW","FI 450","D4","BOARDING"],["07:35","COPENHAGEN","FI 204","D7","ON TIME"],["07:40","PARIS-CDG","FI 542","D2","ON TIME"],
+      ["16:30","BOSTON","FI 631","C10","ON TIME"],["16:45","DENVER","FI 671","C14","ON TIME"],["17:00","SEATTLE","FI 681","C12","DELAYED"],
+      ["17:10","TORONTO","FI 603","C8","ON TIME"],["07:50","OSLO","FI 318","D9","ON TIME"],["08:00","AMSTERDAM","FI 500","D5","ON TIME"],
+      ["10:15","NUUK","FI 1255","A3","ON TIME"],["10:40","AKUREYRI","FI 1302","A1","ON TIME"]] },
+  ATL: { place: "Atlanta, Georgia", airline: "Delta Air Lines", country: "United States", flag: "🇺🇸", utc: -4,
+    weather: "22°C · humid, partly cloudy",
+    fact: "Atlanta has been the world's busiest airport by passenger numbers in most years of the past two decades.",
+    rows: [["07:05","NEW YORK-JFK","DL 2391","B12","BOARDING"],["07:20","LOS ANGELES","DL 400","A17","ON TIME"],["07:45","CANCUN","DL 557","E4","ON TIME"],
+      ["08:10","ORLANDO","DL 1104","T9","ON TIME"],["08:30","PARIS-CDG","DL 84","F6","ON TIME"],["09:00","SEOUL-INCHEON","DL 27","F10","ON TIME"],
+      ["09:25","JOHANNESBURG","DL 200","E11","DELAYED"],["09:40","LAGOS","DL 54","E14","ON TIME"],["10:05","CHATTANOOGA","DL 5032","C42","ON TIME"],
+      ["10:30","SAVANNAH","DL 1882","D21","ON TIME"],["10:55","AUGUSTA","DL 5119","C36","ON TIME"]] },
+  DXB: { place: "Dubai, United Arab Emirates", airline: "Emirates", country: "United Arab Emirates", flag: "🇦🇪", utc: 4, title: "المغادرة · DEPARTURES",
+    weather: "36°C · sunny, light haze",
+    fact: "Dubai International has been the world's busiest airport for international passengers for years running.",
+    rows: [["02:15","LONDON-HEATHROW","EK 1","A6","BOARDING"],["02:40","NEW YORK-JFK","EK 201","A12","ON TIME"],["03:05","SYDNEY","EK 414","A19","ON TIME"],
+      ["03:30","MUMBAI","EK 500","B8","ON TIME"],["03:45","JOHANNESBURG","EK 761","A3","ON TIME"],["04:10","BANGKOK","EK 372","B14","ON TIME"],
+      ["04:35","PARIS-CDG","EK 73","A9","DELAYED"],["05:00","KARACHI","EK 600","C21","ON TIME"],["05:20","MALE","EK 652","B22","ON TIME"],
+      ["05:45","MUSCAT","EK 862","C4","ON TIME"],["06:05","KUWAIT","EK 853","C7","ON TIME"]] },
+  MIA: { place: "Miami, Florida", airline: "American Airlines", country: "United States", flag: "🇺🇸", utc: -4,
+    weather: "30°C · hot, afternoon storms",
+    fact: "Miami handles more flights to Latin America and the Caribbean than any other US airport.",
+    rows: [["06:45","MADRID","AA 68","D29","BOARDING"],["07:00","CHICAGO-O'HARE","AA 2401","D12","ON TIME"],["07:15","NEW YORK-LGA","AA 1031","D4","ON TIME"],
+      ["07:40","BOGOTA","AA 921","D48","ON TIME"],["08:05","LIMA","AA 917","D51","DELAYED"],["08:30","SAO PAULO","AA 929","E8","ON TIME"],
+      ["08:50","SAN JUAN","AA 1601","D20","ON TIME"],["09:10","HAVANA","AA 1305","D16","ON TIME"],["09:35","KINGSTON","AA 1453","D18","ON TIME"],
+      ["09:55","NASSAU","AA 3601","D24","ON TIME"],["10:20","KEY WEST","AA 3477","D2","ON TIME"]] },
+  SIN: { place: "Singapore", airline: "Singapore Airlines", country: "Singapore", flag: "🇸🇬", utc: 8,
+    weather: "31°C · humid, thunderstorms likely",
+    fact: "Singapore's nonstop flights to New York are among the longest scheduled flights in the world, at around 18 hours.",
+    rows: [["08:40","LONDON-HEATHROW","SQ 308","B5","BOARDING"],["09:05","SYDNEY","SQ 221","A16","ON TIME"],["09:30","TOKYO-HANEDA","SQ 634","A10","ON TIME"],
+      ["09:55","NEW YORK-JFK","SQ 24","B7","ON TIME"],["10:20","DELHI","SQ 406","C22","ON TIME"],["10:40","HONG KONG","SQ 856","A5","DELAYED"],
+      ["11:05","BANGKOK","SQ 978","C18","ON TIME"],["11:25","JAKARTA","SQ 956","D35","ON TIME"],["11:50","BALI","SQ 938","D41","ON TIME"],
+      ["12:15","KUALA LUMPUR","SQ 118","D46","ON TIME"],["12:35","PENANG","SQ 136","D48","ON TIME"]] },
+  LIS: { place: "Lisbon, Portugal", airline: "TAP Air Portugal", country: "Portugal", flag: "🇵🇹", utc: 1, title: "PARTIDAS",
+    weather: "21°C · sunny, Atlantic breeze",
+    fact: "Lisbon is a key bridge between Europe, Brazil and Portuguese-speaking Africa.",
+    rows: [["07:10","LONDON-HEATHROW","TP 1350","12","BOARDING"],["07:25","PARIS-ORLY","TP 432","15","ON TIME"],["10:30","NEW YORK-JFK","TP 209","47","ON TIME"],
+      ["11:15","SAO PAULO","TP 85","45","ON TIME"],["11:40","RIO DE JANEIRO","TP 75","43","ON TIME"],["12:05","LUANDA","TP 289","41","DELAYED"],
+      ["12:30","MAPUTO","TP 285","40","ON TIME"],["12:50","PRAIA","TP 1553","22","ON TIME"],["13:10","PONTA DELGADA","TP 1861","8","ON TIME"],
+      ["13:35","FUNCHAL","TP 1689","6","ON TIME"],["14:00","PORTO","TP 1948","3","ON TIME"]] },
+  DEN: { place: "Denver, Colorado", airline: "United Airlines", country: "United States", flag: "🇺🇸", utc: -6,
+    weather: "9°C · sunny, dry, 5,430 ft",
+    fact: "Denver International is the largest airport in the US by land area, at about 33,500 acres.",
+    rows: [["06:30","CHICAGO-O'HARE","UA 1452","B32","BOARDING"],["06:50","HOUSTON","UA 1720","B44","ON TIME"],["07:10","SAN FRANCISCO","UA 655","B15","ON TIME"],
+      ["07:35","LONDON-HEATHROW","UA 29","B24","ON TIME"],["08:00","MUNICH","UA 152","B22","ON TIME"],["08:20","NEWARK","UA 2210","B37","DELAYED"],
+      ["08:45","BOZEMAN","UA 5341","B73","ON TIME"],["09:05","JACKSON HOLE","UA 5627","B80","ON TIME"],["09:25","DURANGO","UA 5490","B88","ON TIME"],
+      ["09:45","VAIL-EAGLE","UA 5512","B90","ON TIME"],["10:10","ASPEN","UA 5605","B92","ON TIME"]] },
+};
+const DAILY = { id: 1, code: "HNL" };
+const MAX_GUESSES = 6;
+const REVEAL = [3, 5, 7, 9, 10, 11];   // rows visible after 0..5 wrong guesses
+const CLUES = [                        // unlocked after N wrong guesses
+  { key: "time", label: "Local time", icon: "🕐", after: 2 },
+  { key: "weather", label: "Weather", icon: "🌡️", after: 3 },
+  { key: "country", label: "Country", icon: "📍", after: 4 },
+  { key: "airline", label: "Main airline", icon: "✈️", after: 5 },
+];
+
+/* ---------- Geo ---------- */
+const toRad = d => d * Math.PI / 180, toDeg = r => r * 180 / Math.PI;
+function miles(a, b) {
+  const R = 3958.8, dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
+  const h = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon/2)**2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(h)));
+}
+function bearing(a, b) {
+  const y = Math.sin(toRad(b.lon - a.lon)) * Math.cos(toRad(b.lat));
+  const x = Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) - Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(toRad(b.lon - a.lon));
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+const ARROWS = ["⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️"];
+const arrowFor = deg => ARROWS[Math.round(deg / 45) % 8];
+const heat = d => d === 0 ? "🟩" : d < 800 ? "🟨" : d < 2500 ? "🟧" : "🟥";
+const proximity = d => Math.max(0, Math.round((1 - d / 12430) * 100));
+const fmt = n => n.toLocaleString("en-US");
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+/* ---------- Sound: a soft flap rattle and a chime ---------- */
+let AC = null;
+function rattle(n = 14) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = AC.currentTime + 0.01;
+    for (let i = 0; i < n; i++) {
+      const len = 0.018, buf = AC.createBuffer(1, AC.sampleRate * len, AC.sampleRate), d = buf.getChannelData(0);
+      for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 3);
+      const s = AC.createBufferSource(), g = AC.createGain(), f = AC.createBiquadFilter();
+      f.type = "bandpass"; f.frequency.value = 2200 + Math.random() * 1500; g.gain.value = 0.18;
+      s.buffer = buf; s.connect(f).connect(g).connect(AC.destination); s.start(t0 + i * 0.035 + Math.random() * 0.012);
+    }
+  } catch {}
+}
+function chime(win) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const notes = win ? [659, 784, 988, 1319] : [392, 330];
+    notes.forEach((f, i) => {
+      const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + 0.02 + i * 0.12;
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      o.connect(g).connect(AC.destination); o.start(t); o.stop(t + 0.55);
+    });
+  } catch {}
+}
+const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Split-flap text ---------- */
+const FLAP_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-:'";
+function Flaps({ text, width, shown, delay = 0, className = "", color }) {
+  const target = (shown ? text : "").toUpperCase().padEnd(width, " ").slice(0, width);
+  const [disp, setDisp] = useState(target);
+  const [flipping, setFlipping] = useState([]);
+  const prev = useRef(target);
+  useEffect(() => {
+    if (prev.current === target) return;
+    prev.current = target;
+    if (reduceMotion()) { setDisp(target); return; }
+    const start = performance.now() + delay;
+    const settleAt = target.split("").map((_, i) => 180 + i * 45 + Math.random() * 120);
+    const id = setInterval(() => {
+      const t = performance.now() - start;
+      if (t < 0) return;
+      let done = true; const f = [];
+      const next = target.split("").map((ch, i) => {
+        if (t >= settleAt[i] || ch === " " && t > 120) return ch;
+        done = false; f.push(i); return FLAP_CHARS[Math.floor(Math.random() * FLAP_CHARS.length)];
+      }).join("");
+      setDisp(next); setFlipping(f);
+      if (done) { clearInterval(id); setFlipping([]); }
+    }, 55);
+    return () => clearInterval(id);
+  }, [target, delay]);
+  return (
+    <span className={`flaps ${className}`} aria-label={shown ? text : "hidden"}>
+      {disp.split("").map((ch, i) => (
+        <span key={i} className={`flap ${!shown ? "dim" : ""} ${flipping.includes(i) ? "flip" : ""}`} style={shown && color && !flipping.includes(i) ? { color } : undefined}>
+          {ch === " " ? (shown ? " " : "·") : ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function LocalClock({ utc, shown }) {
+  const calc = () => { const d = new Date(Date.now() + utc * 3600e3); return `${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc());
+  useEffect(() => { const i = setInterval(() => setT(calc()), 10000); return () => clearInterval(i); }, [utc]);
+  return <Flaps text={shown ? t : ""} width={5} shown={shown} color="var(--sign)" />;
+}
+
+/* ---------- Board ---------- */
+const statusColor = s => s === "BOARDING" ? "var(--sign)" : s === "DELAYED" ? "var(--stop)" : s === "FINAL CALL" ? "var(--amber)" : "var(--go)";
+function Board({ board, visible, solved, clockShown, wiggle }) {
+  const W = { time: 5, dest: 15, flight: 7, gate: 3, status: 8 };
+  return (
+    <section className={`rounded-[18px] border-2 border-b-[6px] border-[#050507] bg-[color:var(--board)] p-3 sm:p-5 shadow-[0_30px_60px_-30px_rgba(0,0,0,.8)] ${wiggle ? "wiggle" : ""}`}
+             aria-label="Mystery departure board">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--line)] pb-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[color:var(--sign)] text-[22px] text-[#1A1400]" aria-hidden="true">🛫</span>
+          <div className="min-w-0">
+            <div className="text-[22px] sm:text-[28px] font-black tracking-[.08em] leading-none text-[color:var(--sign)]">
+              {solved && board.title ? board.title : "DEPARTURES"}
+            </div>
+            <div className="mt-1 text-[12px] font-bold uppercase tracking-[.14em] text-[color:var(--muted)] truncate">
+              {solved ? board.place : "Mystery airport · ???"}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-[15px] sm:text-[20px]">
+          <span className="hidden sm:inline text-[11px] font-bold uppercase tracking-[.14em] text-[color:var(--muted)]">Local</span>
+          <LocalClock utc={board.utc} shown={clockShown} />
+        </div>
+      </div>
+
+      <div className="mt-3 hidden sm:grid row px-1 text-[11px] font-black uppercase tracking-[.16em] text-[color:var(--muted)]" aria-hidden="true">
+        <span className="c-time" style={{ width: "4.6em" }}>Time</span><span className="c-dest">Destination</span>
+        <span className="c-flight" style={{ width: "6.6em" }}>Flight</span><span className="c-gate" style={{ width: "3em" }}>Gate</span><span className="c-status" style={{ width: "7.6em" }}>Remarks</span>
+      </div>
+
+      <ol className="mt-2 space-y-1.5 text-[13px] min-[400px]:text-[14px] sm:text-[17px]">
+        {board.rows.map((r, i) => {
+          const shown = i < visible;
+          return (
+            <li key={i} className={`row rounded-md px-1 py-1 ${shown ? "" : "opacity-70"}`}>
+              <span className="c-time"><Flaps text={r[0]} width={W.time} shown={shown} delay={i * 60} color="var(--sign)" /></span>
+              <span className="c-dest overflow-hidden"><Flaps text={r[1]} width={W.dest} shown={shown} delay={i * 60 + 80} /></span>
+              <span className="c-flight text-[.82em]"><Flaps text={r[2]} width={W.flight} shown={shown} delay={i * 60 + 140} /></span>
+              <span className="c-gate"><Flaps text={r[3]} width={W.gate} shown={shown} delay={i * 60 + 180} /></span>
+              <span className="c-status text-[.82em]">
+                <Flaps text={r[4]} width={W.status} shown={shown} delay={i * 60 + 220} color={statusColor(r[4])} className={shown && r[4] === "BOARDING" ? "blink" : ""} />
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-[color:var(--line)] pt-2 text-[11px] font-bold uppercase tracking-[.12em] text-[color:var(--muted)]">
+        <span>{Math.min(visible, board.rows.length)} of {board.rows.length} departures shown</span>
+        <span className="hidden sm:inline">Times & flights illustrative</span>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Ads ---------- */
+function AdSlot({ w, h, size }) {
+  return (
+    <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#3A3B44]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}>
+      <div className="rounded-md bg-[color:var(--bg)] px-3 py-1 text-center">
+        <div className="text-[10px] font-black uppercase tracking-[.18em] text-[color:var(--muted)]">Monetization Slot</div>
+        <div className="mono text-[10px] text-[#777783]">{size}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Modals ---------- */
+function Modal({ onClose, label, children }) {
+  useEffect(() => { const k = e => e.key === "Escape" && onClose(); window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 backdrop-blur-sm sm:items-center sm:p-6" onClick={onClose} role="dialog" aria-modal="true" aria-label={label}>
+      <div className="pop relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[22px] border-2 border-b-[6px] border-[#050507] bg-[color:var(--bg-2)]" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[18px] text-[color:var(--muted)] hover:bg-white/10 hover:text-white" aria-label="Close">✕</button>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function HelpModal({ onClose }) {
+  return (
+    <Modal onClose={onClose} label="How to play">
+      <div className="space-y-4 p-6">
+        <h2 className="text-[26px] font-black leading-tight">How to play</h2>
+        <p className="text-[color:var(--muted)]">Every day there's a departure board from one mystery airport. Work out which airport it is in <b className="text-white">6 guesses</b>.</p>
+        <ul className="space-y-3 text-[15px] leading-relaxed">
+          <li className="grid grid-cols-[22px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🔎</span><p className="min-w-0">Read the destinations. Which airport would fly to all of these places?</p></li>
+          <li className="grid grid-cols-[22px_minmax(0,1fr)] gap-2"><span aria-hidden="true">⌨️</span><p className="min-w-0">Type an airport code such as <code className="kbd">LAX</code> or a city such as <code className="kbd">Paris</code>, then press <code className="kbd">Guess</code>.</p></li>
+          <li className="grid grid-cols-[22px_minmax(0,1fr)] gap-2"><span aria-hidden="true">🧭</span><p className="min-w-0">A wrong guess shows how many miles away you are and which way to go, flips more of the board, and unlocks clues.</p></li>
+        </ul>
+        <div className="rounded-xl bg-[color:var(--bg)] p-3 text-[13px] text-[color:var(--muted)]">
+          Colors: 🟩 correct · 🟨 under 800 mi · 🟧 under 2,500 mi · 🟥 farther
+        </div>
+        <button onClick={onClose} className="btn btn-sign w-full py-3 text-[18px]">Got it</button>
+      </div>
+    </Modal>
+  );
+}
+
+function shareText(dayId, guesses, won) {
+  const head = dayId ? `Mystery Departures #${dayId}` : "Mystery Departures · Practice";
+  const line = guesses.map(g => g.dist === 0 ? "🟩🛬" : `${heat(g.dist)}${arrowFor(g.bearing)}`).join(" ");
+  return `🛫 ${head} · ${won ? guesses.length : "X"}/${MAX_GUESSES}\n${line}\nPlay: https://skyhop.app/departures`;
+}
+
+function ResultModal({ board, code, dayId, guesses, won, onClose, onPractice }) {
+  const ap = AP[code], text = shareText(dayId, guesses, won);
+  const [copied, setCopied] = useState(false), [fallback, setFallback] = useState(false);
+  const taRef = useRef(null);
+  const copy = () => {
+    const ok = () => { setCopied(true); setTimeout(() => setCopied(false), 2200); };
+    const no = () => { setFallback(true); setTimeout(() => taRef.current && taRef.current.select(), 30); };
+    try { navigator.clipboard.writeText(text).then(ok).catch(no); } catch { no(); }
+  };
+  const sky = fareLink(null, code);
+  return (
+    <Modal onClose={onClose} label={won ? "You found it" : "Out of guesses"}>
+      <div className="p-6">
+        <div className="text-[12px] font-black uppercase tracking-[.16em] text-[color:var(--muted)]">{dayId ? `Board #${dayId}` : "Practice board"} · {won ? `Solved in ${guesses.length}` : "Out of guesses"}</div>
+        <div className="mt-3 rounded-2xl bg-[color:var(--board)] p-4">
+          <div className="text-[12px] font-bold uppercase tracking-[.16em] text-[color:var(--muted)]">{won ? "You got it" : "The answer was"}</div>
+          <div className="mt-1 flex items-baseline gap-3">
+            <Flaps text={code} width={3} shown={true} color="var(--sign)" className="text-[34px]" />
+            <span className="text-[18px] font-extrabold leading-tight">{board.place} <span aria-hidden="true">{board.flag}</span></span>
+          </div>
+          <p className="mt-3 text-[14px] leading-relaxed text-[#D9D6CC]">{board.fact}</p>
+        </div>
+
+        <div className="mt-4 text-[11px] font-black uppercase tracking-[.14em] text-[color:var(--muted)]">Share card · no spoilers</div>
+        <pre className="mt-1.5 whitespace-pre-wrap rounded-xl bg-[color:var(--bg)] p-3 mono text-[13px] leading-relaxed text-[#E6E2D6]">{text}</pre>
+        {fallback && (
+          <div className="mt-2">
+            <div className="mb-1 text-[12px] text-[color:var(--sign)]">Copying is blocked here. The text is selected, so press Ctrl+C or ⌘+C.</div>
+            <textarea ref={taRef} id="share-fallback" readOnly value={text} rows={4} className="w-full rounded-lg border border-[#3A3B44] bg-[color:var(--bg)] p-2 mono text-[12px]" />
+          </div>
+        )}
+        <div className="mt-3 flex gap-2">
+          <button onClick={copy} className="btn btn-go flex-1 py-3 text-[17px]">{copied ? "✓ Copied!" : "Copy Result"}</button>
+          <button onClick={onPractice} className="btn btn-ghost px-4 text-[15px]">Practice</button>
+        </div>
+
+        <div className="mt-4"><AdSlot w={300} h={250} size="300×250 Medium Rectangle" /></div>
+
+        <div className="mt-4 rounded-2xl border-2 border-[color:var(--sign-d)]/60 bg-[#1E1B10] p-4">
+          <div className="text-[10px] font-black uppercase tracking-[.18em] text-[color:var(--sign)]/80">Sponsored · Fare finder</div>
+          <div className="mt-1 text-[18px] font-extrabold leading-snug">Now you know the board. Want to see it in person?</div>
+          <a href={sky} target="_blank" rel="noopener sponsored" className="btn btn-sign mt-3 flex w-full items-center justify-center gap-2 px-3 py-3 text-center text-[15px] leading-snug">
+            Compare Live Fares to {ap.city} ({code}) on Skyscanner ↗
+          </a>
+        </div>
+        <div className="mt-4 text-center text-[12px] text-[color:var(--muted)]">Next board in <Countdown /></div>
+      </div>
+    </Modal>
+  );
+}
+
+function Countdown() {
+  const calc = () => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const s = Math.max(0, Math.floor((m - n) / 1000)); return `${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; };
+  const [t, setT] = useState(calc());
+  useEffect(() => { const i = setInterval(() => setT(calc()), 1000); return () => clearInterval(i); }, []);
+  return <span className="mono font-bold text-white">{t}</span>;
+}
+
+/* ---------- App ---------- */
+const SAVE_KEY = "departures-1";
+
+function App() {
+  const saved = store.get(SAVE_KEY, null);
+  const [game, setGame] = useState({ dayId: DAILY.id, code: DAILY.code });
+  const [guesses, setGuesses] = useState(saved?.guesses || []);
+  const [status, setStatus] = useState(saved?.status || "playing");
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const [err, setErr] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [wiggle, setWiggle] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [sound, setSound] = useState(() => store.get("departures-sound", true));
+  const [streak, setStreak] = useState(() => store.get("departures-streak", { count: 0, last: 0 }));
+  const inputRef = useRef(null), toastTimer = useRef(null);
+
+  const board = BOARDS[game.code], answer = AP[game.code];
+  const isDaily = game.dayId === DAILY.id;
+  const playing = status === "playing";
+  const wrong = guesses.filter(g => g.dist !== 0).length;
+  const visible = playing ? REVEAL[Math.min(wrong, REVEAL.length - 1)] : board.rows.length;
+  const unlocked = (c) => !playing || wrong >= c.after;
+  const left = MAX_GUESSES - guesses.length;
+
+  useEffect(() => { if (isDaily) store.set(SAVE_KEY, { guesses, status }); }, [guesses, status, isDaily]);
+  useEffect(() => { store.set("departures-sound", sound); }, [sound]);
+
+  // Typing anywhere goes into the guess box.
+  useEffect(() => {
+    const onDown = (e) => {
+      if (!playing || e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target, tag = t && t.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || document.querySelector('[role="dialog"]')) return;
+      if (/^[a-zA-Z .-]$/.test(e.key)) { e.preventDefault(); setQuery(q => q + e.key); setOpen(true); setHi(0); setErr(null); inputRef.current && inputRef.current.focus(); }
+    };
+    window.addEventListener("keydown", onDown); return () => window.removeEventListener("keydown", onDown);
+  }, [playing]);
+
+  const showToast = (kind, text, ms = 2600) => { clearTimeout(toastTimer.current); setToast({ kind, text, key: Date.now() }); toastTimer.current = setTimeout(() => setToast(null), ms); };
+
+  const suggestions = useMemo(() => {
+    const q = query.trim().toLowerCase(); if (!q) return [];
+    const rank = a => a.code.toLowerCase() === q ? 0 : a.code.toLowerCase().startsWith(q) ? 1 : a.city.toLowerCase().startsWith(q) ? 2 : 3;
+    return GUESSABLE.filter(a => a.code.toLowerCase().startsWith(q) || a.city.toLowerCase().includes(q) || a.country.toLowerCase().startsWith(q))
+      .sort((a, b) => rank(a) - rank(b) || a.code.localeCompare(b.code)).slice(0, 6);
+  }, [query]);
+
+  const resolve = (raw) => {
+    const q = (raw || "").trim(); if (!q) return { error: "Type an airport code or a city first." };
+    const up = q.toUpperCase(); if (AP[up]) return { code: up };
+    const exact = GUESSABLE.filter(a => a.city.toLowerCase() === q.toLowerCase());
+    if (exact.length === 1) return { code: exact[0].code };
+    if (suggestions.length === 1) return { code: suggestions[0].code };
+    if (suggestions.length > 1) return { error: `“${q}” matches a few airports. Pick one from the list.` };
+    return { error: `“${q}” isn't in our airport list. Try a big airport code like LHR or a city like Tokyo. This didn't use a guess.` };
+  };
+
+  const submit = (raw) => {
+    if (!playing) return;
+    const r = resolve(raw ?? query);
+    if (r.error) { setErr(r.error); return; }
+    if (guesses.some(g => g.code === r.code)) { setErr(`You already guessed ${r.code}. This didn't use a guess.`); return; }
+    const g = AP[r.code], d = r.code === game.code ? 0 : miles(g, answer), b = bearing(g, answer);
+    const next = [...guesses, { code: r.code, dist: d, bearing: b }];
+    setGuesses(next); setQuery(""); setOpen(false); setErr(null);
+    if (d === 0) {
+      setStatus("won"); sound && chime(true); sound && rattle(22);
+      showToast("ok", `🎉 Yes! It's ${board.place.split(",")[0]}.`);
+      if (isDaily && streak.last !== DAILY.id) { const s = { count: streak.count + 1, last: DAILY.id }; setStreak(s); store.set("departures-streak", s); }
+      setTimeout(() => setShowResult(true), 1500);
+    } else if (next.length >= MAX_GUESSES) {
+      setStatus("lost"); sound && chime(false); sound && rattle(22);
+      showToast("bad", `Out of guesses. It was ${game.code}.`);
+      if (isDaily && streak.last !== DAILY.id) { const s = { count: 0, last: DAILY.id }; setStreak(s); store.set("departures-streak", s); }
+      setTimeout(() => setShowResult(true), 1500);
+    } else {
+      sound && rattle(14);
+      setWiggle(true); setTimeout(() => setWiggle(false), 500);
+      const newClue = CLUES.find(c => c.after === next.length);
+      showToast("bad", `${r.code} is ${fmt(d)} mi away ${arrowFor(b)}${newClue ? ` · ${newClue.label} unlocked` : " · more departures added"}`);
+    }
+  };
+
+  const resetTo = (g) => { setGame(g); setGuesses([]); setStatus("playing"); setShowResult(false); setErr(null); setQuery(""); setToast(null); };
+  const practice = () => {
+    const codes = Object.keys(BOARDS).filter(c => c !== game.code);
+    resetTo({ dayId: null, code: codes[Math.floor(Math.random() * codes.length)] });
+  };
+  const backToDaily = () => { const s = store.get(SAVE_KEY, null); setGame({ dayId: DAILY.id, code: DAILY.code }); setGuesses(s?.guesses || []); setStatus(s?.status || "playing"); setErr(null); setQuery(""); setToast(null); };
+
+  const onKey = (e) => {
+    if (e.key === "ArrowDown" && suggestions.length) { e.preventDefault(); setOpen(true); setHi(h => (h + 1) % suggestions.length); }
+    else if (e.key === "ArrowUp" && suggestions.length) { e.preventDefault(); setHi(h => (h - 1 + suggestions.length) % suggestions.length); }
+    else if (e.key === "Enter") { e.preventDefault(); if (open && suggestions[hi]) submit(suggestions[hi].code); else submit(); }
+    else if (e.key === "Escape") setOpen(false);
+  };
+
+  const clueValue = (k) => k === "time" ? `UTC${board.utc >= 0 ? "+" : "−"}${Math.abs(board.utc)}` : k === "weather" ? board.weather : k === "country" ? `${board.flag} ${board.country}` : board.airline;
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      {/* Header */}
+      <header className="flex items-center justify-between gap-3 py-1.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border-2 border-b-[5px] border-[color:var(--sign-d)] bg-[color:var(--sign)] text-[22px]" aria-hidden="true">🛫</div>
+          <div className="min-w-0">
+            <h1 className="text-[24px] sm:text-[28px] font-black leading-none tracking-[.02em]">Mystery <span className="text-[color:var(--sign)]">Departures</span></h1>
+            <div className="truncate text-[12px] font-bold text-[color:var(--muted)]">
+              {isDaily ? <>Board #{DAILY.id} · Mon, Oct 19</> : <span className="text-[color:var(--sign)]">Practice board · just for fun</span>}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="chip flex items-center gap-1 px-3 py-1.5" title="Daily streak"><span aria-hidden="true">🔥</span><span className="mono text-[15px] font-bold text-[#FFC27A]">{streak.count}</span></div>
+          <button onClick={() => setSound(v => !v)} className="chip grid h-10 w-10 place-items-center text-[16px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
+          <button onClick={() => setShowHelp(true)} className="chip grid h-10 w-10 place-items-center text-[17px] font-black text-[color:var(--muted)] hover:text-white" aria-label="How to play">?</button>
+        </div>
+      </header>
+
+      <div className="mt-3 hidden md:block"><AdSlot w={728} h={90} size="728×90 Leaderboard" /></div>
+
+      {/* The one-line pitch */}
+      <p className="mt-4 text-[17px] sm:text-[20px] font-extrabold leading-snug" style={{ textWrap: "balance" }}>
+        Which airport is this board from? <span className="font-semibold text-[color:var(--muted)]">You get 6 guesses. Each miss flips more departures.</span>
+      </p>
+
+      {/* Board + toast */}
+      <div className="relative mt-3">
+        {toast && (
+          <div key={toast.key} className="pointer-events-none absolute inset-x-0 top-[-14px] z-20 flex justify-center px-2" role="status">
+            <div className={`pop max-w-full truncate rounded-full border-2 border-b-4 px-4 py-2 text-[14px] sm:text-[16px] font-black shadow-xl ${toast.kind === "ok" ? "bg-[color:var(--go)] border-[color:var(--go-d)] text-[#06210F]" : "bg-[color:var(--sign)] border-[color:var(--sign-d)] text-[#1A1400]"}`}>
+              {toast.text}
+            </div>
+          </div>
+        )}
+        <Board board={board} visible={visible} solved={!playing} clockShown={unlocked(CLUES[0])} wiggle={wiggle} />
+      </div>
+
+      <main className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* Guess desk */}
+        <section className="min-w-0 rounded-[18px] border-2 border-b-[6px] border-[#050507] bg-[color:var(--bg-2)] p-4">
+          {playing ? (
+            <>
+              <div className="flex items-center justify-between">
+                <label htmlFor="guess-input" className="text-[12px] font-black uppercase tracking-[.14em] text-[color:var(--sign)]">Your guess</label>
+                <span className={`text-[12px] font-black uppercase tracking-[.12em] ${left <= 2 ? "text-[color:var(--stop)]" : "text-[color:var(--muted)]"}`}>{left} {left === 1 ? "guess" : "guesses"} left</span>
+              </div>
+              <div className="relative mt-1.5 flex gap-2">
+                <div className={`flex min-w-0 flex-1 items-center rounded-xl border-2 bg-[color:var(--bg)] ${err ? "border-[color:var(--stop)]" : "border-[#34353E] focus-within:border-[color:var(--sign)]"}`}>
+                  <span className="pl-3 text-[16px]" aria-hidden="true">🔎</span>
+                  <input id="guess-input" ref={inputRef} value={query} autoComplete="off" spellCheck="false"
+                    onChange={e => { setQuery(e.target.value); setOpen(true); setHi(0); setErr(null); }}
+                    onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 120)} onKeyDown={onKey}
+                    placeholder="Airport code or city, e.g. LAX" role="combobox" aria-expanded={open && suggestions.length > 0} aria-controls="ac-list"
+                    className="w-full min-w-0 bg-transparent px-2.5 py-3 text-[16px] font-extrabold text-white outline-none placeholder:font-bold placeholder:text-[#7E7E89]" />
+                </div>
+                <button onClick={() => submit()} disabled={!query.trim()} className="btn btn-sign shrink-0 px-5 text-[17px]">Guess</button>
+                {open && suggestions.length > 0 && (
+                  <ul id="ac-list" role="listbox" className="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border-2 border-[#050507] bg-[color:var(--bg-2)] shadow-2xl">
+                    {suggestions.map((a, i) => (
+                      <li key={a.code} role="option" aria-selected={i === hi} onMouseDown={e => { e.preventDefault(); submit(a.code); }} onMouseEnter={() => setHi(i)}
+                          className={`flex cursor-pointer items-center gap-3 px-3.5 py-2.5 ${i === hi ? "bg-white/10" : ""}`}>
+                        <span className="mono w-11 font-bold text-[color:var(--sign)]">{a.code}</span>
+                        <span className="flex-1 truncate text-[14px] font-semibold">{a.city} <span className="text-[color:var(--muted)]">· {a.country}</span></span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {err && <div role="alert" className="pop mt-2.5 rounded-xl border-2 border-[color:var(--stop)]/60 bg-[color:var(--stop)]/10 px-3.5 py-2.5 text-[14px] font-semibold text-[#FFD2CE]">{err}</div>}
+            </>
+          ) : (
+            <div className="flex flex-col gap-2.5 sm:flex-row">
+              <button onClick={() => setShowResult(true)} className={`btn ${status === "won" ? "btn-go" : "btn-sign"} flex-1 py-3 text-[17px]`}>{status === "won" ? "🏆 See my result" : "See the answer"}</button>
+              <button onClick={() => resetTo(game)} className="btn btn-ghost flex-1 py-3 text-[16px]">↺ {isDaily ? "Replay today's board" : "Replay this board"}</button>
+              <button onClick={practice} className="btn btn-ghost flex-1 py-3 text-[16px]">🔀 Practice board</button>
+            </div>
+          )}
+
+          {/* Guess rows */}
+          <ol className="mt-4 space-y-2" aria-label="Your guesses">
+            {Array.from({ length: MAX_GUESSES }, (_, i) => {
+              const g = guesses[i];
+              if (!g) return (
+                <li key={i} className="flex h-11 items-center gap-3 rounded-xl border-2 border-dashed border-[#2C2D35] px-3 text-[13px] font-bold text-[#55565F]">
+                  <span className="mono">{i + 1}</span><span>{i === guesses.length && playing ? "Your next guess" : ""}</span>
+                </li>
+              );
+              const a = AP[g.code], hit = g.dist === 0;
+              return (
+                <li key={i} className={`pop grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-3 py-2 ${hit ? "bg-[color:var(--go)] text-[#06210F]" : "bg-[color:var(--bg)]"}`}>
+                  <span className="mono text-[17px] font-bold" style={hit ? undefined : { color: "var(--sign)" }}>{g.code}</span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[14px] font-extrabold">{a.city}</div>
+                    {!hit && (
+                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#2A2B33]" aria-hidden="true">
+                        <div className="h-full rounded-full" style={{ width: `${proximity(g.dist)}%`, background: g.dist < 800 ? "var(--sign)" : g.dist < 2500 ? "var(--amber)" : "var(--stop)" }} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    {hit ? <span className="text-[15px] font-black">🛬 Found it!</span> : (
+                      <span className="mono text-[13px] font-bold tabular-nums"><span className="text-[18px] align-middle">{arrowFor(g.bearing)}</span> {fmt(g.dist)} mi</span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+          {!isDaily && <button onClick={backToDaily} className="mt-3 text-[13px] font-bold text-[color:var(--sign)] hover:underline">← Back to today's board</button>}
+        </section>
+
+        {/* Clues */}
+        <aside className="min-w-0 rounded-[18px] border-2 border-b-[6px] border-[#050507] bg-[color:var(--bg-2)] p-4">
+          <h2 className="text-[12px] font-black uppercase tracking-[.14em] text-[color:var(--sign)]">Clues</h2>
+          <ul className="mt-2 space-y-2">
+            {CLUES.map(c => {
+              const on = unlocked(c);
+              return (
+                <li key={c.key} className={`flex items-start gap-3 rounded-xl px-3 py-2.5 ${on ? "bg-[color:var(--bg)]" : "border-2 border-dashed border-[#2C2D35]"}`}>
+                  <span className={`text-[18px] ${on ? "" : "grayscale opacity-40"}`} aria-hidden="true">{on ? c.icon : "🔒"}</span>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-black uppercase tracking-[.12em] text-[color:var(--muted)]">{c.label}</div>
+                    <div className={`text-[14px] font-extrabold ${on ? "pop" : "text-[#5E5F69]"}`}>{on ? clueValue(c.key) : `Unlocks after ${c.after} wrong ${c.after === 1 ? "guess" : "guesses"}`}</div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-3 text-[12px] font-semibold leading-relaxed text-[color:var(--muted)]">Tip: the last departures on the board are the most local, so they give the most away.</p>
+        </aside>
+      </main>
+
+      <footer className="mt-6 text-center text-[12px] font-semibold text-[#6F707B]">Mystery Departures prototype · boards are illustrative, not live schedules</footer>
+
+      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50 Sticky Banner" /></div>
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+      {showResult && !playing && <ResultModal board={board} code={game.code} dayId={game.dayId} guesses={guesses} won={status === "won"} onClose={() => setShowResult(false)} onPractice={practice} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>

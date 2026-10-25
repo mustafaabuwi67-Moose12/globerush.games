@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="vacation-price">
+<!-- Affiliate links: edit the AFFILIATE block at the top of the main <script>. Prices: edit the ITEMS list. -->
+<title>Guess the Vacation Price · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Karla:wght@500;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: a souvenir-shop counter. Price-tag item card on the left, a receipt that prints the answer on the right; score receipt at the end. */
+:root{
+  --bg:#E4F6F0; --bg-2:#CDEFE4; --card:#FFFFFF; --card-2:#F1FAF6; --ink:#12241F; --muted:#4F6B63; --line:#BFDCD2;
+  --tag:#FFD60A; --tag-d:#C9A600; --stamp:#E5383B; --go:#1F9D57; --go-d:#14713D; --paper:#FFFDF7; --paper-ink:#2B2B2B;
+  --vegas:#D6246E; --orlando:#F07A00;
+  --f-display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-body:"Karla",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-receipt:"Courier Prime","Courier New",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1E19; --bg-2:#10302A; --card:#14322B; --card-2:#1A3D35; --ink:#E9FFF8; --muted:#9FC4B9; --line:#285247;
+  --tag:#FFD60A; --tag-d:#B39400; --stamp:#FF5A5D; --go:#34C774; --go-d:#1E8A4C; --paper:#F7F3E8; --paper-ink:#232323;
+  --vegas:#FF4F95; --orlando:#FF9A2E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1E19; --bg-2:#10302A; --card:#14322B; --card-2:#1A3D35; --ink:#E9FFF8; --muted:#9FC4B9; --line:#285247;
+  --tag:#FFD60A; --tag-d:#B39400; --stamp:#FF5A5D; --go:#34C774; --go-d:#1E8A4C; --paper:#F7F3E8; --paper-ink:#232323;
+  --vegas:#FF4F95; --orlando:#FF9A2E; color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(900px 420px at 90% -10%,var(--bg-2),transparent 70%)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:400;letter-spacing:.01em}
+.receipt-font{font-family:var(--f-receipt)}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:24px;color:var(--muted)}
+h1,h2,h3{text-wrap:balance}
+
+.btn{border-radius:14px;border:2px solid transparent;border-bottom-width:5px;font-family:var(--f-body);font-weight:800;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;border-bottom-width:5px}
+.btn-tag{background:var(--tag);border-color:var(--tag-d);color:#241C00}
+.btn-go{background:var(--go);border-color:var(--go-d);color:#fff}
+.btn-plain{background:var(--card);border-color:var(--line);color:var(--ink)}
+.chip{border-radius:999px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink)}
+
+/* price tag */
+.tag{position:relative;background:var(--card);border:2px solid var(--line);border-bottom-width:6px;border-radius:22px 22px 22px 22px}
+.tag-hole{position:absolute;top:18px;right:18px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+.string{position:absolute;top:-30px;right:25px;width:2px;height:40px;background:var(--muted);opacity:.5;transform:rotate(18deg)}
+
+/* receipt */
+.receipt{position:relative;background:var(--paper);color:var(--paper-ink);font-family:var(--f-receipt);padding:18px 18px 26px;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;
+  box-shadow:0 10px 30px -18px rgba(0,0,0,.5)}
+.dash{border-top:2px dashed #b9b5aa;margin:10px 0}
+@keyframes print{0%{clip-path:inset(0 0 100% 0)}100%{clip-path:inset(0 0 0 0)}}
+.print{animation:print .7s steps(14,end) both}
+@keyframes stamp{0%{transform:rotate(-10deg) scale(2.2);opacity:0}100%{transform:rotate(-10deg) scale(1);opacity:1}}
+.stamp{display:inline-block;border:3px solid currentColor;border-radius:8px;padding:2px 10px;font-family:var(--f-display);font-size:20px;transform:rotate(-10deg);animation:stamp .35s .55s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes rise{0%{transform:translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+.rise{animation:rise .35s ease-out both}
+@keyframes pop{0%{transform:scale(.88);opacity:0}60%{transform:scale(1.03);opacity:1}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;border-radius:999px;background:linear-gradient(90deg,var(--tag) var(--p,50%),var(--card-2) var(--p,50%));border:2px solid var(--line);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:34px;height:34px;border-radius:50%;background:var(--ink);border:4px solid var(--tag);cursor:grab;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--ink);border:4px solid var(--tag);cursor:grab}
+input[type=range]:focus-visible{outline:3px solid var(--stamp);outline-offset:4px}
+
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),var(--line) 50%,transparent calc(50% + .5px)),var(--card-2)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;
+  padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--bg);border-top:1px solid var(--line)}
+.kbd{font-family:var(--f-receipt);font-size:.9em;font-weight:700;background:var(--card-2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:.02em .38em;white-space:nowrap}
+:focus-visible{outline:3px solid var(--stamp);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.print,.stamp,.rise,.pop{animation:none!important}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">🏷️ Pricing the souvenirs…</div></div>
+<div id="gr-more"></div>
+
+<script>
+setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
+</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+/* =====================================================================
+   YOUR AFFILIATE LINKS: paste your link patterns here, once.
+   Placeholders: {FROM} {TO} = airport codes in capitals; {from} {to} = lowercase
+   ===================================================================== */
+const AFFILIATE = window.GLOBERUSH && window.GLOBERUSH.affiliate || {
+  route: "https://www.skyscanner.com/transport/flights/{from}/{to}/",
+  // both airports known
+  toOnly: "https://www.skyscanner.com/transport/flights-to/{to}/",
+  // destination only
+  general: "https://www.skyscanner.com/" // generic buttons
+};
+function fareLink(from, to) {
+  const t = from && to ? AFFILIATE.route : to ? AFFILIATE.toOnly : AFFILIATE.general;
+  const f = (from || "").trim(),
+    d = (to || "").trim();
+  return t.replace(/\{FROM\}/g, f.toUpperCase()).replace(/\{TO\}/g, d.toUpperCase()).replace(/\{from\}/g, f.toLowerCase()).replace(/\{to\}/g, d.toLowerCase());
+}
+
+/* ---------- Price list (researched; "as_of" says when each price was checked) ---------- */
+const ITEMS = /*ITEMS*/[{
+  "id": "highroller",
+  "city": "V",
+  "emoji": "🎡",
+  "item": "One ride on the High Roller observation wheel (daytime, adult)",
+  "price": 23.5,
+  "note": "Daytime adult tickets start at about $23.50; night rides cost more, and the 21+ open-bar 'Happy Half Hour' is about $60.",
+  "min": 0,
+  "max": 100,
+  "source": "https://lasvegaswonders.com/?p=8942",
+  "as_of": "Sep 2026"
+}, {
+  "id": "sphere",
+  "city": "V",
+  "emoji": "🔮",
+  "item": "Lowest standard ticket to The Wizard of Oz at Sphere",
+  "price": 124,
+  "note": "Upper Gallery seats start around $124 at the gate; prices are dynamic and lower sections cost more.",
+  "min": 0,
+  "max": 500,
+  "source": "https://www.tripster.com/travelguide/las-vegas-sphere/",
+  "as_of": "Jun 2026"
+}, {
+  "id": "bacchanal",
+  "city": "V",
+  "emoji": "🍽️",
+  "item": "Adult dinner at Bacchanal Buffet (Caesars Palace), cheapest day",
+  "price": 86.99,
+  "note": "Adult dinner runs about $87 to $92 depending on the day, making it one of the priciest buffets on the Strip.",
+  "min": 0,
+  "max": 300,
+  "source": "https://www.vegasalways.com/las-vegas-buffets/",
+  "as_of": "May 2026"
+}, {
+  "id": "wickedspoon",
+  "city": "V",
+  "emoji": "🍽️",
+  "item": "Adult weekday brunch at Wicked Spoon (Cosmopolitan)",
+  "price": 47,
+  "note": "Weekday brunch is about $47 and weekend brunch about $54; Wicked Spoon no longer serves dinner.",
+  "min": 0,
+  "max": 200,
+  "source": "https://lasvegaswonders.com/?p=7398",
+  "as_of": "Jun 2026"
+}, {
+  "id": "gondola",
+  "city": "V",
+  "emoji": "🛶",
+  "item": "Shared indoor gondola ride at The Venetian, per person",
+  "price": 39,
+  "note": "Shared rides seat up to four for $39 each (with select discount dates); a private two-person gondola is $156.",
+  "min": 0,
+  "max": 150,
+  "source": "https://www.venetianlasvegas.com/resort/attractions/gondola-rides.html",
+  "as_of": "Oct 2026"
+}, {
+  "id": "skypod",
+  "city": "V",
+  "emoji": "🗼",
+  "item": "Adult admission to the STRAT SkyPod observation deck",
+  "price": 27,
+  "note": "Base SkyPod tickets start around $27; adding a thrill ride on top of the tower is about $5 more.",
+  "min": 0,
+  "max": 100,
+  "source": "https://lasvegaswonders.com/?p=6847",
+  "as_of": "May 2026"
+}, {
+  "id": "monorail",
+  "city": "V",
+  "emoji": "🚆",
+  "item": "One single ride on the Las Vegas Monorail (paper ticket)",
+  "price": 6.25,
+  "note": "A single ride is $6.25 ($5.75 as an eTicket), and Nevada residents pay just $1.",
+  "min": 0,
+  "max": 25,
+  "source": "https://www.lvmonorail.com/ticket-information/",
+  "as_of": "Oct 2026"
+}, {
+  "id": "resortfee",
+  "city": "V",
+  "emoji": "🏨",
+  "item": "Bellagio's nightly resort fee (before tax)",
+  "price": 55,
+  "note": "Bellagio charges about $55 per night before tax (around $62 with tax), on top of the room rate.",
+  "min": 0,
+  "max": 150,
+  "source": "https://lasvegaswonders.com/?p=8834",
+  "as_of": "Sep 2026"
+}, {
+  "id": "redrock",
+  "city": "V",
+  "emoji": "🏜️",
+  "item": "Red Rock Canyon Scenic Drive entry fee, per car (one day)",
+  "price": 20,
+  "note": "It's $20 per vehicle, and a timed-entry reservation is required Oct 1 to May 31 from 8 a.m. to 5 p.m.",
+  "min": 0,
+  "max": 80,
+  "source": "https://turo.com/blog/wayfaring/red-rock-scenic-drive/",
+  "as_of": "Aug 2026"
+}, {
+  "id": "hooverdam",
+  "city": "V",
+  "emoji": "🏞️",
+  "item": "Hoover Dam self-guided Visitor Center admission, per person",
+  "price": 15,
+  "note": "The Visitor Center is $15, the guided Power Plant Tour $25 and the Dam Tour $40; the Nevada-side garage charges $10 to park.",
+  "min": 0,
+  "max": 60,
+  "source": "https://www.usbr.gov/lc/hooverdam/service/index.html",
+  "as_of": "Oct 2026"
+}, {
+  "id": "valleyfire",
+  "city": "V",
+  "emoji": "🏜️",
+  "item": "Valley of Fire State Park day entry, per out-of-state car",
+  "price": 15,
+  "note": "Non-Nevada vehicles pay $15 a day and Nevada plates pay $10.",
+  "min": 0,
+  "max": 60,
+  "source": "https://parks.nv.gov/parks/valley-of-fire",
+  "as_of": "Oct 2026"
+}, {
+  "id": "neon",
+  "city": "V",
+  "emoji": "💡",
+  "item": "Adult daytime general admission to the Neon Museum",
+  "price": 25,
+  "note": "Daytime admission is about $25; evening visits, when the old signs glow, cost about $35.",
+  "min": 0,
+  "max": 100,
+  "source": "https://lasvegaswonders.com/?p=8973",
+  "as_of": "Sep 2026"
+}, {
+  "id": "mob",
+  "city": "V",
+  "emoji": "🕵️",
+  "item": "Adult general admission to The Mob Museum",
+  "price": 34.95,
+  "note": "The gate price is $34.95, and buying online can save up to 20%.",
+  "min": 0,
+  "max": 120,
+  "source": "https://www.tripster.com/travelguide/the-mob-museum/",
+  "as_of": "Oct 2026"
+}, {
+  "id": "slotzilla",
+  "city": "V",
+  "emoji": "🪂",
+  "item": "One seated ride on SlotZilla's lower zipline (Fremont Street)",
+  "price": 49,
+  "note": "The seated lower line is $49; the upper 'Zoomline', flown Superman-style about 1,750 ft, costs $69.",
+  "min": 0,
+  "max": 200,
+  "source": "https://lasvegaswonders.com/?p=6724",
+  "as_of": "May 2026"
+}, {
+  "id": "coaster",
+  "city": "V",
+  "emoji": "🎢",
+  "item": "One ride on the Big Apple Coaster at New York-New York",
+  "price": 25,
+  "note": "A standard single ride is $25 before tax.",
+  "min": 0,
+  "max": 100,
+  "source": "https://lasvegaswonders.com/?p=9411",
+  "as_of": "Oct 2026"
+}, {
+  "id": "eiffel",
+  "city": "V",
+  "emoji": "🗼",
+  "item": "Adult ticket to the Eiffel Tower Viewing Deck at Paris Las Vegas",
+  "price": 24,
+  "note": "Adult tickets start at $24 on non-peak dates and rise to about $32.75 on peak dates.",
+  "min": 0,
+  "max": 100,
+  "source": "https://www.tripster.com/detail/eiffel-tower-the-paris-las-vegas.md",
+  "as_of": "Oct 2026"
+}, {
+  "id": "lakemead",
+  "city": "V",
+  "emoji": "🏜️",
+  "item": "Lake Mead National Recreation Area 7-day private vehicle pass",
+  "price": 25,
+  "note": "A $25 pass covers a private car for up to 7 days, and entry is free on NPS fee-free days.",
+  "min": 0,
+  "max": 100,
+  "source": "https://www.nps.gov/lake/planyourvisit/fees.htm",
+  "as_of": "Jun 2026"
+}, {
+  "id": "fremontshow",
+  "city": "V",
+  "emoji": "✨",
+  "item": "Watching the Viva Vision light show on Fremont Street",
+  "price": 0,
+  "note": "It's free: the shows on the giant canopy screen need no tickets.",
+  "min": 0,
+  "max": 50,
+  "source": "https://lasvegaswonders.com/?p=7218",
+  "as_of": "Jun 2026"
+}, {
+  "id": "taxi",
+  "city": "V",
+  "emoji": "🚕",
+  "item": "Flat-rate taxi from the airport (LAS) to a Center Strip hotel",
+  "price": 25.25,
+  "note": "Airport taxis charge flat zone fares: about $21.25 South Strip, $25.25 Center Strip, $29.25 North Strip, before tip.",
+  "min": 0,
+  "max": 100,
+  "source": "https://www.vegasalways.com/taxi-fares-in-las-vegas/",
+  "as_of": "May 2026"
+}, {
+  "id": "sevenmagic",
+  "city": "V",
+  "emoji": "🏷️",
+  "item": "Visiting the Seven Magic Mountains art installation",
+  "price": 0,
+  "note": "It's free: the neon-painted boulder towers are open sunrise to sunset with no admission fee.",
+  "min": 0,
+  "max": 50,
+  "source": "https://www.fox5vegas.com/2026/04/06/seven-magic-mountains-gets-fresh-coat-paint/",
+  "as_of": "Apr 2026"
+}, {
+  "id": "wynnbuffet",
+  "city": "V",
+  "emoji": "🍽️",
+  "item": "Adult seafood gourmet dinner at The Buffet at Wynn",
+  "price": 84.99,
+  "note": "Wynn's daily seafood dinner is $84.99, one of the priciest buffets in town; brunch is $64.99.",
+  "min": 0,
+  "max": 300,
+  "source": "https://www.lasvegasadvisor.com/blog/buffet-update-june-2026/",
+  "as_of": "Jun 2026"
+}, {
+  "id": "pinball",
+  "city": "V",
+  "emoji": "🎟️",
+  "item": "Admission to the Pinball Hall of Fame museum",
+  "price": 0,
+  "note": "Entry is free; you pay only to play, and most machines cost 25 cents to $1 a game.",
+  "min": 0,
+  "max": 50,
+  "source": "https://www.saltycanary.com/pinball-hall-of-fame-museum-las-vegas-complete-visitor-guide/",
+  "as_of": "Jun 2026"
+}, {
+  "id": "wdwticket",
+  "city": "O",
+  "emoji": "🎟️",
+  "item": "A 1-day, 1-park Walt Disney World ticket, ages 10+ (cheapest date)",
+  "price": 119,
+  "note": "That's the lowest 'from' price before tax; Magic Kingdom costs more, and from Nov 21, 2026 its peak days reach $209.",
+  "min": 0,
+  "max": 500,
+  "source": "https://disneyworld.disney.go.com/admission/tickets/",
+  "as_of": "Oct 2026"
+}, {
+  "id": "unitix",
+  "city": "O",
+  "emoji": "🎟️",
+  "item": "A 1-day, 1-park Universal Studios Florida adult ticket (cheapest day)",
+  "price": 124,
+  "note": "Lowest date-based price before tax; busy days cost noticeably more.",
+  "min": 0,
+  "max": 500,
+  "source": "https://themeparkshark.com/2026/03/30/universal-orlando-ticket-prices-2026/",
+  "as_of": "Mar 2026"
+}, {
+  "id": "epictix",
+  "city": "O",
+  "emoji": "🎟️",
+  "item": "A 1-day ticket to Universal's Epic Universe (cheapest day)",
+  "price": 139,
+  "note": "Starting price before tax; only a few late-summer 2026 dates sell at this floor.",
+  "min": 0,
+  "max": 500,
+  "source": "https://www.disneyfoodblog.com/2025/12/06/the-cheapest-days-to-go-to-epic-universe-in-2026",
+  "as_of": "Dec 2025"
+}, {
+  "id": "volcanobay",
+  "city": "O",
+  "emoji": "🌊",
+  "item": "A 1-day adult ticket to Universal's Volcano Bay water park",
+  "price": 80,
+  "note": "Standalone 1-day Volcano Bay ticket price; it's sold one park per day.",
+  "min": 0,
+  "max": 300,
+  "source": "https://orlandoinformer.com/universal/volcano-bay-water-theme-park/",
+  "as_of": "Oct 2026"
+}, {
+  "id": "uniexpress",
+  "city": "O",
+  "emoji": "⚡",
+  "item": "A Universal Express Pass add-on for one day (cheapest date)",
+  "price": 119.99,
+  "note": "Express skips regular lines and is priced by date, from $119.99 up to $319.99.",
+  "min": 0,
+  "max": 500,
+  "source": "https://themeparkshark.com/2026/03/30/universal-orlando-ticket-prices-2026/",
+  "as_of": "Mar 2026"
+}, {
+  "id": "wdwparking",
+  "city": "O",
+  "emoji": "🅿️",
+  "item": "One day of standard car parking at a Disney World theme park",
+  "price": 35,
+  "note": "Standard parking is $35 a day; Disney resort hotel guests park free.",
+  "min": 0,
+  "max": 120,
+  "source": "https://www.floridareview.co.uk/blog/florida-theme-park-parking-prices",
+  "as_of": "Oct 2026"
+}, {
+  "id": "llmp",
+  "city": "O",
+  "emoji": "⚡",
+  "item": "Lightning Lane Multi Pass at Magic Kingdom, per person (cheapest Oct day)",
+  "price": 29,
+  "note": "Price changes by date: Magic Kingdom ranged from $29 to $39 in October 2026, and Animal Kingdom dipped to $17.",
+  "min": 0,
+  "max": 120,
+  "source": "https://disneyblog.com/news/walt-disney-world-lightning-lane-prices-soar-this-october/",
+  "as_of": "Oct 2026"
+}, {
+  "id": "dolewhip",
+  "city": "O",
+  "emoji": "🍦",
+  "item": "A DOLE Whip cup at Aloha Isle in Magic Kingdom",
+  "price": 5.99,
+  "note": "Pineapple soft-serve cup; adding pineapple juice to make the famous float raises it to $7.29.",
+  "min": 0,
+  "max": 25,
+  "source": "https://www.thrill-data.com/disney-menus/wdw/aloha-isle",
+  "as_of": "Oct 2026"
+}, {
+  "id": "butterbeer",
+  "city": "O",
+  "emoji": "🍺",
+  "item": "A cold Butterbeer (regular cup) at Universal Orlando",
+  "price": 9.99,
+  "note": "Cold and frozen Butterbeer cost the same at the Leaky Cauldron.",
+  "min": 0,
+  "max": 40,
+  "source": "https://www.themouseforless.com/universal-orlando-resort/menus/leaky-cauldron-menu/",
+  "as_of": "Sep 2026"
+}, {
+  "id": "bbmug",
+  "city": "O",
+  "emoji": "🍺",
+  "item": "A Butterbeer in a stainless steel souvenir cup at Universal",
+  "price": 37.99,
+  "note": "The keepsake cup adds about $28 to the price of a plain Butterbeer.",
+  "min": 0,
+  "max": 150,
+  "source": "https://www.themouseforless.com/universal-orlando-resort/menus/leaky-cauldron-menu/",
+  "as_of": "Sep 2026"
+}, {
+  "id": "turkeyleg",
+  "city": "O",
+  "emoji": "🍗",
+  "item": "A turkey leg at Magic Kingdom (Liberty Square Market)",
+  "price": 14.99,
+  "note": "The jumbo turkey leg went up 74 cents in Disney's October 2025 snack price increase.",
+  "min": 0,
+  "max": 60,
+  "source": "https://www.thrill-data.com/disney-menus/wdw/liberty-square-market",
+  "as_of": "Oct 2026"
+}, {
+  "id": "churro",
+  "city": "O",
+  "emoji": "🥨",
+  "item": "A classic churro at Disney's Hollywood Studios",
+  "price": 7.49,
+  "note": "This churro went up 50 cents, from $6.99, in Disney's October 2025 price increase.",
+  "min": 0,
+  "max": 30,
+  "source": "https://www.thrill-data.com/disney-menus/wdw/anaheim-produce",
+  "as_of": "Oct 2026"
+}, {
+  "id": "mickeybar",
+  "city": "O",
+  "emoji": "🍦",
+  "item": "A Mickey's Premium Ice Cream Bar at a Disney World snack stand",
+  "price": 6.49,
+  "note": "The new hand-dipped version with M&M'S minis costs $7.99.",
+  "min": 0,
+  "max": 25,
+  "source": "https://www.thrill-data.com/disney-menus/wdw/trek-snacks",
+  "as_of": "Oct 2026"
+}, {
+  "id": "waterpark",
+  "city": "O",
+  "emoji": "🌊",
+  "item": "A 1-day adult ticket to Typhoon Lagoon or Blizzard Beach",
+  "price": 69,
+  "note": "Starting price for ages 10+ before Florida's 6.5% sales tax; price varies by date.",
+  "min": 0,
+  "max": 250,
+  "source": "https://themeparkshark.com/2026/03/13/disney-world-ticket-prices-2026-complete-guide-to-every-ticket-type-and-how-to-save/",
+  "as_of": "Mar 2026"
+}, {
+  "id": "ksc",
+  "city": "O",
+  "emoji": "🚀",
+  "item": "1-day adult admission to Kennedy Space Center Visitor Complex",
+  "price": 77,
+  "note": "Adult (12+) daily admission before tax; bus tours and up-close experiences cost extra.",
+  "min": 0,
+  "max": 300,
+  "source": "https://www.floridareview.co.uk/blog/buying-kennedy-space-center-tickets",
+  "as_of": "Oct 2026"
+}, {
+  "id": "gatorland",
+  "city": "O",
+  "emoji": "🐊",
+  "item": "Adult general admission to Gatorland",
+  "price": 34.99,
+  "note": "Before tax; Gatorland is home to thousands of alligators and crocodiles and is one of Orlando's oldest attractions.",
+  "min": 0,
+  "max": 150,
+  "source": "https://www.floridareview.co.uk/blog/gatorland",
+  "as_of": "Sep 2026"
+}, {
+  "id": "swanboat",
+  "city": "O",
+  "emoji": "🦢",
+  "item": "Renting a swan boat on Lake Eola for 30 minutes",
+  "price": 15,
+  "note": "One pedal-powered swan holds up to five people, so it can cost as little as $3 each.",
+  "min": 0,
+  "max": 75,
+  "source": "https://www.orlando.gov/Parks-the-Environment/Directory/Lake-Eola-Park/Rent-a-Swan-Boat-at-Lake-Eola",
+  "as_of": "2026"
+}, {
+  "id": "legoland",
+  "city": "O",
+  "emoji": "🧱",
+  "item": "A 1-day LEGOLAND Florida ticket bought online (cheapest)",
+  "price": 69,
+  "note": "Lowest online 'from' price, which includes SEA LIFE; a gate ticket can run about $129.",
+  "min": 0,
+  "max": 250,
+  "source": "https://www.floridareview.co.uk/things-to-do/buying-legoland-florida-tickets",
+  "as_of": "2026"
+}, {
+  "id": "wonderworks",
+  "city": "O",
+  "emoji": "🎟️",
+  "item": "An adult All Access ticket to WonderWorks Orlando",
+  "price": 37.99,
+  "note": "Regular adult price before tax at the upside-down building on International Drive; online deals cut it a little.",
+  "min": 0,
+  "max": 150,
+  "source": "https://www.tripster.com/detail/wonderworks-orlando-florida.md",
+  "as_of": "Oct 2026"
+}, {
+  "id": "mcoparking",
+  "city": "O",
+  "emoji": "🅿️",
+  "item": "One day in an Orlando airport (MCO) economy parking lot",
+  "price": 10,
+  "note": "Economy lots charge $10 a day with free shuttles; terminal garages cost $17 to $19.",
+  "min": 0,
+  "max": 50,
+  "source": "https://www.triplypro.com/blog/orlando-airport-economy-parking-rates",
+  "as_of": "Sep 2026"
+}] /*END_ITEMS*/;
+const ROUND = 8,
+  HALF = ROUND / 2;
+const CITY = {
+  V: {
+    name: "Las Vegas",
+    short: "Vegas",
+    emoji: "🎰",
+    color: "var(--vegas)",
+    code: "LAS"
+  },
+  O: {
+    name: "Orlando",
+    short: "Orlando",
+    emoji: "🎢",
+    color: "var(--orlando)",
+    code: "MCO"
+  }
+};
+const LAUNCH = Date.UTC(2026, 9, 19);
+const DAY = (() => {
+  const n = new Date(),
+    today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  return {
+    id: Math.max(1, Math.round((today - LAUNCH) / 864e5) + 1),
+    label: n.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric"
+    })
+  };
+})();
+function seeded(seed) {
+  let s = seed >>> 0;
+  return () => (s = s * 1664525 + 1013904223 >>> 0) / 4294967296;
+}
+function shuffle(arr, r) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const POOL_V = shuffle(ITEMS.filter(i => i.city === "V"), seeded(777)),
+  POOL_O = shuffle(ITEMS.filter(i => i.city === "O"), seeded(555));
+const take = (pool, start) => Array.from({
+  length: Math.min(HALF, pool.length)
+}, (_, i) => pool[(start + i) % pool.length]);
+const interleave = (v, o) => v.flatMap((x, i) => o[i] ? [x, o[i]] : [x]).concat(o.slice(v.length));
+// Daily sets walk through the shuffled pools (no repeats until each pool is used up); cities alternate.
+function pickSet(mode) {
+  if (mode.daily) {
+    const r = seeded(DAY.id * 31);
+    const v = take(POOL_V, (DAY.id - 1) * HALF),
+      o = take(POOL_O, (DAY.id - 1) * HALF);
+    return r() < .5 ? interleave(v, o) : interleave(o, v);
+  }
+  const r = seeded(mode.seed);
+  return interleave(shuffle(POOL_V, r).slice(0, HALF), shuffle(POOL_O, r).slice(0, HALF));
+}
+
+/* ---------- Scoring ---------- */
+// error as a fraction of the real price; free items score on dollars instead
+function grade(guess, price) {
+  if (price === 0) {
+    const pts = guess === 0 ? 100 : guess <= 5 ? 60 : guess <= 15 ? 25 : 0;
+    return {
+      pts,
+      err: guess === 0 ? 0 : 1,
+      sq: pts === 100 ? "🟩" : pts >= 60 ? "🟨" : pts >= 25 ? "🟧" : "🟥",
+      label: pts === 100 ? "Spot on!" : pts ? "Close!" : "Way off"
+    };
+  }
+  const err = Math.abs(guess - price) / price;
+  const pts = Math.max(0, Math.round(100 * (1 - err / 0.6)));
+  const sq = err <= 0.1 ? "🟩" : err <= 0.25 ? "🟨" : err <= 0.5 ? "🟧" : "🟥";
+  const label = err <= 0.05 ? "Spot on!" : err <= 0.1 ? "So close!" : err <= 0.25 ? "Nice guess" : err <= 0.5 ? "In the ballpark" : "Way off";
+  return {
+    pts,
+    err,
+    sq,
+    label
+  };
+}
+const money = n => "$" + (Number.isInteger(n) ? n.toLocaleString("en-US") : n.toFixed(2));
+const stepFor = it => it.max <= 40 ? 0.5 : it.max <= 300 ? 1 : 5;
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+const HOMES = {
+  ATL: "Atlanta",
+  AUS: "Austin",
+  BNA: "Nashville",
+  BOS: "Boston",
+  BWI: "Baltimore",
+  CLT: "Charlotte",
+  DEN: "Denver",
+  DFW: "Dallas",
+  DTW: "Detroit",
+  EWR: "Newark",
+  FLL: "Fort Lauderdale",
+  IAD: "Washington Dulles",
+  IAH: "Houston",
+  JFK: "New York",
+  LAS: "Las Vegas",
+  LAX: "Los Angeles",
+  MCO: "Orlando",
+  MIA: "Miami",
+  MSP: "Minneapolis",
+  ORD: "Chicago",
+  PDX: "Portland",
+  PHL: "Philadelphia",
+  PHX: "Phoenix",
+  RDU: "Raleigh-Durham",
+  SAN: "San Diego",
+  SEA: "Seattle",
+  SFO: "San Francisco",
+  SLC: "Salt Lake City",
+  STL: "St. Louis",
+  TPA: "Tampa"
+};
+
+/* ---------- Sound: cash register ---------- */
+let AC = null;
+function tone(freqs, type = "triangle", step = .07, len = .2, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = f;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .01);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  ching: () => tone([1568, 2093], "square", .06, .28, .05),
+  good: () => tone([784, 1047, 1319]),
+  meh: () => tone([330, 262], "sine", .12, .2, .08),
+  done: () => tone([523, 659, 784, 1047, 1319], "triangle", .1, .35, .11)
+};
+
+/* ---------- Pieces ---------- */
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[color:var(--line)]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--card)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "receipt-font text-[11px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "receipt-font font-bold"
+  }, t);
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative w-full max-w-md rounded-[22px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-6",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-[color:var(--muted)] hover:bg-[color:var(--card-2)]",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[28px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDFF7\uFE0F"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "You'll see ", ROUND, " things you might buy on a trip to Las Vegas or Orlando.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83C\uDF9A\uFE0F"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Slide or type your guess, then press ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "Lock it in"), ". The closer you are, the more points, up to 100 per item.")), /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83E\uDDFE"), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, "Prices are real, checked against official sites or recent reports. Many vary by date, so we use the lowest regular price and say so."))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 rounded-xl bg-[color:var(--card-2)] p-3 text-[13px] text-[color:var(--muted)]"
+  }, "\uD83D\uDFE9 within 10% \xB7 \uD83D\uDFE8 within 25% \xB7 \uD83D\uDFE7 within 50% \xB7 \uD83D\uDFE5 more than 50% off"), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-tag mt-4 w-full py-3 text-[17px]"
+  }, "Start shopping")));
+}
+function shareText(set, results, daily) {
+  const total = results.reduce((t, r) => t + (r ? r.pts : 0), 0);
+  const grid = set.map((_, i) => results[i] ? results[i].sq : "⬜").join("");
+  return `🏷️ Guess the Vacation Price ${daily ? `#${DAY.id}` : "· Bonus round"} · ${total}/${ROUND * 100}\n${grid}\nPlay: ${window.GLOBERUSH.gameUrl("vacation-price")}`;
+}
+
+/* ---------- App ---------- */
+function App() {
+  const [mode, setMode] = useState({
+    daily: true,
+    seed: 0
+  });
+  const SAVE_KEY = `vacation-price-${DAY.id}`;
+  const set = useMemo(() => pickSet(mode), [mode]);
+  const saved = mode.daily ? store.get(SAVE_KEY, null) : null;
+  const [guesses, setGuesses] = useState(() => store.get(SAVE_KEY, null)?.guesses || []);
+  const [idx, setIdx] = useState(() => Math.min(store.get(SAVE_KEY, null)?.guesses?.length || 0, ROUND));
+  const [value, setValue] = useState(null);
+  const [locked, setLocked] = useState(false);
+  const [home, setHome] = useState(() => store.get("vacation-price-home", ""));
+  const [sound, setSound] = useState(() => store.get("vacation-price-sound", true));
+  const [streak, setStreak] = useState(() => store.get("vacation-price-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null),
+    nextRef = useRef(null);
+  const done = idx >= ROUND;
+  const it = set[Math.min(idx, ROUND - 1)];
+  const results = set.map((s, i) => guesses[i] == null ? null : grade(guesses[i], s.price));
+  const total = results.reduce((t, r) => t + (r ? r.pts : 0), 0);
+  const mid = it ? Math.round((it.min + it.max) / 2 / stepFor(it)) * stepFor(it) : 0;
+  const v = value == null ? mid : value;
+  useEffect(() => {
+    if (mode.daily) store.set(SAVE_KEY, {
+      guesses
+    });
+  }, [guesses, mode.daily]);
+  useEffect(() => {
+    store.set("vacation-price-home", home);
+  }, [home]);
+  useEffect(() => {
+    store.set("vacation-price-sound", sound);
+  }, [sound]);
+  const lock = () => {
+    if (done || locked) return;
+    const g = Math.max(0, Math.round(v * 100) / 100);
+    const next = [...guesses];
+    next[idx] = g;
+    setGuesses(next);
+    setLocked(true);
+    const r = grade(g, it.price);
+    if (sound) {
+      SFX.ching();
+      setTimeout(() => (r.pts >= 60 ? SFX.good : SFX.meh)(), 450);
+    }
+    setTimeout(() => nextRef.current && nextRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    }), 700);
+  };
+  const advance = () => {
+    const n = idx + 1;
+    setIdx(n);
+    setLocked(false);
+    setValue(null);
+    if (n >= ROUND) {
+      if (sound) SFX.done();
+      if (mode.daily && streak.last !== DAY.id) {
+        const s = {
+          count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+          last: DAY.id
+        };
+        setStreak(s);
+        store.set("vacation-price-streak", s);
+      }
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const restart = m => {
+    setMode(m);
+    setGuesses([]);
+    setIdx(0);
+    setLocked(false);
+    setValue(null);
+    setCopied(false);
+    setFallback(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const playBonus = () => restart({
+    daily: false,
+    seed: Math.floor(Math.random() * 1e9)
+  });
+  const backToDaily = () => {
+    const s = store.get(SAVE_KEY, null);
+    setMode({
+      daily: true,
+      seed: 0
+    });
+    setGuesses(s?.guesses || []);
+    setIdx(Math.min(s?.guesses?.length || 0, ROUND));
+    setLocked(false);
+    setValue(null);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey) return;
+      const tag = e.target.tagName;
+      if (e.key === "Enter" && tag !== "SELECT" && tag !== "BUTTON" && tag !== "A") {
+        e.preventDefault();
+        if (!done) locked ? advance() : lock();
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+  const text = shareText(set, results, mode.daily);
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+
+  // end-of-game read on the player's habits
+  const signed = set.map((s, i) => guesses[i] == null || s.price === 0 ? null : (guesses[i] - s.price) / s.price).filter(x => x != null);
+  const bias = signed.length ? signed.reduce((a, b) => a + b, 0) / signed.length : 0;
+  const title = total >= 680 ? "Price Pro 🏆" : total >= 520 ? "Savvy Shopper 🛍️" : total >= 360 ? "Seasoned Tourist 🧳" : "First-Time Visitor 📸";
+  const habit = bias > 0.15 ? "You tend to guess high, so you'd probably overpay. Shop around! 💸" : bias < -0.15 ? "You tend to guess low. Brace for sticker shock! 😱" : "Your guesses are nicely balanced. You know what things cost. 👌";
+  const pct = it ? Math.round((v - it.min) / Math.max(1, it.max - it.min) * 100) : 0;
+  const r = locked && results[idx];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-5xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "flex items-center justify-between gap-3 py-1.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex min-w-0 items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-b-[5px] border-[color:var(--tag-d)] bg-[color:var(--tag)] text-[22px]",
+    "aria-hidden": "true"
+  }, "\uD83C\uDFF7\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[24px] sm:text-[30px] leading-none"
+  }, "Guess the ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--stamp)"
+    }
+  }, "Vacation Price")), /*#__PURE__*/React.createElement("div", {
+    className: "truncate text-[12px] font-bold text-[color:var(--muted)]"
+  }, mode.daily ? `Daily #${DAY.id} · ${DAY.label} · Las Vegas & Orlando` : "Bonus round · just for fun"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", {
+    className: "receipt-font text-[15px] font-bold"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
+    "aria-label": "How to play"
+  }, "?"))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-1 gap-1.5",
+    "aria-label": "Progress"
+  }, set.map((s, i) => /*#__PURE__*/React.createElement("span", {
+    key: s.id + i,
+    className: "h-2.5 flex-1 rounded-full",
+    style: {
+      background: results[i] ? {
+        "🟩": "var(--go)",
+        "🟨": "var(--tag)",
+        "🟧": "var(--orlando)",
+        "🟥": "var(--stamp)"
+      }[results[i].sq] : i === idx && !done ? "var(--ink)" : "var(--line)"
+    }
+  }))), /*#__PURE__*/React.createElement("span", {
+    className: "receipt-font text-[15px] font-bold tabular-nums"
+  }, total, " pts")), !done ? /*#__PURE__*/React.createElement("main", {
+    className: "mt-4 grid gap-4 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
+  }, /*#__PURE__*/React.createElement("section", {
+    key: it.id + idx,
+    className: "tag rise min-w-0 p-5 sm:p-6",
+    "aria-label": "Item to price"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "string",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "tag-hole",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-2 pr-8"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "rounded-full px-3 py-1 text-[12px] font-extrabold uppercase tracking-[.12em] text-white",
+    style: {
+      background: CITY[it.city].color
+    }
+  }, CITY[it.city].emoji, " ", CITY[it.city].name), /*#__PURE__*/React.createElement("span", {
+    className: "text-[12px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Item ", idx + 1, " of ", ROUND)), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex items-start gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[color:var(--card-2)] text-[36px]",
+    "aria-hidden": "true"
+  }, it.emoji || "🏷️"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[24px] sm:text-[30px] leading-[1.1]"
+  }, it.item)), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[14px] font-bold text-[color:var(--muted)]"
+  }, "How much does it cost?"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-end justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "price-input",
+    className: "text-[12px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Your guess"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center rounded-xl border-2 border-[color:var(--line)] bg-[color:var(--card-2)] px-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "display text-[30px]"
+  }, "$"), /*#__PURE__*/React.createElement("input", {
+    id: "price-input",
+    type: "number",
+    inputMode: "decimal",
+    min: "0",
+    step: stepFor(it),
+    disabled: locked,
+    value: Number.isInteger(v) ? v : v.toFixed(2),
+    onChange: e => setValue(e.target.value === "" ? 0 : Math.max(0, parseFloat(e.target.value) || 0)),
+    className: "w-[5.5ch] bg-transparent py-1 text-right display text-[34px] outline-none",
+    "aria-label": "Your price guess in dollars"
+  }))), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    id: "price-slider",
+    min: it.min,
+    max: it.max,
+    step: stepFor(it),
+    value: Math.min(it.max, Math.max(it.min, v)),
+    disabled: locked,
+    onChange: e => setValue(parseFloat(e.target.value)),
+    className: "mt-4",
+    style: {
+      "--p": `${Math.min(100, Math.max(0, pct))}%`
+    },
+    "aria-label": "Price slider"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 flex justify-between receipt-font text-[12px] text-[color:var(--muted)]"
+  }, /*#__PURE__*/React.createElement("span", null, money(it.min)), /*#__PURE__*/React.createElement("span", null, money(it.max)))), !locked && /*#__PURE__*/React.createElement("button", {
+    onClick: lock,
+    className: "btn btn-tag mt-5 w-full py-3.5 text-[19px]"
+  }, "Lock it in \uD83D\uDD12")), /*#__PURE__*/React.createElement("section", {
+    className: "min-w-0",
+    "aria-live": "polite"
+  }, locked ? /*#__PURE__*/React.createElement("div", {
+    className: "rise"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "receipt print"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-center text-[13px] font-bold uppercase tracking-[.2em]"
+  }, "*** Price check ***"), /*#__PURE__*/React.createElement("div", {
+    className: "text-center text-[12px]"
+  }, CITY[it.city].name), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "text-[14px]"
+  }, it.item), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between text-[15px]"
+  }, /*#__PURE__*/React.createElement("span", null, "YOUR GUESS"), /*#__PURE__*/React.createElement("span", null, money(guesses[idx]))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 flex justify-between text-[22px] font-bold"
+  }, /*#__PURE__*/React.createElement("span", null, "REAL PRICE"), /*#__PURE__*/React.createElement("span", null, it.price === 0 ? "FREE" : money(it.price))), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between text-[15px]"
+  }, /*#__PURE__*/React.createElement("span", null, "POINTS"), /*#__PURE__*/React.createElement("span", null, "+", r.pts)), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 text-center"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "stamp",
+    style: {
+      color: r.pts >= 60 ? "var(--go)" : "var(--stamp)"
+    }
+  }, r.label.toUpperCase())), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "text-[13px] leading-snug"
+  }, it.note), (it.as_of || it.source) && /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[11px] opacity-70"
+  }, "Price as of ", it.as_of || "2026", it.source && /*#__PURE__*/React.createElement(React.Fragment, null, " \xB7 ", /*#__PURE__*/React.createElement("a", {
+    href: it.source,
+    target: "_blank",
+    rel: "noopener",
+    className: "underline"
+  }, "source")))), /*#__PURE__*/React.createElement("button", {
+    ref: nextRef,
+    onClick: advance,
+    className: "btn btn-go mt-4 w-full py-3.5 text-[18px]"
+  }, idx + 1 < ROUND ? "Next item →" : "See my receipt →")) : /*#__PURE__*/React.createElement("div", {
+    className: "grid h-full min-h-[200px] place-items-center rounded-[22px] border-2 border-dashed border-[color:var(--line)] p-6 text-center"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[40px]",
+    "aria-hidden": "true"
+  }, "\uD83E\uDDFE"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[15px] font-bold text-[color:var(--muted)]"
+  }, "Lock in your guess to print the real price."), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-[13px] text-[color:var(--muted)]"
+  }, "Tip: press ", /*#__PURE__*/React.createElement("span", {
+    className: "kbd"
+  }, "Enter")))))) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "pop min-w-0 rounded-[24px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5 sm:p-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[12px] font-extrabold uppercase tracking-[.16em] text-[color:var(--muted)]"
+  }, mode.daily ? `Daily #${DAY.id}` : "Bonus round", " \xB7 your receipt"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 flex flex-wrap items-baseline gap-x-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "display text-[56px] leading-none",
+    style: {
+      color: "var(--stamp)"
+    }
+  }, total), /*#__PURE__*/React.createElement("span", {
+    className: "receipt-font text-[18px] font-bold"
+  }, "/ ", ROUND * 100), /*#__PURE__*/React.createElement("span", {
+    className: "display text-[26px]"
+  }, title)), /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[16px] font-extrabold"
+  }, habit), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 flex flex-wrap gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: playBonus,
+    className: "btn btn-tag min-w-[12rem] flex-1 py-3 text-[17px]"
+  }, "\uD83C\uDFB2 ", mode.daily ? "Play a bonus round" : "Play again"), !mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: backToDaily,
+    className: "btn btn-plain min-w-[12rem] flex-1 py-3 text-[16px]"
+  }, "\u2190 Back to today's set")), mode.daily && /*#__PURE__*/React.createElement("p", {
+    className: "mt-2 text-[13px] text-[color:var(--muted)]"
+  }, "Bonus rounds are just for fun and don't change your daily score."), /*#__PURE__*/React.createElement("div", {
+    className: "receipt mt-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-center text-[13px] font-bold uppercase tracking-[.2em]"
+  }, "*** Your trip receipt ***"), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), set.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: s.id + i,
+    className: "grid grid-cols-[18px_minmax(0,1fr)_auto] gap-2 py-1 text-[13px]"
+  }, /*#__PURE__*/React.createElement("span", null, results[i]?.sq), /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0"
+  }, s.emoji, " ", s.item, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-70"
+  }, "You: ", money(guesses[i] ?? 0))), /*#__PURE__*/React.createElement("span", {
+    className: "text-right font-bold"
+  }, s.price === 0 ? "FREE" : money(s.price)))), /*#__PURE__*/React.createElement("div", {
+    className: "dash"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between text-[16px] font-bold"
+  }, /*#__PURE__*/React.createElement("span", null, "TOTAL POINTS"), /*#__PURE__*/React.createElement("span", null, total))), /*#__PURE__*/React.createElement("h3", {
+    className: "mt-6 display text-[24px]"
+  }, "Ready to see these prices in person?"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex flex-wrap items-center gap-2"
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: "home-airport",
+    className: "text-[14px] font-extrabold"
+  }, "\uD83D\uDEEB Flying from"), /*#__PURE__*/React.createElement("select", {
+    id: "home-airport",
+    value: home,
+    onChange: e => setHome(e.target.value),
+    className: "min-w-0 max-w-full rounded-xl border-2 border-[color:var(--line)] bg-[color:var(--card-2)] px-3 py-2 text-[15px] font-bold text-[color:var(--ink)]"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Pick your airport\u2026"), Object.keys(HOMES).sort((a, b) => HOMES[a].localeCompare(HOMES[b])).map(c => /*#__PURE__*/React.createElement("option", {
+    key: c,
+    value: c
+  }, HOMES[c], " (", c, ")")))), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid gap-3 sm:grid-cols-2"
+  }, ["V", "O"].filter(c => CITY[c].code !== home).map(c => /*#__PURE__*/React.createElement("a", {
+    key: c,
+    href: fareLink(home || null, CITY[c].code),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn block rounded-2xl px-4 py-4 text-center text-[16px] text-white",
+    style: {
+      background: CITY[c].color,
+      borderColor: "rgba(0,0,0,.3)"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "block text-[11px] font-extrabold uppercase tracking-[.16em] opacity-85"
+  }, "Sponsored \xB7 Fare finder"), CITY[c].emoji, " Compare flights ", home ? `${HOMES[home]} → ` : "to ", CITY[c].name, " \u2197")))), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-b-[6px] border-[color:var(--line)] bg-[color:var(--card)] p-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-[color:var(--card-2)] p-3 receipt-font text-[13px] leading-relaxed"
+  }, text), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold text-[color:var(--stamp)]"
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    id: "share-fallback",
+    readOnly: true,
+    value: text,
+    rows: 3,
+    className: "w-full rounded-lg border border-[color:var(--line)] bg-[color:var(--card-2)] p-2 receipt-font text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-go mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy Result"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rounded-[24px] border-2 border-[color:var(--line)] bg-[color:var(--card)] p-4 text-center text-[13px] text-[color:var(--muted)]"
+  }, "New prices to guess in ", /*#__PURE__*/React.createElement(Countdown, null), mode.daily && /*#__PURE__*/React.createElement("button", {
+    onClick: () => restart({
+      daily: true,
+      seed: 0
+    }),
+    className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
+  }, "\u21BA Replay today's set")))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-semibold text-[color:var(--muted)]"
+  }, "Guess the Vacation Price \xB7 a GlobeRush game \xB7 prices checked as of the date shown on each item; many vary by date, so we use the lowest regular price"), /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>
