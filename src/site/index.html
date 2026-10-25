@@ -97,8 +97,9 @@ a{color:inherit}
   padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(11,20,40,.97);border-top:1px solid var(--line)}
 @media (min-width:768px){.sticky-ad{display:none}}
 @media (max-width:767px){.ad.lb{display:none}}
-footer{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:18px}
-footer b{color:var(--cream)}
+/* ads stay hidden until config.js has ads: true (it adds .gr-ads to <html>) */
+html:not(.gr-ads) .ad,html:not(.gr-ads) .sticky-ad{display:none}
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}}
 </style>
 
 <div class="wrap">
@@ -133,10 +134,8 @@ footer b{color:var(--cream)}
     <a class="btn" id="deal-btn" href="https://www.skyscanner.com/" target="_blank" rel="noopener sponsored">Find cheap flights ↗</a>
   </section>
 
-  <footer>
-    <span><b>GlobeRush</b> · free travel games, new every day.</span>
-    <span>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</span>
-  </footer>
+  <!-- GR:footer -->  <!-- scripts/build.js puts the shared site footer here -->
+
 </div>
 <div class="sticky-ad"><div class="ad" style="width:320px;height:50px">Ad · 320×50</div></div>
 

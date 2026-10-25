@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About GlobeRush · GlobeRush</title>
+<meta name="description" content="GlobeRush is a free travel games site with quick daily puzzles, quizzes and hot takes about flying, cities, flags and vacations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Figtree:wght@500;600;700;800&display=swap">
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* text pages: night sky with a boarding-pass-cream sheet of paper */
+:root{color-scheme:dark}
+html,body{background:#0B1428;color:#FFF4E6}
+body{margin:0;font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:500;font-size:17px;line-height:1.65;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));
+  background-image:radial-gradient(1200px 520px at 80% -10%,rgba(255,122,77,.16),transparent 65%)}
+#gr-bar,#gr-foot{max-width:46rem}
+.gr-main{max-width:46rem;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.gr-crumb{margin-top:4px;font-size:14px;font-weight:700;color:#AFC0E4}
+.gr-crumb a{color:#FFF4E6;text-decoration:none}.gr-crumb a:hover{text-decoration:underline}
+.gr-paper{padding:clamp(20px,4.5vw,40px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:6px;overflow-wrap:break-word}
+.gr-paper>:first-child{margin-top:0}
+.gr-paper h1{margin:0 0 6px;font-family:"Unbounded","Arial Black",system-ui,sans-serif;font-weight:800;font-size:clamp(26px,5vw,40px);line-height:1.1;letter-spacing:-.02em;text-wrap:balance}
+.gr-paper h2{margin:30px 0 8px;font-family:"Unbounded",system-ui,sans-serif;font-weight:700;font-size:clamp(19px,3vw,22px);line-height:1.25;letter-spacing:-.01em;text-wrap:balance}
+.gr-paper h3{margin:22px 0 6px;font-size:18px;font-weight:800}
+.gr-paper p,.gr-paper ul,.gr-paper ol{margin:0 0 14px}
+.gr-paper ul,.gr-paper ol{padding-left:1.3em}
+.gr-paper li{margin:5px 0}.gr-paper li::marker{color:#B94A23}
+.gr-paper a{color:#B94A23;font-weight:700;text-underline-offset:3px}
+.gr-paper b,.gr-paper strong{font-weight:800}
+.gr-paper .gr-meta{margin:0 0 22px;font-size:14px;font-weight:700;color:#55607A}
+.gr-lede{font-size:18px;color:#2E3A57}
+.gr-play{margin-top:30px;padding:16px;border-radius:14px;background:#0E1A33;border:2px solid #000;color:#FFF4E6}
+.gr-play h2{margin:0 0 12px;font-size:17px;color:#FFF4E6}
+.gr-paper .gr-card{color:#FFF4E6;font-weight:600;text-decoration:none}
+.gr-posts{list-style:none;padding:0!important;margin:18px 0 0;display:grid;gap:12px}
+.gr-posts li{margin:0}
+.gr-posts a{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:#fff;border:2px solid #13203D;border-bottom-width:5px;color:#13203D;text-decoration:none;transition:transform .1s}
+.gr-posts a:hover{transform:translateY(-2px)}
+.gr-posts b{font-family:"Unbounded",system-ui,sans-serif;font-size:18px;font-weight:700;line-height:1.25}
+.gr-posts span{font-size:15.5px;font-weight:500;color:#2E3A57}
+.gr-posts small{font-size:13px;font-weight:700;color:#55607A}
+:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.gr-posts a{transition:none}}
+</style>
+</head>
+<body>
+<div id="gr-bar"><a class="gr-home" href="index.html" aria-label="GlobeRush home"><span class="gr-globe" aria-hidden="true">🌍</span><span class="gr-word">Globe<b>Rush</b></span></a><a class="gr-all" href="index.html">All games</a></div>
+<main class="gr-main">
+<article class="gr-paper">
+<h1>About GlobeRush</h1>
+<p class="gr-lede">GlobeRush is a free travel games site for people who'd rather be somewhere else. Every game takes a few minutes, there are new rounds every day, and you never need to sign up.</p>
+
+<h2>The games</h2>
+<p>Some games test what you know, some teach you something new, and some just ask what you think. Daily puzzles give everyone the same challenge each day, so you can compare results with friends using a spoiler-free share card. Most games also have a bonus or practice round when you want more.</p>
+<ul><li><a href="skyhop.html">SkyHop</a>: Connect two cities in as few nonstop flights as you can.</li><li><a href="trivia-battle.html">Travel Trivia Battle</a>: Beat today's rival traveler in 10 rapid-fire questions, or challenge a friend on one phone.</li><li><a href="guess-the-city.html">Guess the City</a>: Five postcard clues, from hard to easy. Name the mystery city in as few as you can.</li><li><a href="guess-the-beach.html">Guess the Beach</a>: Five postcard clues lead to a famous beach. Fewer clues, more points.</li><li><a href="airport-codes.html">Airport Code Quiz</a>: MCO, ORD, YYZ… where is this bag going? Learn where the codes come from.</li><li><a href="guess-the-flag.html">Guess the Flag</a>: 10 flags a day from more than 90 countries. The wrong choices are neighbors, so look closely.</li><li><a href="departures.html">Mystery Departures</a>: Read the departures board and guess which airport you're standing in.</li><li><a href="fare-detective.html">Fare Detective</a>: Spot the cheaper fare in each case and learn the tricks airlines use.</li><li><a href="vegas-or-orlando.html">Vegas or Orlando?</a>: 10 wild facts. Did it happen on the Strip or near the theme parks?</li><li><a href="vacation-price.html">Guess the Vacation Price</a>: Buffets, shows, park tickets: how close can you get to the real price?</li><li><a href="hot-takes.html">Travel Hot Takes</a>: Agree or disagree, then see how real travelers voted.</li><li><a href="would-you-rather.html">Would You Rather: Travel</a>: Ten tough travel choices and what kind of traveler they make you.</li><li><a href="magic-trip.html">Magic Trip Quiz</a>: A kids' quiz about favorite characters and the parks, with a countdown to your trip.</li></ul>
+
+<h2>How we make them</h2>
+<p>Every fact, price and survey result goes through a check against official or reputable sources before it goes into a game: airport authorities, park and attraction websites, published surveys and similar. Games built on polls show where the numbers come from. Prices change, so when a game uses one, it says when or how it was checked. If you spot something wrong, <a href="contact.html">tell us</a> and we'll fix it.</p>
+<p>We also write articles on the <a href="blog/index.html">GlobeRush blog</a> that go deeper into the topics behind the games, like how airport codes work and how to tell lookalike flags apart.</p>
+
+<h2>How GlobeRush stays free</h2>
+<p>GlobeRush is supported by ads and by affiliate links. If you click a link to a flight search site and book a trip, we may earn a small commission at no extra cost to you. Advertisers and partners never decide the answers in our games. Magic Trip Quiz, our game for kids, has no ads and no sign-ups. You can read more in our <a href="privacy.html">Privacy Policy</a>.</p>
+
+<h2>Get in touch</h2>
+<p>Ideas for a new game, a question you'd love to see, or a bug to report? Visit the <a href="contact.html">contact page</a>.</p>
+</article>
+</main>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
+</body>
+</html>

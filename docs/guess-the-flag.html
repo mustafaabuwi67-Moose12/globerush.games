@@ -20,8 +20,27 @@
 .gr-card:hover{transform:translateY(-2px);background:#1F3563}
 .gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
-.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
 @media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* with ads off (config.js), give back the room games keep at the bottom for the mobile sticky ad */
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
 </head>
@@ -71,7 +90,30 @@ h1,h2,h3{text-wrap:balance}
 
 <div id="gr-bar"></div>
 <div id="root"><div class="boot">🏁 Raising the flags…</div></div>
+<section id="gr-howto" aria-label="How to play, tips and fun facts"><div class="gr-howto-in">
+<h2>How to play Guess the Flag</h2>
+<p>Each day you get 10 flags drawn from more than 90 countries. Name the country for each flag from 4 choices by clicking or pressing <b>1</b> to <b>4</b>. The wrong choices come from the same part of the world, so you can't get by on continent alone. After each answer you also see the country's capital.</p>
+<p>Get all 10 for a gold medal. Eight or nine earns silver, and six or seven earns bronze. Finish on back-to-back days to build your streak. Then try a bonus round with a random set of flags, or copy your share card, which shows a green or red square for each flag.</p>
+<h3>Tips</h3>
+<ul>
+<li>Learn the families. Denmark, Sweden, Norway, Finland and Iceland all use the Nordic cross, set closer to the flagpole. The colors tell them apart.</li>
+<li>Check the shade. The Netherlands and Luxembourg both fly red, white and blue stripes, but Luxembourg's blue is lighter.</li>
+<li>Look for symbols. A maple leaf, a red sun disc or a dragon gives the answer away fast.</li>
+<li>Read the capital on each answer card. It helps the country stick for next time.</li>
+</ul>
+<h3>Fun facts</h3>
+<ul>
+<li>Nepal's flag is the only national flag that isn't four-sided. It's shaped like two stacked pennants.</li>
+<li>Denmark's flag is often called the oldest national flag still in use.</li>
+<li>Some capitals surprise people. Brazil's is Brasília, Turkey's is Ankara, and Australia's is Canberra.</li>
+</ul>
+</div></section>
 <div id="gr-more"></div>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
 <script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="lib/react.production.min.js"></script>
@@ -387,7 +429,7 @@ function App() {
     onClick: () => setShowHelp(true),
     className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
     "aria-label": "How to play"
-  }, "?"))), /*#__PURE__*/React.createElement("div", {
+  }, "?"))), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-4 hidden md:block"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 728,
@@ -534,7 +576,7 @@ function App() {
   })), /*#__PURE__*/React.createElement("button", {
     onClick: copy,
     className: "btn btn-gold mt-3 w-full py-3 text-[17px]"
-  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), /*#__PURE__*/React.createElement("div", {
+  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-4"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 300,
@@ -550,7 +592,7 @@ function App() {
     className: "btn btn-plain mt-3 w-full py-2.5 text-[15px]"
   }, "\u21BA Replay today's flags")))), /*#__PURE__*/React.createElement("footer", {
     className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
-  }, "Guess the Flag \xB7 a GlobeRush game"), /*#__PURE__*/React.createElement("div", {
+  }, "Guess the Flag \xB7 a GlobeRush game"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "sticky-ad md:hidden"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 320,

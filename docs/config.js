@@ -9,9 +9,14 @@
                   toOnly  → used when only the destination is known
                   general → used for generic "find cheap flights" buttons
                   For Skyscanner, add your partner/tracking parameters to the end of each link.
+   contactEmail = the address shown on the Contact, Privacy and Terms pages.
+   ads          = false hides every ad slot. Set it to true once AdSense approves the site.
+                  Magic Trip Quiz (the kids' page) never shows ads, whatever this says.
    ===================================================================== */
 window.GLOBERUSH = {
   site: "https://globerush.com",
+  contactEmail: "hello@example.com",
+  ads: false,
   affiliate: {
     route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",
     toOnly:  "https://www.skyscanner.com/transport/flights-to/{to}/",
@@ -25,7 +30,7 @@ window.GLOBERUSH = {
     { slug: "guess-the-city",   name: "Guess the City",           emoji: "📮", kind: "Daily puzzle", mins: 3, blurb: "Five postcard clues, from hard to easy. Name the mystery city in as few as you can." },
     { slug: "guess-the-beach",  name: "Guess the Beach",          emoji: "🏖️", kind: "Daily puzzle", mins: 3, blurb: "Five postcard clues lead to a famous beach. Fewer clues, more points." },
     { slug: "airport-codes",    name: "Airport Code Quiz",        emoji: "🏷️", kind: "Daily quiz",   mins: 2, blurb: "MCO, ORD, YYZ… where is this bag going? Learn where the codes come from." },
-    { slug: "guess-the-flag",   name: "Guess the Flag",           emoji: "🏁", kind: "Daily quiz",   mins: 2, blurb: "10 flags a day from 100 countries. The wrong choices are neighbors, so look closely." },
+    { slug: "guess-the-flag",   name: "Guess the Flag",           emoji: "🏁", kind: "Daily quiz",   mins: 2, blurb: "10 flags a day from more than 90 countries. The wrong choices are neighbors, so look closely." },
     { slug: "departures",       name: "Mystery Departures",       emoji: "🛫", kind: "Daily puzzle", mins: 2, blurb: "Read the departures board and guess which airport you're standing in." },
     { slug: "fare-detective",   name: "Fare Detective",           emoji: "🕵️", kind: "Daily quiz",   mins: 3, blurb: "Spot the cheaper fare in each case and learn the tricks airlines use." },
     { slug: "vegas-or-orlando", name: "Vegas or Orlando?",        emoji: "🎰", kind: "Daily quiz",   mins: 2, blurb: "10 wild facts. Did it happen on the Strip or near the theme parks?" },
@@ -61,6 +66,8 @@ window.GLOBERUSH = {
 
 /* GlobeRush bar on top of every game, and "play another game" cards under it. */
 (function () {
+  // pages hide their ad slots (and the room kept for the mobile sticky ad) unless <html> has this class
+  document.documentElement.classList.toggle("gr-ads", !!window.GLOBERUSH.ads);
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   function render() {
     var G = window.GLOBERUSH, here = document.body.getAttribute("data-game");
@@ -75,7 +82,7 @@ window.GLOBERUSH = {
         others.map(function (g) {
           return '<a class="gr-card" href="' + esc(g.slug) + '.html"><span class="gr-e" aria-hidden="true">' + g.emoji + '</span>' +
                  '<span class="gr-t"><b>' + esc(g.name) + '</b><small>' + esc(g.kind) + ' · ' + g.mins + ' min</small></span></a>';
-        }).join("") + '</div><p class="gr-fine">GlobeRush may earn a commission when you book through links on this site, at no extra cost to you.</p></div>';
+        }).join("") + '</div></div>';
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", render); else render();

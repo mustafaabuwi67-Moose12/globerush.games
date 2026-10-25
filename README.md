@@ -9,10 +9,19 @@ Vegas or Orlando? · Guess the Vacation Price · Travel Hot Takes · Would You R
 ## Change your links and domain
 Edit **`src/site/config.js`** (the only settings file):
 - `site`: your domain, used in every share card
+- `contactEmail`: the address on the Contact, Privacy and Terms pages
+- `ads`: `false` hides every ad slot; set it to `true` once AdSense approves the site
 - `affiliate`: your flight affiliate links (`route`, `toOnly`, `general`)
 - `games`: the list on the home page; delete a line to hide a game
 
 Then run `npm run build`.
+
+## Change the words
+- `src/pages/`: About, Contact, Privacy Policy and Terms. `{{email}}` becomes `contactEmail`, `{{games}}` the games list.
+- `src/blog/`: one file per article. Start it with a header comment (`title`, `description`, `date`, `games`) like the existing posts; the blog index builds itself.
+- `src/howto/<slug>.html`: the "How to play, tips & fun facts" text under each game (the build insists on 150–300 words).
+
+Every page gets the same footer: All games · Blog · About · Contact · Privacy Policy · Terms.
 
 ## Build and preview
 ```
@@ -28,5 +37,6 @@ npm run serve     # preview at http://localhost:8080
 
 ## Before launch
 - Add your real affiliate links in `src/site/config.js`.
-- Swap the "Monetization Slot" placeholders for real ad code once AdSense approves the site.
-- Magic Trip Quiz is for kids: set its ads to child-directed (non-personalized), and keep sign-ups off that page.
+- Set your real `contactEmail` in `src/site/config.js` (the build warns while it's still the placeholder).
+- Once AdSense approves the site: set `ads: true`, swap the "Monetization Slot" placeholders for real ad code, and turn on Google's consent message for visitors in the EEA, UK and Switzerland (the Privacy Policy promises it).
+- Magic Trip Quiz is for kids: it has no ad slots on purpose, whatever `ads` says. Keep it that way, and keep sign-ups off that page.

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy Policy · GlobeRush</title>
+<meta name="description" content="What GlobeRush collects, how Google AdSense and affiliate partners use cookies, and the choices you have.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Figtree:wght@500;600;700;800&display=swap">
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* text pages: night sky with a boarding-pass-cream sheet of paper */
+:root{color-scheme:dark}
+html,body{background:#0B1428;color:#FFF4E6}
+body{margin:0;font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:500;font-size:17px;line-height:1.65;
+  padding:12px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));
+  background-image:radial-gradient(1200px 520px at 80% -10%,rgba(255,122,77,.16),transparent 65%)}
+#gr-bar,#gr-foot{max-width:46rem}
+.gr-main{max-width:46rem;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.gr-crumb{margin-top:4px;font-size:14px;font-weight:700;color:#AFC0E4}
+.gr-crumb a{color:#FFF4E6;text-decoration:none}.gr-crumb a:hover{text-decoration:underline}
+.gr-paper{padding:clamp(20px,4.5vw,40px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:6px;overflow-wrap:break-word}
+.gr-paper>:first-child{margin-top:0}
+.gr-paper h1{margin:0 0 6px;font-family:"Unbounded","Arial Black",system-ui,sans-serif;font-weight:800;font-size:clamp(26px,5vw,40px);line-height:1.1;letter-spacing:-.02em;text-wrap:balance}
+.gr-paper h2{margin:30px 0 8px;font-family:"Unbounded",system-ui,sans-serif;font-weight:700;font-size:clamp(19px,3vw,22px);line-height:1.25;letter-spacing:-.01em;text-wrap:balance}
+.gr-paper h3{margin:22px 0 6px;font-size:18px;font-weight:800}
+.gr-paper p,.gr-paper ul,.gr-paper ol{margin:0 0 14px}
+.gr-paper ul,.gr-paper ol{padding-left:1.3em}
+.gr-paper li{margin:5px 0}.gr-paper li::marker{color:#B94A23}
+.gr-paper a{color:#B94A23;font-weight:700;text-underline-offset:3px}
+.gr-paper b,.gr-paper strong{font-weight:800}
+.gr-paper .gr-meta{margin:0 0 22px;font-size:14px;font-weight:700;color:#55607A}
+.gr-lede{font-size:18px;color:#2E3A57}
+.gr-play{margin-top:30px;padding:16px;border-radius:14px;background:#0E1A33;border:2px solid #000;color:#FFF4E6}
+.gr-play h2{margin:0 0 12px;font-size:17px;color:#FFF4E6}
+.gr-paper .gr-card{color:#FFF4E6;font-weight:600;text-decoration:none}
+.gr-posts{list-style:none;padding:0!important;margin:18px 0 0;display:grid;gap:12px}
+.gr-posts li{margin:0}
+.gr-posts a{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:14px;background:#fff;border:2px solid #13203D;border-bottom-width:5px;color:#13203D;text-decoration:none;transition:transform .1s}
+.gr-posts a:hover{transform:translateY(-2px)}
+.gr-posts b{font-family:"Unbounded",system-ui,sans-serif;font-size:18px;font-weight:700;line-height:1.25}
+.gr-posts span{font-size:15.5px;font-weight:500;color:#2E3A57}
+.gr-posts small{font-size:13px;font-weight:700;color:#55607A}
+:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.gr-posts a{transition:none}}
+</style>
+</head>
+<body>
+<div id="gr-bar"><a class="gr-home" href="index.html" aria-label="GlobeRush home"><span class="gr-globe" aria-hidden="true">🌍</span><span class="gr-word">Globe<b>Rush</b></span></a><a class="gr-all" href="index.html">All games</a></div>
+<main class="gr-main">
+<article class="gr-paper">
+<h1>Privacy Policy</h1>
+<p class="gr-meta">Last updated: October 25, 2026</p>
+<p>This policy explains what information GlobeRush ("we", "us") collects when you visit this website, how it is used, and the choices you have. The short version: there are no accounts or sign-ups, your game progress stays on your device, and third parties such as Google (for ads) and our travel partners (for affiliate links) may use cookies.</p>
+
+<h2>Information we collect</h2>
+<ul>
+<li><b>Game progress stored on your device.</b> Our games save your answers, scores, streaks and settings (such as sound on or off, your home airport, or the trip date in Magic Trip Quiz) in your browser's local storage. This data stays in your browser and is not sent to us. You can delete it at any time by clearing this site's data in your browser settings.</li>
+<li><b>Messages you send us.</b> If you email us, we receive your email address and whatever you write. We use it only to reply to you, and we do not sell it or share it with anyone.</li>
+<li><b>Technical information.</b> Like most websites, our hosting provider automatically records basic technical details when a page is requested, such as your IP address, browser type, the page you asked for and the time. This is used to deliver the site and keep it secure.</li>
+</ul>
+<p>We do not ask for your name, email address or any other personal information to play, and we do not use a separate analytics service.</p>
+
+<h2>Advertising and Google AdSense cookies</h2>
+<p>GlobeRush may show ads served by Google AdSense, which helps keep the games free. When ads are shown:</p>
+<ul>
+<li>Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites.</li>
+<li>Google's use of advertising cookies enables it and its partners to serve ads to you based on your visit to this site and/or other sites on the Internet.</li>
+<li>These cookies, and similar technologies such as web beacons, may collect information such as your IP address, browser and device type, the pages you view and your approximate location.</li>
+</ul>
+<p>You can opt out of personalized advertising by visiting Google's <a href="https://www.google.com/settings/ads" rel="noopener">Ads Settings</a>. You can also opt out of some third-party vendors' use of cookies for personalized advertising at <a href="https://www.aboutads.info/choices" rel="noopener">www.aboutads.info/choices</a> or, in Europe, <a href="https://www.youronlinechoices.eu" rel="noopener">www.youronlinechoices.eu</a>. To learn more, see <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">how Google uses information from sites that use its services</a>.</p>
+<p>Where the law requires it, for example in the European Economic Area, the United Kingdom and Switzerland, you will be asked for your consent before cookies are used for personalized ads, and you can change your choice at any time.</p>
+<p>Magic Trip Quiz, our game for kids, never shows ads.</p>
+
+<h2>Affiliate links</h2>
+<p>Some links on GlobeRush, such as the "Find cheap flights" buttons, are affiliate links to travel sites like Skyscanner. If you click one and make a booking, we may earn a commission at no extra cost to you. When you click an affiliate link you leave GlobeRush, and the partner's site may set its own cookies to record that you came from us. Its own privacy policy then applies. We never receive your booking or payment details.</p>
+
+<h2>Services that load on our pages</h2>
+<ul>
+<li><b>Google Fonts.</b> Our pages load fonts from Google's servers, so Google receives your IP address and browser details. See <a href="https://policies.google.com/privacy" rel="noopener">Google's Privacy Policy</a>.</li>
+<li><b>Content delivery networks.</b> Our game pages load a styling library from a content delivery network, which receives the same basic technical details as any web server.</li>
+</ul>
+
+<h2>Children's privacy</h2>
+<p>GlobeRush is a general-audience website. Magic Trip Quiz is made for kids to play with their families: it has no sign-ups, asks for no personal information and shows no ads, and the trip countdown date is saved only on your device. It includes a "For grown-ups" box with a sponsored flight link. We do not knowingly collect personal information from children under 13. If you believe a child has sent us personal information, please contact us and we will delete it.</p>
+
+<h2>Your choices</h2>
+<ul>
+<li>Clear your game progress, or block or delete cookies, in your browser settings.</li>
+<li>Turn off personalized ads using the opt-out links above.</li>
+<li>Email us to ask what information we hold about you (in practice, only emails you have sent us) or to have it deleted.</li>
+</ul>
+
+<h2>Changes to this policy</h2>
+<p>We may update this policy as the site changes, for example when we add new features or partners. We will change the date at the top when we do.</p>
+
+<h2>Contact</h2>
+<p>Questions about privacy? Email us at <a href="mailto:hello@example.com">hello@example.com</a>.</p>
+</article>
+</main>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
+</body>
+</html>

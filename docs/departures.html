@@ -20,8 +20,27 @@
 .gr-card:hover{transform:translateY(-2px);background:#1F3563}
 .gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
-.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
 @media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* with ads off (config.js), give back the room games keep at the bottom for the mobile sticky ad */
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
 </head>
@@ -95,7 +114,30 @@ body{font-family:var(--f-sign);font-size:15px;line-height:1.5;
 
 <div id="gr-bar"></div>
 <div id="root"><div class="boot">FLIPPING BOARD…</div></div>
+<section id="gr-howto" aria-label="How to play, tips and fun facts"><div class="gr-howto-in">
+<h2>How to play Mystery Departures</h2>
+<p>Each day you see the departures board from one mystery airport. Name that airport in 6 guesses. Read the destinations and ask yourself which airport would fly to all of these places. Type an airport code like <b>LHR</b> or a city like Paris, then press <b>Guess</b>. You can choose from about 90 big airports, and an unknown airport or a repeat guess won't use up a turn.</p>
+<p>The board starts with just 3 flights showing. Every wrong guess tells you how many miles away you are and which direction to go, and flips more rows. After 2 wrong guesses you unlock the local time, then the weather, the country and finally the main airline. Solve the daily board to grow your streak. Running out of guesses resets it. Practice boards are there any time. Flight numbers and times are for play, not live schedules.</p>
+<h3>Tips</h3>
+<ul>
+<li>The rows go from vague to giveaway. Short hops to small nearby towns show up last and often settle it.</li>
+<li>Use the arrow like a compass. Your next guess should be in the direction it points and closer than your last miss.</li>
+<li>Watch the colors: yellow is under 800 miles, orange is under 2,500, and red is farther.</li>
+<li>A board with long flights to every continent points to a giant hub.</li>
+</ul>
+<h3>Fun facts</h3>
+<ul>
+<li>Honolulu is one of the most isolated major airports on Earth. Los Angeles, the nearest big mainland hub, is about 2,560 miles away.</li>
+<li>Denver International is the largest airport in the U.S. by land area, at about 33,500 acres.</li>
+<li>Singapore's nonstop flights to New York are among the longest scheduled flights in the world, at around 18 hours.</li>
+</ul>
+</div></section>
 <div id="gr-more"></div>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
 
 <script>
 setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);
@@ -709,7 +751,7 @@ function ResultModal({
   }, copied ? "✓ Copied!" : "Copy Result"), /*#__PURE__*/React.createElement("button", {
     onClick: onPractice,
     className: "btn btn-ghost px-4 text-[15px]"
-  }, "Practice")), /*#__PURE__*/React.createElement("div", {
+  }, "Practice")), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-4"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 300,
@@ -986,7 +1028,7 @@ function App() {
     onClick: () => setShowHelp(true),
     className: "chip grid h-10 w-10 place-items-center text-[17px] font-black text-[color:var(--muted)] hover:text-white",
     "aria-label": "How to play"
-  }, "?"))), /*#__PURE__*/React.createElement("div", {
+  }, "?"))), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-3 hidden md:block"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 728,
@@ -1162,7 +1204,7 @@ function App() {
     className: "mt-3 text-[12px] font-semibold leading-relaxed text-[color:var(--muted)]"
   }, "Tip: the last departures on the board are the most local, so they give the most away."))), /*#__PURE__*/React.createElement("footer", {
     className: "mt-6 text-center text-[12px] font-semibold text-[#6F707B]"
-  }, "Mystery Departures \xB7 a GlobeRush game \xB7 boards are illustrative, not live schedules"), /*#__PURE__*/React.createElement("div", {
+  }, "Mystery Departures \xB7 a GlobeRush game \xB7 boards are illustrative, not live schedules"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "sticky-ad md:hidden"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 320,

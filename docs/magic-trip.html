@@ -20,8 +20,27 @@
 .gr-card:hover{transform:translateY(-2px);background:#1F3563}
 .gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
-.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
 @media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* with ads off (config.js), give back the room games keep at the bottom for the mobile sticky ad */
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
 </head>
@@ -42,7 +61,6 @@
 html,body{background:var(--sky);color:var(--ink)}
 body{font-family:var(--f-body);font-weight:800;font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
   background-image:radial-gradient(140px 60px at 12% 14%,#fff 60%,transparent 62%),radial-gradient(180px 70px at 85% 9%,#fff 60%,transparent 62%),radial-gradient(120px 50px at 70% 30%,rgba(255,255,255,.8) 60%,transparent 62%),linear-gradient(180deg,var(--sky),var(--sky-2));background-attachment:fixed}
-@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 .display{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em}
 .boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:28px;color:var(--ink)}
 h1,h2,h3{text-wrap:balance}
@@ -63,15 +81,37 @@ h1,h2,h3{text-wrap:balance}
 @keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .45s cubic-bezier(.2,1.3,.4,1) both}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(240px) rotate(260deg);opacity:0}}
 .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}.confetti i{position:absolute;top:0;font-style:normal;font-size:22px;animation:fall 1.2s ease-in both}
-.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.5)}
-.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(227,244,255,.97);border-top:2px solid rgba(30,42,90,.15)}
 :focus-visible{outline:4px solid var(--pink);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){.bounce,.pop,.confetti i{animation:none!important}.ans:hover:not(:disabled){transform:none}}
 </style>
 
 <div id="gr-bar"></div>
 <div id="root"><div class="boot">🧳 Packing the suitcase…</div></div>
+<section id="gr-howto" aria-label="How to play, tips and fun facts"><div class="gr-howto-in">
+<h2>How to play Magic Trip Quiz</h2>
+<p>Magic Trip Quiz is for kids who are getting ready for a theme park trip. Each day there are 10 questions: 6 "Who am I?" character riddles, 2 emoji puzzles and 2 questions about the parks. Read each question, then tap one of the three big answers. Every right answer earns a star. If you miss one, the game shows the right answer, so you learn it for next time.</p>
+<p>When you finish, you see how many stars you earned. Tap "Play more!" for a new set of questions. Grown-ups can add the trip date to see how many sleeps are left. The date is saved only on this device. There are no sign-ups, and you never need to share personal information. This is fan trivia made by GlobeRush. It is not affiliated with or endorsed by The Walt Disney Company.</p>
+<h3>Tips</h3>
+<ul>
+<li>Read the questions out loud together. A grown-up can read while a younger child picks the answer.</li>
+<li>Look at the big emoji above the question. It is often a clue, like a snowman for Olaf.</li>
+<li>For emoji puzzles, say what each picture is, then think of a movie that has all of them.</li>
+<li>Missed some stars? Come back tomorrow for new questions.</li>
+</ul>
+<h3>Fun facts</h3>
+<ul>
+<li>Walt Disney World opened on October 1, 1971.</li>
+<li>It has four theme parks: Magic Kingdom, EPCOT, Hollywood Studios and Animal Kingdom. It has two water parks too.</li>
+<li>Spaceship Earth, the giant silver ball at EPCOT, has been there since 1982.</li>
+<li>The whole resort covers about 25,000 acres. That is more land than the island of Manhattan in New York City.</li>
+</ul>
+</div></section>
 <div id="gr-more"></div>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
 <script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="lib/react.production.min.js"></script>
@@ -85,8 +125,8 @@ const {
   useRef
 } = React;
 /* Links and the site address come from config.js (window.GLOBERUSH).
-   KIDS PAGE NOTES: no sign-ups or personal info here. When you add AdSense to this page, turn on child-directed treatment
-   (non-personalized ads). Sponsored links are in the grown-ups box only. */
+   KIDS PAGE NOTES: no sign-ups, personal info or ads here (the ad slots were removed on purpose, keep it that way).
+   Sponsored links are in the grown-ups box only. */
 const GR = window.GLOBERUSH;
 const ORLANDO = "MCO";
 const KIDS = [
@@ -166,26 +206,6 @@ const SFX = {
   oops: () => tone([523, 440], "triangle", .14, .3, .06),
   done: () => tone([523, 659, 784, 1047, 1319, 1568], "sine", .1, .4, .08)
 };
-function AdSlot({
-  w,
-  h,
-  size
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-[#8FA3C9]",
-    style: {
-      width: w,
-      height: h
-    },
-    "aria-label": `Advertisement placeholder ${size}`
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-md bg-white px-3 py-1 text-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--ink-2)]"
-  }, "Kid-safe ad slot"), /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] text-[color:var(--ink-2)]"
-  }, size)));
-}
 function Confetti() {
   const bits = useMemo(() => Array.from({
     length: 14
@@ -346,13 +366,7 @@ function App() {
     className: "chip grid h-11 w-11 flex-none place-items-center text-[18px]",
     "aria-label": sound ? "Mute sounds" : "Turn sounds on",
     "aria-pressed": sound
-  }, sound ? "🔊" : "🔇")), /*#__PURE__*/React.createElement("div", {
-    className: "mt-4 hidden md:block"
-  }, /*#__PURE__*/React.createElement(AdSlot, {
-    w: 728,
-    h: 90,
-    size: "728\xD790"
-  })), view === "home" && /*#__PURE__*/React.createElement("main", {
+  }, sound ? "🔊" : "🔇")), view === "home" && /*#__PURE__*/React.createElement("main", {
     className: "mt-5 space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bubble pop"
@@ -460,21 +474,9 @@ function App() {
   }, "New questions every day!")), /*#__PURE__*/React.createElement(GrownUps, {
     trip: trip,
     setTrip: setTrip
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "mx-auto"
-  }, /*#__PURE__*/React.createElement(AdSlot, {
-    w: 300,
-    h: 250,
-    size: "300\xD7250"
-  }))), /*#__PURE__*/React.createElement("footer", {
+  })), /*#__PURE__*/React.createElement("footer", {
     className: "mt-8 text-center text-[12px] font-bold text-[color:var(--ink-2)]"
-  }, "Magic Trip Quiz \xB7 a GlobeRush game \xB7 fan trivia for families, not affiliated with or endorsed by The Walt Disney Company"), /*#__PURE__*/React.createElement("div", {
-    className: "sticky-ad md:hidden"
-  }, /*#__PURE__*/React.createElement(AdSlot, {
-    w: 320,
-    h: 50,
-    size: "320\xD750"
-  })));
+  }, "Magic Trip Quiz \xB7 a GlobeRush game \xB7 fan trivia for families, not affiliated with or endorsed by The Walt Disney Company"));
 }
 ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
 </script>

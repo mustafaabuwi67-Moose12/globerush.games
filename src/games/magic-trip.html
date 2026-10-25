@@ -14,7 +14,6 @@
 html,body{background:var(--sky);color:var(--ink)}
 body{font-family:var(--f-body);font-weight:800;font-size:16px;line-height:1.45;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
   background-image:radial-gradient(140px 60px at 12% 14%,#fff 60%,transparent 62%),radial-gradient(180px 70px at 85% 9%,#fff 60%,transparent 62%),radial-gradient(120px 50px at 70% 30%,rgba(255,255,255,.8) 60%,transparent 62%),linear-gradient(180deg,var(--sky),var(--sky-2));background-attachment:fixed}
-@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 .display{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em}
 .boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:28px;color:var(--ink)}
 h1,h2,h3{text-wrap:balance}
@@ -35,8 +34,6 @@ h1,h2,h3{text-wrap:balance}
 @keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .45s cubic-bezier(.2,1.3,.4,1) both}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(240px) rotate(260deg);opacity:0}}
 .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}.confetti i{position:absolute;top:0;font-style:normal;font-size:22px;animation:fall 1.2s ease-in both}
-.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(30,42,90,.2) 50%,transparent calc(50% + .5px)),rgba(255,255,255,.5)}
-.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(227,244,255,.97);border-top:2px solid rgba(30,42,90,.15)}
 :focus-visible{outline:4px solid var(--pink);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){.bounce,.pop,.confetti i{animation:none!important}.ans:hover:not(:disabled){transform:none}}
 </style>
@@ -50,8 +47,8 @@ h1,h2,h3{text-wrap:balance}
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useMemo, useRef } = React;
 /* Links and the site address come from config.js (window.GLOBERUSH).
-   KIDS PAGE NOTES: no sign-ups or personal info here. When you add AdSense to this page, turn on child-directed treatment
-   (non-personalized ads). Sponsored links are in the grown-ups box only. */
+   KIDS PAGE NOTES: no sign-ups, personal info or ads here (the ad slots were removed on purpose, keep it that way).
+   Sponsored links are in the grown-ups box only. */
 const GR = window.GLOBERUSH;
 const ORLANDO = "MCO";
 
@@ -144,9 +141,6 @@ let AC = null;
 function tone(f, type = "sine", step = .09, len = .25, vol = .09) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); f.forEach((fr, i) => { const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + .01 + i * step; o.type = type; o.frequency.value = fr; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + len); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + len + .05); }); } catch {} }
 const SFX = { right: () => tone([784, 988, 1175, 1568], "sine", .07, .3, .08), oops: () => tone([523, 440], "triangle", .14, .3, .06), done: () => tone([523, 659, 784, 1047, 1319, 1568], "sine", .1, .4, .08) };
 
-function AdSlot({ w, h, size }) {
-  return <div className="ad-x mx-auto flex max-w-full items-center justify-center rounded-2xl border-2 border-dashed border-[#8FA3C9]" style={{ width: w, height: h }} aria-label={`Advertisement placeholder ${size}`}><div className="rounded-md bg-white px-3 py-1 text-center"><div className="text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--ink-2)]">Kid-safe ad slot</div><div className="text-[11px] text-[color:var(--ink-2)]">{size}</div></div></div>;
-}
 function Confetti() {
   const bits = useMemo(() => Array.from({ length: 14 }, (_, i) => ({ l: Math.round(Math.random() * 95), d: Math.random() * .3, e: ["⭐", "✨", "🎉", "💖", "🌟"][i % 5] })), []);
   return <div className="confetti" aria-hidden="true">{bits.map((b, i) => <i key={i} style={{ left: `${b.l}%`, animationDelay: `${b.d}s` }}>{b.e}</i>)}</div>;
@@ -215,7 +209,6 @@ function App() {
         </div>
         <button onClick={() => setSound(x => !x)} className="chip grid h-11 w-11 flex-none place-items-center text-[18px]" aria-label={sound ? "Mute sounds" : "Turn sounds on"} aria-pressed={sound}>{sound ? "🔊" : "🔇"}</button>
       </header>
-      <div className="mt-4 hidden md:block"><AdSlot w={728} h={90} size="728×90" /></div>
 
       {view === "home" && (
         <main className="mt-5 space-y-4">
@@ -269,12 +262,10 @@ function App() {
             <p className="mt-3 text-[13px] text-[color:var(--ink-2)]">New questions every day!</p>
           </div>
           <GrownUps trip={trip} setTrip={setTrip} />
-          <div className="mx-auto"><AdSlot w={300} h={250} size="300×250" /></div>
         </main>
       )}
 
       <footer className="mt-8 text-center text-[12px] font-bold text-[color:var(--ink-2)]">Magic Trip Quiz · a GlobeRush game · fan trivia for families, not affiliated with or endorsed by The Walt Disney Company</footer>
-      <div className="sticky-ad md:hidden"><AdSlot w={320} h={50} size="320×50" /></div>
     </div>
   );
 }

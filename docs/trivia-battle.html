@@ -20,8 +20,27 @@
 .gr-card:hover{transform:translateY(-2px);background:#1F3563}
 .gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
-.gr-fine{margin:12px 0 0;font-size:11.5px;color:#AFC0E4}
 @media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* with ads off (config.js), give back the room games keep at the bottom for the mobile sticky ad */
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
 </head>
@@ -80,7 +99,30 @@ h1,h2,h3{text-wrap:balance}
 
 <div id="gr-bar"></div>
 <div id="root"><div class="boot">🎤 Warming up the studio…</div></div>
+<section id="gr-howto" aria-label="How to play, tips and fun facts"><div class="gr-howto-in">
+<h2>How to play Travel Trivia Battle</h2>
+<p>Every day a new rival traveler challenges you to 10 travel questions about geography, flying, food, landmarks, vacation spots, and money and culture. Each question has 4 answers and a 10 second clock. Click an answer or press <b>1</b> to <b>4</b>. A right answer earns 50 points, plus up to 50 more for speed. A wrong answer or running out of time earns nothing. You'll see when your rival locks in, but not what they picked.</p>
+<p>After each question you see who chose what, sometimes with a fun fact. Your daily wins and losses are kept as a record. Want more? Start a bonus battle with new questions, or choose <b>Pass the phone</b> to play a friend on one device. You both answer the same 10 questions in turn, no peeking. The share card shows your final score against the rival.</p>
+<h3>Tips</h3>
+<ul>
+<li>Speed counts. Every second left on the clock is worth 5 points, so a quick right answer can be worth almost double a slow one.</li>
+<li>Don't panic when your rival locks in. Rivals miss plenty of questions, and a careful right answer beats a fast wrong one.</li>
+<li>Rule out the silly choices first. Dropping even one of the four answers makes a good guess much more likely.</li>
+<li>Keep your fingers on the 1 to 4 keys. It's faster than moving a mouse.</li>
+</ul>
+<h3>Fun facts</h3>
+<ul>
+<li>Pilots declare an emergency with "Mayday," from the French "m'aider," meaning "help me."</li>
+<li>A plane's black box is actually bright orange, which makes it easier to find.</li>
+<li>Canberra was purpose-built as Australia's capital, as a compromise between Sydney and Melbourne.</li>
+</ul>
+</div></section>
 <div id="gr-more"></div>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
 <script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="lib/react.production.min.js"></script>
@@ -575,7 +617,7 @@ function Results({
   })), /*#__PURE__*/React.createElement("button", {
     onClick: copy,
     className: "btn btn-rival mt-3 w-full py-3 text-[17px]"
-  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), /*#__PURE__*/React.createElement("div", {
+  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-4"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 300,
@@ -905,7 +947,7 @@ function App() {
     onClick: () => setShowHelp(true),
     className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
     "aria-label": "How to play"
-  }, "?"))), /*#__PURE__*/React.createElement("div", {
+  }, "?"))), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "mt-4 hidden md:block"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 728,
@@ -982,7 +1024,7 @@ function App() {
     onHome: home
   }), /*#__PURE__*/React.createElement("footer", {
     className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
-  }, "Travel Trivia Battle \xB7 a GlobeRush game"), /*#__PURE__*/React.createElement("div", {
+  }, "Travel Trivia Battle \xB7 a GlobeRush game"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
     className: "sticky-ad md:hidden"
   }, /*#__PURE__*/React.createElement(AdSlot, {
     w: 320,
