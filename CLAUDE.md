@@ -1,6 +1,6 @@
 # GlobeRush: notes for Claude Code
 
-Static site, no backend. Hosted from `/docs` on GitHub Pages.
+Static site, no backend. Live at https://www.globerush.games on Vercel (`vercel.json` runs the build and serves `/docs`; the bare domain redirects to www). No clean URLs: `/skyhop` is a 404, so links and share URLs keep the `.html`.
 
 ## Layout
 - `src/games/<slug>.html`: one file per game. React 18 + JSX in a `<script type="text/babel">` block, Tailwind play CDN for utility classes, each game's own CSS tokens in `<style>`. Question data lives inside the file.

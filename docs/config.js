@@ -2,7 +2,7 @@
    GLOBERUSH SETTINGS: the one file you edit.
    Every game on the site reads its links from here, so change a link once and it updates everywhere.
 
-   site         = your real domain once you have it (used in every share card, e.g. https://globerush.com/skyhop)
+   site         = your domain (used in every share card, e.g. https://www.globerush.games/skyhop.html)
    affiliate    = your flight affiliate links. Placeholders you can use:
                     {FROM} {TO} = airport codes in capitals (JFK)   {from} {to} = lowercase (jfk)
                   route   → used when both airports are known
@@ -14,7 +14,7 @@
                   Magic Trip Quiz (the kids' page) never shows ads, whatever this says.
    ===================================================================== */
 window.GLOBERUSH = {
-  site: "https://globerush.com",
+  site: "https://www.globerush.games",
   contactEmail: "hello@example.com",
   ads: false,
   affiliate: {
@@ -53,7 +53,8 @@ window.GLOBERUSH = {
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     return a;
   },
-  gameUrl(slug) { return this.site.replace(/\/$/, "") + (slug ? "/" + slug : ""); },
+  // keeps the .html: Vercel serves /skyhop.html but not /skyhop (no cleanUrls)
+  gameUrl(slug) { return this.site.replace(/\/$/, "") + (slug ? "/" + slug + ".html" : ""); },
   fill(tpl, from, to) {
     return tpl.replace(/\{FROM\}/g, (from || "").toUpperCase()).replace(/\{TO\}/g, (to || "").toUpperCase())
               .replace(/\{from\}/g, (from || "").toLowerCase()).replace(/\{to\}/g, (to || "").toLowerCase());
