@@ -15,7 +15,7 @@
    ===================================================================== */
 window.GLOBERUSH = {
   site: "https://www.globerush.games",
-  contactEmail: "hello@example.com",
+  contactEmail: "hello@globerush.games",
   ads: false,
   affiliate: {
     route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",
