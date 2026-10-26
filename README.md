@@ -3,7 +3,7 @@
 Free daily travel games. Every game ends with a flight affiliate link, plus ad slots.
 
 ## Games
-SkyHop · Travel Trivia Battle · Guess the City · Guess the Beach · Airport Code Quiz · Guess the Flag · Mystery Departures · Fare Detective ·
+Carry-On Fitter · Travel Trivia Battle · Guess the City · Guess the Beach · Airport Code Quiz · Guess the Flag · Mystery Departures · Fare Detective ·
 Vegas or Orlando? · Guess the Vacation Price · Travel Hot Takes · Would You Rather: Travel · Magic Trip Quiz (kids)
 
 ## Change your links and domain

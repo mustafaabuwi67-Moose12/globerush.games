@@ -1,0 +1,1670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<style>
+/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
+#gr-bar{max-width:64rem;margin:6px auto 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;border-radius:14px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;font-family:"Unbounded","Figtree",system-ui,sans-serif}
+#gr-bar a{color:#FFF4E6;text-decoration:none}
+#gr-bar .gr-home{display:flex;align-items:center;gap:8px;font-size:16px;letter-spacing:-.01em}
+#gr-bar .gr-word{font-weight:600}#gr-bar .gr-word b{color:#FF7A4D;font-weight:800}
+#gr-bar .gr-all{font-family:system-ui,sans-serif;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#FF7A4D;color:#1A0D05!important}
+#gr-bar a:focus-visible,.gr-card:focus-visible{outline:3px solid #FFC94A;outline-offset:3px}
+#gr-more{max-width:64rem;margin:28px auto 8px}
+.gr-more-in{padding:18px;border-radius:18px;background:#0E1A33;border:2px solid #000;border-bottom-width:5px;color:#FFF4E6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.gr-more-in h2{margin:0 0 12px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:18px;font-weight:700;color:#FFF4E6}
+.gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:10px}
+.gr-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#17284B;border:2px solid #000;color:#FFF4E6;text-decoration:none;transition:transform .1s,background .15s}
+.gr-card:hover{transform:translateY(-2px);background:#1F3563}
+.gr-e{font-size:24px;line-height:1}.gr-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.gr-t b{font-size:14px}.gr-t small{font-size:12px;color:#AFC0E4;font-weight:700}
+@media (prefers-reduced-motion:reduce){.gr-card{transition:none}}
+/* "How to play, tips & fun facts" under each game (src/howto/<slug>.html) */
+#gr-howto{max-width:64rem;margin:28px auto 0}
+.gr-howto-in{padding:clamp(18px,3.5vw,28px);border-radius:18px;background:#FFF4E6;color:#13203D;border:2px solid #000;border-bottom-width:5px;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;font-weight:500;line-height:1.6}
+.gr-howto-in>*{max-width:46rem}
+.gr-howto-in h2{margin:0 0 10px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.25;letter-spacing:-.01em;color:#13203D}
+.gr-howto-in h3{margin:18px 0 6px;font-family:"Unbounded","Figtree",system-ui,sans-serif;font-size:15px;font-weight:700;color:#B94A23}
+.gr-howto-in p{margin:0 0 10px}
+.gr-howto-in ul{margin:0;padding-left:1.25em;list-style:disc}
+.gr-howto-in li{margin:5px 0}.gr-howto-in li::marker{color:#FF7A4D}
+.gr-howto-in b{font-weight:800}
+/* site footer on every page: links to the blog and the About/Contact/legal pages */
+#gr-foot{max-width:64rem;margin:20px auto 8px;padding:16px 18px;border-radius:16px;background:#0E1A33;border:2px solid #000;border-bottom-width:4px;color:#AFC0E4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;font-weight:500;line-height:1.5}
+#gr-foot nav{display:flex;flex-wrap:wrap;gap:2px 18px;margin-bottom:8px}
+#gr-foot nav a{padding:4px 0;color:#FFF4E6;font-size:14px;font-weight:800;text-decoration:none}
+#gr-foot nav a:hover{text-decoration:underline;text-underline-offset:3px}
+#gr-foot a:focus-visible{outline:3px solid #FFC94A;outline-offset:3px;border-radius:4px}
+#gr-foot p{margin:4px 0 0}#gr-foot b{color:#FFF4E6}
+.wrap>#gr-foot{max-width:none;margin:0}
+/* with ads off (config.js), give back the room games keep at the bottom for the mobile sticky ad */
+@media (max-width:767px){html:not(.gr-ads) body{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&display=swap">
+</head>
+<body data-game="carry-on-fitter">
+<title>Carry-On Fitter · GlobeRush</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@500;600;700;800;900&display=swap">
+<style>
+/* Layout: an open hard-shell suitcase on the check-in counter at night. Tangerine shell with ribs, a handle on top, a zipper
+   running round a soft lavender lining whose squares are the grid; travel items are chunky bright blocks with an emoji in the middle. */
+:root{
+  --bg:#13243B; --bg-2:#1A3150; --panel:#22406A; --ink:#F6F2EA; --muted:#AFC2DC; --line:rgba(255,255,255,.12);
+  --shell:#FF8A3D; --shell-l:#FFB072; --shell-d:#C4581A; --lining:#F1ECF8; --seam:rgba(94,74,140,.17);
+  --zip:#2A2F3A; --teeth:#C7CCD6; --gold:#FFC93C; --gold-d:#C99712;
+  --f-display:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif; --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-weight:600;font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 32px;
+  background-image:radial-gradient(900px 420px at 15% -10%,rgba(255,138,61,.14),transparent 60%),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 2px,transparent 2px 48px)}
+@media (max-width:767px){body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+.display{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em}
+.boot{display:flex;align-items:center;justify-content:center;height:60vh;font-family:var(--f-display);font-size:24px;color:var(--shell-l)}
+h1,h2,h3{text-wrap:balance}
+.btn{border-radius:12px;border:2px solid #000;border-bottom-width:5px;font-family:var(--f-body);font-weight:900;cursor:pointer;user-select:none;transition:transform .08s,border-bottom-width .08s,filter .15s}
+.btn:hover:not(:disabled){filter:brightness(1.07)}.btn:active:not(:disabled){transform:translateY(3px);border-bottom-width:2px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn-go{background:var(--shell);color:#2A1100}.btn-gold{background:var(--gold);color:#2A1E00}.btn-plain{background:var(--panel);color:var(--ink)}
+.chip{border-radius:999px;border:2px solid #000;border-bottom-width:4px;background:var(--panel);color:var(--ink)}
+.card{border-radius:18px;border:2px solid #000;border-bottom-width:6px;background:var(--bg-2);padding:18px}
+.lvl{border-radius:12px;border:2px solid #000;background:var(--bg-2);padding:6px 10px;color:var(--muted);font-weight:800;line-height:1.3}
+.lvl.now{background:var(--panel);color:var(--ink);box-shadow:inset 0 -3px 0 var(--shell)}.lvl.done{color:var(--ink)}
+/* the suitcase: FRAME in the script = .case border + padding + .zip border + padding, both sides */
+.case-wrap{position:relative;display:flex;justify-content:center;padding-top:22px}
+.case{position:relative;padding:10px;border-radius:26px;border:3px solid #0A1424;background:linear-gradient(180deg,var(--shell-l),var(--shell) 45%,var(--shell-d));box-shadow:0 7px 0 #0A1424,0 26px 40px -18px rgba(0,0,0,.7)}
+.case::before{content:"";position:absolute;inset:4px;border-radius:21px;background:repeating-linear-gradient(90deg,transparent 0 19%,rgba(0,0,0,.09) 19% 20%,transparent 20% 25%);pointer-events:none}
+.handle{position:absolute;left:50%;top:-22px;width:min(34%,130px);height:24px;transform:translateX(-50%);border:6px solid #0A1424;border-bottom:0;border-radius:14px 14px 0 0}
+.zip{position:relative;padding:2px;border-radius:14px;border:4px dashed var(--teeth);background:var(--zip)}
+.lining{position:relative;border-radius:9px;overflow:hidden;background-color:var(--lining);touch-action:pan-y;
+  background-image:linear-gradient(var(--seam) 1px,transparent 1px),linear-gradient(90deg,var(--seam) 1px,transparent 1px),repeating-linear-gradient(45deg,rgba(94,74,140,.05) 0 2px,transparent 2px 7px);
+  background-size:var(--cell) var(--cell),var(--cell) var(--cell),auto;box-shadow:inset 0 2px 8px rgba(0,0,0,.18)}
+/* travel items */
+.pc{position:relative}
+.pcell{position:absolute;box-sizing:border-box;border-style:solid;border-color:rgba(10,20,36,.9)}
+.pemoji{position:absolute;display:grid;place-items:center;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 0 rgba(0,0,0,.25))}
+.placed{position:absolute;pointer-events:none;border-radius:8px}
+.placed .pcell{pointer-events:auto;touch-action:none;cursor:grab}
+.placed.locked .pcell{cursor:default;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.24) 0 4px,transparent 4px 10px)}
+.placed:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.ghostwrap{position:absolute;pointer-events:none;z-index:3}
+.ghostwrap .pcell{background:rgba(34,197,94,.42)!important;border-color:#0F7A3A;border-style:dashed}
+.ghostwrap.bad .pcell{background:rgba(239,68,68,.38)!important;border-color:#B91C1C}
+.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.slot{position:relative;display:grid;place-items:center;padding:6px;border-radius:14px;border:2px solid #000;border-bottom-width:4px;background:var(--bg-2);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab;transition:transform .1s,background .15s}
+.slot:hover:not(:disabled){background:var(--panel);transform:translateY(-2px)}
+.slot:disabled{cursor:default;background:transparent;border-style:dashed;border-color:rgba(255,255,255,.16);border-bottom-width:2px}
+.floating{position:fixed;left:0;top:0;z-index:60;pointer-events:none;filter:drop-shadow(0 14px 16px rgba(0,0,0,.45))}
+/* zipping shut: the lid fills in left to right behind the zipper pull */
+.lid{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px;text-align:center;color:#2A1100;
+  background:repeating-linear-gradient(90deg,transparent 0 19%,rgba(0,0,0,.08) 19% 20%,transparent 20% 25%),linear-gradient(180deg,var(--shell-l),var(--shell) 50%,var(--shell-d))}
+.lid.anim{animation:zipshut .75s cubic-bezier(.65,0,.35,1) .45s both}
+@keyframes zipshut{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.pull{position:absolute;top:-12px;left:calc(100% - 20px);z-index:6;width:16px;height:26px;border-radius:6px 6px 8px 8px;background:#D9DEE7;border:2px solid #1B1F27}
+.pull::after{content:"";position:absolute;left:50%;bottom:4px;width:6px;height:8px;transform:translateX(-50%);border-radius:3px;background:#1B1F27}
+.pull.anim{animation:pull .75s cubic-bezier(.65,0,.35,1) .45s both}
+@keyframes pull{from{left:-2px}to{left:calc(100% - 20px)}}
+.confetti{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-8%;font-style:normal;font-size:24px;animation:fall 1.7s ease-in both}
+@keyframes fall{to{transform:translateY(115vh) rotate(280deg);opacity:.2}}
+@keyframes pop{0%{transform:scale(.86);opacity:0}60%{transform:scale(1.05);opacity:1}100%{transform:scale(1)}}.pop{animation:pop .4s cubic-bezier(.2,1.3,.4,1) both}
+.lid.anim .pop{animation-delay:1.1s}
+.ad-x{background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(175,194,220,.25) 50%,transparent calc(50% + .5px)),linear-gradient(to bottom right,transparent calc(50% - .5px),rgba(175,194,220,.25) 50%,transparent calc(50% + .5px)),rgba(0,0,0,.15)}
+.sticky-ad{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:center;padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(19,36,59,.97);border-top:1px solid var(--line)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.pop,.lid.anim,.pull.anim{animation:none!important}.confetti{display:none}.slot,.btn{transition:none}.slot:hover:not(:disabled){transform:none}}
+</style>
+
+<div id="gr-bar"></div>
+<div id="root"><div class="boot">🧳 Unzipping the suitcase…</div></div>
+<section id="gr-howto" aria-label="How to play, tips and fun facts"><div class="gr-howto-in">
+<h2>How to play Carry-On Fitter</h2>
+<p>Every day you get three suitcases to pack: an easy 4×5 bag with 4 items, a medium 5×6 bag with 5 or 6, and a hard 6×7 bag with 7 or 8. Drag items from the tray onto the suitcase. Green means it fits, red means it doesn't. Tap an item to turn it, or press <b>R</b> while dragging. A bag is packed when there are no empty squares, and there is always a way to do it.</p>
+<p>Drag a packed item out of the suitcase to unpack it, or use Undo and Reset. A hint packs one item in its right spot but costs a star: 3 stars with no hints, 2 with one, 1 with more. Your share card shows your stars and total time. Finish all three bags to grow your streak, then pack bonus bags for fun. On a keyboard, Tab to an item, press <b>Enter</b>, move it with the arrow keys and press <b>Enter</b> again to pack it.</p>
+<h3>Tips</h3>
+<ul>
+<li>Fill corners and edges first. Awkward shapes get harder to fit later.</li>
+<li>Pack the biggest items first, like a real bag.</li>
+<li>On real trips, roll soft clothes like T-shirts to save space, and put shoes at the bottom near the wheels so the bag stays balanced.</li>
+<li>Keep your liquids bag on top so it's easy to pull out at security.</li>
+</ul>
+<h3>Fun facts</h3>
+<ul>
+<li>The TSA's 3-1-1 rule: liquids in containers of 3.4 ounces (100 ml) or less, all in one quart-size bag, one bag per passenger.</li>
+<li>The pieces are polyominoes: squares joined edge to edge. There are 12 different five-square shapes, called pentominoes.</li>
+<li>American, Delta and United all limit carry-on bags to 22 x 14 x 9 inches, wheels and handles included.</li>
+</ul>
+</div></section>
+<div id="gr-more"></div>
+<footer id="gr-foot">
+<nav aria-label="GlobeRush"><a href="index.html">All games</a><a href="blog/index.html">Blog</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a></nav>
+<p><b>GlobeRush</b> · free travel games, new every day. © 2026 GlobeRush</p>
+<p>GlobeRush may earn a commission when you book or buy through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+</footer>
+<script>setTimeout(function(){var b=document.querySelector("#root .boot");if(b){b.innerHTML="Couldn't load the game. Check your connection and refresh the page.";b.style.fontSize="16px";b.style.padding="0 24px";b.style.textAlign="center";}},12000);</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="lib/react.production.min.js"></script>
+<script src="lib/react-dom.production.min.js"></script>
+<script src="config.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef
+} = React;
+/* Links and the site address come from config.js (window.GLOBERUSH). */
+const GR = window.GLOBERUSH;
+const DAY = GR.day();
+
+/* ===== LEVEL GENERATOR: plain JS, no React or GLOBERUSH. scripts/test-carry-on-fitter.js loads this block by its markers. ===== */
+const LEVELS = [{
+  name: "Easy",
+  rows: 4,
+  cols: 5,
+  counts: [4]
+}, {
+  name: "Medium",
+  rows: 5,
+  cols: 6,
+  counts: [5, 6]
+}, {
+  name: "Hard",
+  rows: 6,
+  cols: 7,
+  counts: [7, 8]
+}];
+// Travel items are just labels: each shape gets the unused item whose size is closest to its own.
+const ITEMS = [{
+  emoji: "🧢",
+  name: "Hat",
+  size: 3,
+  color: "#FF6B6B"
+}, {
+  emoji: "🎧",
+  name: "Headphones",
+  size: 3,
+  color: "#B69CFF"
+}, {
+  emoji: "📷",
+  name: "Camera",
+  size: 3,
+  color: "#FFB020"
+}, {
+  emoji: "🧴",
+  name: "Toiletry bag",
+  size: 4,
+  color: "#2DD4BF"
+}, {
+  emoji: "📚",
+  name: "Book",
+  size: 4,
+  color: "#5EA8FF"
+}, {
+  emoji: "🩴",
+  name: "Flip-flops",
+  size: 4,
+  color: "#FF85C8"
+}, {
+  emoji: "👟",
+  name: "Sneakers",
+  size: 5,
+  color: "#4ADE80"
+}, {
+  emoji: "👕",
+  name: "Folded shirt",
+  size: 5,
+  color: "#FDE047"
+}, {
+  emoji: "💻",
+  name: "Laptop",
+  size: 6,
+  color: "#3FE0F0"
+}, {
+  emoji: "👖",
+  name: "Jeans",
+  size: 6,
+  color: "#8F97FF"
+}];
+// mulberry32: integer math only, so every browser cuts the same daily suitcases
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = a + 0x6D2B79F5 >>> 0;
+    let t = a;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const pickOne = (list, rnd) => list[Math.floor(rnd() * list.length)];
+function shuffle(list, rnd) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+// shapes are lists of [row, col], moved to the top-left corner and sorted
+function normalize(cells) {
+  const r0 = Math.min(...cells.map(p => p[0])),
+    c0 = Math.min(...cells.map(p => p[1]));
+  return cells.map(([r, c]) => [r - r0, c - c0]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+}
+const turn = cells => {
+  const h = Math.max(...cells.map(p => p[0])) + 1;
+  return normalize(cells.map(([r, c]) => [c, h - 1 - r]));
+}; // 90° clockwise
+const mirror = cells => {
+  const w = Math.max(...cells.map(p => p[1])) + 1;
+  return normalize(cells.map(([r, c]) => [r, w - 1 - c]));
+};
+const shapeKey = cells => cells.map(p => p.join(",")).join(" ");
+// one key per shape, however it's turned or flipped
+function canonical(cells) {
+  let s = normalize(cells),
+    best = null;
+  for (let m = 0; m < 2; m++, s = mirror(s)) for (let i = 0; i < 4; i++, s = turn(s)) {
+    const k = shapeKey(s);
+    if (best === null || k < best) best = k;
+  }
+  return best;
+}
+// piece sizes of 3–6 squares that add up to the whole suitcase
+function sizesFor(total, count, rnd) {
+  if (total < 3 * count || total > 6 * count) return null;
+  const s = Array(count).fill(3);
+  let left = total - 3 * count;
+  while (left > 0) {
+    const i = Math.floor(rnd() * count);
+    if (s[i] < 6) {
+      s[i]++;
+      left--;
+    }
+  }
+  return s;
+}
+// Cut the full suitcase into connected pieces, growing each from the first empty square.
+// Every piece comes out of the grid itself, so the cut is the solution: a perfect packing always exists.
+function cutGrid(rows, cols, sizes, rnd) {
+  const own = Array(rows * cols).fill(-1),
+    pieces = [];
+  const nbrs = i => {
+    const r = Math.floor(i / cols),
+      c = i % cols,
+      out = [];
+    if (r > 0) out.push(i - cols);
+    if (r < rows - 1) out.push(i + cols);
+    if (c > 0) out.push(i - 1);
+    if (c < cols - 1) out.push(i + 1);
+    return out;
+  };
+  for (let p = 0; p < sizes.length; p++) {
+    const start = own.indexOf(-1),
+      cells = [start];
+    own[start] = p;
+    while (cells.length < sizes[p]) {
+      const edge = [...new Set(cells.flatMap(nbrs))].filter(i => own[i] === -1);
+      if (!edge.length) return null;
+      const i = pickOne(edge, rnd);
+      own[i] = p;
+      cells.push(i);
+    }
+    // a gap smaller than the smallest piece can never be filled
+    const seen = new Set();
+    for (let i = 0; i < own.length; i++) {
+      if (own[i] !== -1 || seen.has(i)) continue;
+      let n = 0;
+      const stack = [i];
+      seen.add(i);
+      while (stack.length) {
+        const j = stack.pop();
+        n++;
+        for (const k of nbrs(j)) if (own[k] === -1 && !seen.has(k)) {
+          seen.add(k);
+          stack.push(k);
+        }
+      }
+      if (n < 3) return null;
+    }
+    pieces.push(cells.map(i => [Math.floor(i / cols), i % cols]));
+  }
+  return pieces;
+}
+const isLongLine = cells => cells.length > 4 && (cells.every(p => p[0] === cells[0][0]) || cells.every(p => p[1] === cells[0][1]));
+function assignItems(pieces, rnd) {
+  const used = new Set();
+  for (const p of [...pieces].sort((a, b) => b.size - a.size || a.id - b.id)) {
+    const free = ITEMS.map((_, j) => j).filter(j => !used.has(j));
+    const gap = j => Math.abs(ITEMS[j].size - p.size),
+      best = Math.min(...free.map(gap));
+    const j = pickOne(free.filter(k => gap(k) === best), rnd);
+    used.add(j);
+    p.item = ITEMS[j];
+  }
+}
+// A level: pieces in tray order, each with its solution cells, its 4 turned shapes (shapes[0] is the solution's) and the turn it starts on.
+function makeLevel(diff, seed) {
+  const L = LEVELS[diff],
+    rnd = rng(seed);
+  for (let tries = 0; tries < 200000; tries++) {
+    const sizes = sizesFor(L.rows * L.cols, pickOne(L.counts, rnd), rnd);
+    const cut = sizes && cutGrid(L.rows, L.cols, shuffle(sizes, rnd), rnd);
+    // keep it interesting: no long straight sticks, no two pieces the same shape
+    if (!cut || cut.some(isLongLine) || new Set(cut.map(canonical)).size < cut.length) continue;
+    const pieces = shuffle(cut, rnd).map((cells, id) => {
+      const shapes = [normalize(cells)];
+      for (let i = 1; i < 4; i++) shapes.push(turn(shapes[i - 1]));
+      return {
+        id,
+        size: cells.length,
+        cells: [...cells].sort((a, b) => a[0] - b[0] || a[1] - b[1]),
+        shapes,
+        rot0: 1 + Math.floor(rnd() * 3)
+      };
+    });
+    assignItems(pieces, rnd);
+    return {
+      diff,
+      name: L.name,
+      rows: L.rows,
+      cols: L.cols,
+      seed,
+      pieces
+    };
+  }
+  throw new Error("Carry-On Fitter: no suitcase for seed " + seed);
+}
+const dailyLevels = dayId => LEVELS.map((_, d) => makeLevel(d, dayId * 7919 + d * 104729 + 31));
+const bonusLevel = (seed, n) => makeLevel(n % 2 ? 1 : 2, seed);
+// short fingerprint of today's suitcases, so a save from a different lineup is ignored
+function lineupOf(levels) {
+  const s = levels.map(l => l.pieces.map(p => p.cells.map(c => c.join("")).join(".")).join("|")).join("/");
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+/* ===== END LEVEL GENERATOR ===== */
+
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  }
+};
+const starsFor = hints => hints === 0 ? 3 : hints === 1 ? 2 : 1;
+const RANKS = [[8, "Packing Pro", "🏆"], [6, "Light Packer", "🎒"], [0, "Overpacker", "🧳"]];
+const rankFor = n => RANKS.find(([m]) => n >= m);
+const fmt = ms => {
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+};
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const FRAME = 38; // px around the lining: .case border 3 + padding 10, .zip border 4 + padding 2, on each side
+const dims = shape => [Math.max(...shape.map(p => p[0])) + 1, Math.max(...shape.map(p => p[1])) + 1];
+const shapeOf = (level, st, id) => level.pieces[id].shapes[st.rot[id] & 3];
+function occupancy(level, st, skip = -1) {
+  const g = Array(level.rows * level.cols).fill(-1);
+  for (const k of Object.keys(st.placed)) {
+    const id = +k;
+    if (id === skip) continue;
+    const [r, c] = st.placed[k];
+    for (const [dr, dc] of shapeOf(level, st, id)) g[(r + dr) * level.cols + c + dc] = id;
+  }
+  return g;
+}
+const fits = (level, occ, shape, r, c) => shape.every(([dr, dc]) => {
+  const rr = r + dr,
+    cc = c + dc;
+  return rr >= 0 && cc >= 0 && rr < level.rows && cc < level.cols && occ[rr * level.cols + cc] === -1;
+});
+const freshState = level => ({
+  rot: level.pieces.map(p => p.rot0),
+  placed: {},
+  locked: [],
+  hints: 0,
+  ms: 0,
+  started: false,
+  done: false
+});
+// a saved level is only trusted if every placement still fits
+function restore(level, x) {
+  try {
+    const n = level.pieces.length,
+      st = {
+        ...freshState(level),
+        rot: x.rot.map(v => v & 3),
+        hints: Math.max(0, x.hints | 0),
+        ms: Math.max(0, +x.ms || 0),
+        started: !!x.started,
+        locked: x.locked.filter(id => id >= 0 && id < n)
+      };
+    if (st.rot.length !== n) return freshState(level);
+    for (const k of Object.keys(x.placed)) {
+      const id = +k,
+        [r, c] = x.placed[k];
+      if (id >= 0 && id < n && fits(level, occupancy(level, st), shapeOf(level, st, id), r, c)) st.placed = {
+        ...st.placed,
+        [id]: [r, c]
+      };
+    }
+    st.locked = st.locked.filter(id => st.placed[id]);
+    st.done = Object.keys(st.placed).length === n;
+    return st;
+  } catch {
+    return freshState(level);
+  }
+}
+let AC = null;
+function tone(f, type = "triangle", step = .07, len = .2, vol = .1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    f.forEach((fr, i) => {
+      const o = AC.createOscillator(),
+        g = AC.createGain(),
+        t = AC.currentTime + .01 + i * step;
+      o.type = type;
+      o.frequency.value = fr;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + .015);
+      g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      o.connect(g).connect(AC.destination);
+      o.start(t);
+      o.stop(t + len + .05);
+    });
+  } catch {}
+}
+const SFX = {
+  place: () => tone([660, 880], "triangle", .05, .14, .08),
+  nope: () => tone([196, 147], "square", .08, .16, .04),
+  turn: () => tone([540], "sine", .03, .08, .05),
+  zip: () => tone([420, 520, 620, 720, 820, 920, 1020], "sawtooth", .07, .05, .025),
+  done: () => tone([523, 659, 784, 1047], "triangle", .1, .3, .1)
+};
+function AdSlot({
+  w,
+  h,
+  size
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ad-x mx-auto flex max-w-full items-center justify-center rounded-xl border-2 border-dashed border-[#46618A]",
+    style: {
+      width: w,
+      height: h
+    },
+    "aria-label": `Advertisement placeholder ${size}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rounded-md bg-[color:var(--bg)] px-3 py-1 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-[.18em] text-[color:var(--muted)]"
+  }, "Monetization Slot"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-[color:var(--muted)]"
+  }, size)));
+}
+function Countdown() {
+  const calc = () => {
+    const n = new Date(),
+      m = new Date(n);
+    m.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((m - n) / 1000));
+    return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const [t, setT] = useState(calc());
+  useEffect(() => {
+    const i = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(i);
+  }, []);
+  return /*#__PURE__*/React.createElement("span", {
+    className: "font-extrabold tabular-nums"
+  }, t);
+}
+function Confetti() {
+  const bits = useMemo(() => Array.from({
+    length: 18
+  }, (_, i) => ({
+    l: Math.round(Math.random() * 96),
+    d: Math.random() * .5,
+    e: ["🎉", "⭐", "✨", "🧳", "✈️", "🎊"][i % 6]
+  })), []);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "confetti",
+    "aria-hidden": "true"
+  }, bits.map((b, i) => /*#__PURE__*/React.createElement("i", {
+    key: i,
+    style: {
+      left: `${b.l}%`,
+      animationDelay: `${.9 + b.d}s`
+    }
+  }, b.e)));
+}
+function HelpModal({
+  onClose
+}) {
+  useEffect(() => {
+    const k = e => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [onClose]);
+  const Row = ({
+    icon,
+    children
+  }) => /*#__PURE__*/React.createElement("li", {
+    className: "grid grid-cols-[24px_minmax(0,1fr)] gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, icon), /*#__PURE__*/React.createElement("p", {
+    className: "min-w-0"
+  }, children));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center",
+    onClick: onClose,
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "How to play"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[20px] border-2 border-b-[6px] border-black bg-[color:var(--lining)] p-6 text-[#1E1A2E]",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full hover:bg-black/5",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("h2", {
+    className: "display text-[28px]"
+  }, "How to play"), /*#__PURE__*/React.createElement("ul", {
+    className: "mt-3 space-y-3 text-[15px]"
+  }, /*#__PURE__*/React.createElement(Row, {
+    icon: "\uD83E\uDDF3"
+  }, "Pack every item into the suitcase. A bag is done when there are ", /*#__PURE__*/React.createElement("b", null, "no empty squares"), "."), /*#__PURE__*/React.createElement(Row, {
+    icon: "\uD83D\uDC46"
+  }, "Drag an item onto the suitcase. Green means it fits, red means it doesn't. ", /*#__PURE__*/React.createElement("b", null, "Tap an item to turn it"), ", or press ", /*#__PURE__*/React.createElement("b", null, "R"), " while dragging."), /*#__PURE__*/React.createElement(Row, {
+    icon: "\u21A9\uFE0F"
+  }, "Drag a packed item out of the suitcase to unpack it. Undo and Reset are there too."), /*#__PURE__*/React.createElement(Row, {
+    icon: "\uD83D\uDCA1"
+  }, "Stuck? A hint packs one item in the right spot, but costs a star."), /*#__PURE__*/React.createElement(Row, {
+    icon: "\u2328\uFE0F"
+  }, "Keyboard: Tab to an item, ", /*#__PURE__*/React.createElement("b", null, "Enter"), " to pick it up, arrow keys to move, ", /*#__PURE__*/React.createElement("b", null, "R"), " to turn, ", /*#__PURE__*/React.createElement("b", null, "Enter"), " to pack, ", /*#__PURE__*/React.createElement("b", null, "Esc"), " to cancel."), /*#__PURE__*/React.createElement(Row, {
+    icon: "\uD83D\uDCC5"
+  }, "Three new suitcases every day, each bigger than the last.")), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "btn btn-go mt-5 w-full py-3 text-[17px]"
+  }, "Start packing")));
+}
+
+// One travel item drawn as joined squares: outline only on its outer edges, emoji on the square nearest its middle.
+function Piece({
+  shape,
+  cell,
+  item,
+  onCellDown
+}) {
+  const has = new Set(shape.map(p => p.join(","))),
+    [h, w] = dims(shape);
+  const mr = shape.reduce((t, p) => t + p[0], 0) / shape.length,
+    mc = shape.reduce((t, p) => t + p[1], 0) / shape.length;
+  const [er, ec] = shape.reduce((b, p) => Math.hypot(p[0] - mr, p[1] - mc) < Math.hypot(b[0] - mr, b[1] - mc) ? p : b, shape[0]);
+  const rad = Math.round(cell * .24),
+    bw = cell >= 34 ? 2.5 : 2;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "pc",
+    style: {
+      width: w * cell,
+      height: h * cell
+    }
+  }, shape.map(([r, c]) => {
+    const t = !has.has(`${r - 1},${c}`),
+      b = !has.has(`${r + 1},${c}`),
+      l = !has.has(`${r},${c - 1}`),
+      rt = !has.has(`${r},${c + 1}`);
+    return /*#__PURE__*/React.createElement("div", {
+      key: r + "," + c,
+      className: "pcell",
+      "data-r": r,
+      "data-c": c,
+      onPointerDown: onCellDown,
+      style: {
+        left: c * cell,
+        top: r * cell,
+        width: cell,
+        height: cell,
+        background: item ? item.color : undefined,
+        borderTopWidth: t ? bw : 0,
+        borderBottomWidth: b ? bw : 0,
+        borderLeftWidth: l ? bw : 0,
+        borderRightWidth: rt ? bw : 0,
+        borderTopLeftRadius: t && l ? rad : 0,
+        borderTopRightRadius: t && rt ? rad : 0,
+        borderBottomLeftRadius: b && l ? rad : 0,
+        borderBottomRightRadius: b && rt ? rad : 0,
+        boxShadow: t ? "inset 0 3px 0 rgba(255,255,255,.35)" : undefined
+      }
+    });
+  }), item && /*#__PURE__*/React.createElement("span", {
+    className: "pemoji",
+    style: {
+      left: ec * cell,
+      top: er * cell,
+      width: cell,
+      height: cell,
+      fontSize: Math.round(cell * .58)
+    },
+    "aria-hidden": "true"
+  }, item.emoji));
+}
+
+// One suitcase: drag/tap/keyboard packing, undo, reset, hint, timer and the zip-shut finish.
+function Board({
+  level,
+  st,
+  update,
+  sound,
+  title,
+  onNext,
+  nextLabel
+}) {
+  const boxRef = useRef(null),
+    gridRef = useRef(null),
+    trayRef = useRef(null),
+    asideRef = useRef(null);
+  const [cell, setCell] = useState(46),
+    [trayW, setTrayW] = useState(340);
+  const [drag, setDrag] = useState(null); // { id, left, top, ghost: { r, c, ok } | null } while a piece follows the pointer
+  const [kb, setKb] = useState(null); // { id, r, c, rot } while packing with the keyboard
+  const [msg, setMsg] = useState("");
+  const [undoN, setUndoN] = useState(0);
+  const [fresh, setFresh] = useState(false); // solved on this visit, so play the zip
+  const undo = useRef([]),
+    dragRef = useRef(null),
+    clock = useRef(Date.now()),
+    raf = useRef(0),
+    wasDone = useRef(st.done);
+  // tray squares: small enough that three of the widest pieces sit side by side (two in the narrow desktop column)
+  const widest = useMemo(() => Math.max(...level.pieces.map(p => Math.max(...dims(p.shapes[0])))), [level]),
+    perRow = trayW >= 330 ? 3 : 2;
+  const tcell = clamp(Math.floor(((trayW - 8 * (perRow - 1)) / perRow - 14) / widest), 16, Math.min(30, Math.round(cell * .6)));
+  const n = level.pieces.length,
+    left = n - Object.keys(st.placed).length;
+  const nameOf = id => level.pieces[id].item.name;
+  const commit = fn => update(s => {
+    const x = fn(s);
+    if (x === s) return s;
+    if (!x.done && Object.keys(x.placed).length === n) return {
+      ...x,
+      done: true,
+      ms: x.ms + Math.min(Date.now() - clock.current, 1500)
+    };
+    return x;
+  });
+  const start = () => {
+    if (!live.current.st.started) {
+      clock.current = Date.now();
+      update(s => s.started ? s : {
+        ...s,
+        started: true
+      });
+    }
+  };
+  const remember = s => {
+    undo.current.push({
+      rot: s.rot,
+      placed: s.placed
+    });
+    if (undo.current.length > 200) undo.current.shift();
+    setUndoN(undo.current.length);
+  };
+  const rotate = id => {
+    const s = live.current.st;
+    if (s.done) return;
+    start();
+    remember(s);
+    commit(x => {
+      const rot = [...x.rot];
+      rot[id] = rot[id] + 1 & 3;
+      return {
+        ...x,
+        rot
+      };
+    });
+    if (live.current.sound) SFX.turn();
+  };
+  const packed = (id, s) => {
+    if (live.current.sound) SFX.place();
+    const k = n - Object.keys({
+      ...s.placed,
+      [id]: 1
+    }).length;
+    setMsg(`${nameOf(id)} packed. ${k > 0 ? `${k} item${k === 1 ? "" : "s"} left.` : ""}`);
+  };
+  const live = useRef({});
+  live.current = {
+    st,
+    level,
+    cell,
+    tcell,
+    sound,
+    commit,
+    start,
+    remember,
+    rotate,
+    packed,
+    setMsg
+  };
+
+  // pointer dragging (mouse and touch). Handlers are made once and read the latest state from live.current.
+  const H = useMemo(() => {
+    const view = () => {
+      const d = dragRef.current,
+        {
+          st,
+          level,
+          cell
+        } = live.current,
+        shape = shapeOf(level, st, d.id),
+        [h, w] = dims(shape);
+      const lift = d.touch ? h * cell - d.gy + 18 : 0; // on touch, float the piece above the finger so it stays visible
+      const leftPx = d.x - d.gx,
+        topPx = d.y - d.gy - lift,
+        g = gridRef.current.getBoundingClientRect();
+      const cx = leftPx + w * cell / 2,
+        cy = topPx + h * cell / 2;
+      let ghost = null;
+      if (cx > g.left - cell / 2 && cx < g.right + cell / 2 && cy > g.top - cell / 2 && cy < g.bottom + cell / 2) {
+        const r = clamp(Math.round((topPx - g.top) / cell), 0, level.rows - h),
+          c = clamp(Math.round((leftPx - g.left) / cell), 0, level.cols - w);
+        ghost = {
+          r,
+          c,
+          ok: fits(level, occupancy(level, st, d.id), shape, r, c)
+        };
+      }
+      return {
+        id: d.id,
+        left: leftPx,
+        top: topPx,
+        ghost
+      };
+    };
+    const loop = () => {
+      const d = dragRef.current;
+      if (!d || !d.active) return;
+      if (d.y < 64 && d.y < d.sy - 24) window.scrollBy(0, -10);else if (d.y > window.innerHeight - 64 && d.y > d.sy + 24) window.scrollBy(0, 10);
+      setDrag(view());
+      raf.current = requestAnimationFrame(loop);
+    };
+    const off = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cancel);
+      cancelAnimationFrame(raf.current);
+    };
+    const move = e => {
+      const d = dragRef.current;
+      if (!d || e.pointerId !== d.pid) return;
+      d.x = e.clientX;
+      d.y = e.clientY;
+      if (!d.active && Math.hypot(d.x - d.sx, d.y - d.sy) > (d.touch ? 8 : 4)) {
+        d.active = true;
+        live.current.start();
+        raf.current = requestAnimationFrame(loop);
+      }
+      if (d.active && e.cancelable) e.preventDefault();
+    };
+    const end = (e, cancelled) => {
+      const d = dragRef.current;
+      if (!d || e && e.pointerId !== d.pid) return;
+      off();
+      const L = live.current,
+        v = d.active ? view() : null;
+      dragRef.current = null;
+      setDrag(null);
+      if (!d.active) {
+        if (!cancelled && d.from === "tray") L.rotate(d.id);
+        return;
+      }
+      const curRot = L.st.rot[d.id],
+        restoreRot = x => {
+          const rot = [...x.rot];
+          rot[d.id] = d.rot;
+          return rot;
+        };
+      if (cancelled) {
+        L.commit(x => ({
+          ...x,
+          rot: restoreRot(x)
+        }));
+        return;
+      }
+      if (v.ghost && v.ghost.ok) {
+        const same = d.origin && d.origin[0] === v.ghost.r && d.origin[1] === v.ghost.c && curRot === d.rot;
+        if (!same) {
+          L.remember(d.snap);
+          L.commit(x => ({
+            ...x,
+            placed: {
+              ...x.placed,
+              [d.id]: [v.ghost.r, v.ghost.c]
+            }
+          }));
+          L.packed(d.id, L.st);
+        }
+      } else if (v.ghost) {
+        // doesn't fit: back where it came from
+        if (L.sound) SFX.nope();
+        L.setMsg("That doesn't fit there.");
+        if (d.from === "grid") L.commit(x => ({
+          ...x,
+          rot: restoreRot(x)
+        }));else if (curRot !== d.rot) L.remember(d.snap);
+      } else if (d.from === "grid") {
+        L.remember(d.snap);
+        L.commit(x => {
+          const placed = {
+            ...x.placed
+          };
+          delete placed[d.id];
+          return {
+            ...x,
+            placed
+          };
+        });
+        L.setMsg(`${L.level.pieces[d.id].item.name} unpacked.`);
+      } else if (curRot !== d.rot) L.remember(d.snap);
+    };
+    const up = e => end(e, false),
+      cancel = e => end(e, true);
+    const down = (e, id, from) => {
+      const L = live.current;
+      if (L.st.done || L.st.locked.includes(id) || dragRef.current || from === "tray" && L.st.placed[id] || e.pointerType === "mouse" && e.button !== 0) return;
+      e.preventDefault();
+      const [h, w] = dims(shapeOf(L.level, L.st, id));
+      let gx, gy;
+      if (from === "tray") {
+        const b = e.currentTarget.querySelector(".pc").getBoundingClientRect(),
+          k = L.cell / L.tcell;
+        gx = (e.clientX - b.left) * k;
+        gy = (e.clientY - b.top) * k;
+      } else {
+        const g = gridRef.current.getBoundingClientRect(),
+          [r, c] = L.st.placed[id];
+        gx = e.clientX - (g.left + c * L.cell);
+        gy = e.clientY - (g.top + r * L.cell);
+      }
+      dragRef.current = {
+        id,
+        from,
+        origin: L.st.placed[id] || null,
+        rot: L.st.rot[id],
+        gx: clamp(gx, 0, w * L.cell),
+        gy: clamp(gy, 0, h * L.cell),
+        sx: e.clientX,
+        sy: e.clientY,
+        x: e.clientX,
+        y: e.clientY,
+        touch: e.pointerType !== "mouse",
+        pid: e.pointerId,
+        active: false,
+        snap: {
+          rot: L.st.rot,
+          placed: L.st.placed
+        }
+      };
+      window.addEventListener("pointermove", move, {
+        passive: false
+      });
+      window.addEventListener("pointerup", up);
+      window.addEventListener("pointercancel", cancel);
+    };
+    // R while dragging: turn the piece and re-centre it on the pointer
+    const turnDragged = () => {
+      const d = dragRef.current;
+      if (!d || !d.active) return;
+      const L = live.current,
+        next = L.level.pieces[d.id].shapes[L.st.rot[d.id] + 1 & 3],
+        [h, w] = dims(next);
+      L.commit(x => {
+        const rot = [...x.rot];
+        rot[d.id] = rot[d.id] + 1 & 3;
+        return {
+          ...x,
+          rot
+        };
+      });
+      d.gx = w * L.cell / 2;
+      d.gy = h * L.cell / 2;
+      if (L.sound) SFX.turn();
+    };
+    return {
+      down,
+      turnDragged,
+      active: () => !!(dragRef.current && dragRef.current.active),
+      cancel: () => end(null, true),
+      off
+    };
+  }, []);
+  useEffect(() => () => H.off(), []);
+
+  // keyboard packing
+  const kbStart = (id, from) => {
+    start();
+    const shape = shapeOf(level, st, id),
+      [h, w] = dims(shape),
+      occ = occupancy(level, st, id);
+    let r = 0,
+      c = 0;
+    if (from === "grid") [r, c] = st.placed[id];else {
+      outer: for (let rr = 0; rr <= level.rows - h; rr++) for (let cc = 0; cc <= level.cols - w; cc++) if (fits(level, occ, shape, rr, cc)) {
+        r = rr;
+        c = cc;
+        break outer;
+      }
+    }
+    setKb({
+      id,
+      r,
+      c,
+      rot: st.rot[id]
+    });
+    setMsg(`${nameOf(id)} picked up. Arrow keys move it, R turns it, Enter packs it, Escape cancels.`);
+  };
+  const focusTray = () => setTimeout(() => {
+    const b = trayRef.current && trayRef.current.querySelector("button[data-tray-id]:not(:disabled)");
+    if (b) b.focus();
+  }, 0);
+  useEffect(() => {
+    const k = e => {
+      if (document.querySelector('[role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key;
+      if (H.active()) {
+        if (key === "r" || key === "R") {
+          e.preventDefault();
+          H.turnDragged();
+        } else if (key === "Escape") H.cancel();
+        return;
+      }
+      if (st.done) return;
+      if (kb) {
+        const shape = shapeOf(level, st, kb.id),
+          [h, w] = dims(shape);
+        const go = (dr, dc) => {
+          e.preventDefault();
+          setKb(q => ({
+            ...q,
+            r: clamp(q.r + dr, 0, level.rows - h),
+            c: clamp(q.c + dc, 0, level.cols - w)
+          }));
+        };
+        if (key === "ArrowUp") go(-1, 0);else if (key === "ArrowDown") go(1, 0);else if (key === "ArrowLeft") go(0, -1);else if (key === "ArrowRight") go(0, 1);else if (key === "r" || key === "R") {
+          e.preventDefault();
+          const [nh, nw] = dims(level.pieces[kb.id].shapes[st.rot[kb.id] + 1 & 3]);
+          commit(x => {
+            const rot = [...x.rot];
+            rot[kb.id] = rot[kb.id] + 1 & 3;
+            return {
+              ...x,
+              rot
+            };
+          });
+          setKb(q => ({
+            ...q,
+            r: clamp(q.r, 0, level.rows - nh),
+            c: clamp(q.c, 0, level.cols - nw)
+          }));
+          if (sound) SFX.turn();
+        } else if (key === "Enter" || key === " ") {
+          e.preventDefault();
+          if (fits(level, occupancy(level, st, kb.id), shape, kb.r, kb.c)) {
+            const rot = [...st.rot];
+            rot[kb.id] = kb.rot;
+            remember({
+              rot,
+              placed: st.placed
+            });
+            commit(x => ({
+              ...x,
+              placed: {
+                ...x.placed,
+                [kb.id]: [kb.r, kb.c]
+              }
+            }));
+            packed(kb.id, st);
+            setKb(null);
+            focusTray();
+          } else {
+            if (sound) SFX.nope();
+            setMsg("That doesn't fit there.");
+          }
+        } else if (key === "Escape") {
+          e.preventDefault();
+          const id = kb.id,
+            rot0 = kb.rot;
+          commit(x => {
+            const rot = [...x.rot];
+            rot[id] = rot0;
+            return {
+              ...x,
+              rot
+            };
+          });
+          setKb(null);
+          setMsg("Cancelled.");
+        }
+        return;
+      }
+      const el = document.activeElement,
+        ds = el && el.dataset ? el.dataset : {};
+      if (ds.trayId !== undefined) {
+        if (key === "Enter" || key === " ") {
+          e.preventDefault();
+          kbStart(+ds.trayId, "tray");
+        } else if (key === "r" || key === "R") {
+          e.preventDefault();
+          rotate(+ds.trayId);
+        }
+      } else if (ds.placedId !== undefined && !st.locked.includes(+ds.placedId)) {
+        const id = +ds.placedId;
+        if (key === "Enter" || key === " ") {
+          e.preventDefault();
+          kbStart(id, "grid");
+        } else if (key === "Delete" || key === "Backspace") {
+          e.preventDefault();
+          remember(st);
+          commit(x => {
+            const placed = {
+              ...x.placed
+            };
+            delete placed[id];
+            return {
+              ...x,
+              placed
+            };
+          });
+          setMsg(`${nameOf(id)} unpacked.`);
+          focusTray();
+        }
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  });
+
+  // buttons
+  const doUndo = () => {
+    const s = undo.current.pop();
+    setUndoN(undo.current.length);
+    if (s) {
+      commit(x => ({
+        ...x,
+        rot: s.rot,
+        placed: s.placed
+      }));
+      setMsg("Undone.");
+    }
+  };
+  const reset = () => {
+    remember(st);
+    setKb(null);
+    commit(x => ({
+      ...x,
+      rot: level.pieces.map((p, i) => x.locked.includes(i) ? x.rot[i] : p.rot0),
+      placed: Object.fromEntries(Object.entries(x.placed).filter(([id]) => x.locked.includes(+id)))
+    }));
+    setMsg("Everything's back in the tray.");
+  };
+  // hint: pack the item that belongs in the first square (reading order) that's empty or holds the wrong thing
+  const hint = () => {
+    if (st.done) return;
+    start();
+    setKb(null);
+    const sol = Array(level.rows * level.cols),
+      occ = occupancy(level, st);
+    level.pieces.forEach(p => p.cells.forEach(([r, c]) => {
+      sol[r * level.cols + c] = p.id;
+    }));
+    const right = id => {
+      const at = st.placed[id];
+      if (!at) return false;
+      const mine = new Set(shapeOf(level, st, id).map(([r, c]) => (at[0] + r) * level.cols + at[1] + c));
+      return level.pieces[id].cells.every(([r, c]) => mine.has(r * level.cols + c));
+    };
+    const target = sol.find((id, i) => occ[i] !== id || !right(id));
+    if (target === undefined) return;
+    const p = level.pieces[target],
+      r0 = Math.min(...p.cells.map(q => q[0])),
+      c0 = Math.min(...p.cells.map(q => q[1]));
+    commit(x => {
+      const placed = {
+          ...x.placed
+        },
+        rot = [...x.rot];
+      delete placed[target];
+      const o = occupancy(level, {
+        ...x,
+        placed
+      });
+      for (const [r, c] of p.cells) if (o[r * level.cols + c] >= 0) delete placed[o[r * level.cols + c]]; // unpack whatever is in the way
+      rot[target] = 0;
+      placed[target] = [r0, c0];
+      return {
+        ...x,
+        rot,
+        placed,
+        hints: x.hints + 1,
+        locked: [...x.locked, target]
+      };
+    });
+    undo.current = [];
+    setUndoN(0);
+    if (sound) SFX.place();
+    setMsg(`Hint: the ${p.item.name.toLowerCase()} goes here.`);
+  };
+
+  // timer: runs from the first move until the bag is packed, paused while the tab is hidden
+  useEffect(() => {
+    if (!st.started || st.done) return;
+    clock.current = Date.now();
+    const id = setInterval(() => {
+      const now = Date.now(),
+        d = now - clock.current;
+      clock.current = now;
+      if (document.visibilityState === "visible") update(s => s.done ? s : {
+        ...s,
+        ms: s.ms + Math.min(d, 1500)
+      });
+    }, 1000);
+    const vis = () => {
+      clock.current = Date.now();
+    };
+    document.addEventListener("visibilitychange", vis);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", vis);
+    };
+  }, [st.started, st.done]);
+  useEffect(() => {
+    if (st.done && !wasDone.current) {
+      setFresh(true);
+      setKb(null);
+      if (sound) {
+        setTimeout(SFX.zip, 450);
+        setTimeout(SFX.done, 1250);
+      }
+      setMsg(`Suitcase packed in ${fmt(st.ms)}!`);
+    }
+    wasDone.current = st.done;
+  }, [st.done]);
+  useLayoutEffect(() => {
+    const el = boxRef.current,
+      tray = asideRef.current;
+    if (!el) return;
+    const fit = () => {
+      setCell(Math.max(28, Math.min(64, Math.floor((el.clientWidth - FRAME) / level.cols))));
+      if (tray) setTrayW(tray.clientWidth);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    if (tray) ro.observe(tray);
+    return () => ro.disconnect();
+  }, [level.cols]);
+  const ghost = drag ? drag.ghost && {
+    id: drag.id,
+    ...drag.ghost
+  } : kb ? {
+    id: kb.id,
+    r: kb.r,
+    c: kb.c,
+    ok: fits(level, occupancy(level, st, kb.id), shapeOf(level, st, kb.id), kb.r, kb.c)
+  } : null;
+  const away = id => drag && drag.id === id || kb && kb.id === id;
+  const stars = starsFor(st.hints);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 grid gap-x-6 gap-y-3 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start"
+  }, /*#__PURE__*/React.createElement("div", {
+    ref: boxRef,
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-2 text-[13px] font-extrabold text-[color:var(--muted)]"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "min-w-0 truncate"
+  }, title), /*#__PURE__*/React.createElement("span", {
+    className: "flex flex-none items-center gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-label": `Time ${fmt(st.ms)}`
+  }, "\u23F1 ", /*#__PURE__*/React.createElement("span", {
+    className: "tabular-nums text-[color:var(--ink)]",
+    "data-timer": true
+  }, fmt(st.ms))), /*#__PURE__*/React.createElement("span", {
+    "aria-label": `${stars} stars if you finish now`
+  }, "⭐".repeat(stars), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-30"
+  }, "⭐".repeat(3 - stars))))), /*#__PURE__*/React.createElement("div", {
+    className: "case-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "case",
+    style: {
+      "--cell": cell + "px"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "handle",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "zip"
+  }, /*#__PURE__*/React.createElement("div", {
+    ref: gridRef,
+    className: "lining",
+    "data-cell": cell,
+    style: {
+      width: level.cols * cell,
+      height: level.rows * cell
+    },
+    role: "img",
+    "aria-label": `Suitcase, ${level.rows} by ${level.cols} squares, ${st.done ? "packed" : `${left} item${left === 1 ? "" : "s"} still to pack`}`
+  }, Object.keys(st.placed).map(k => {
+    const id = +k;
+    if (away(id)) return null;
+    const [r, c] = st.placed[k],
+      p = level.pieces[id],
+      locked = st.locked.includes(id);
+    return /*#__PURE__*/React.createElement("div", {
+      key: id,
+      className: `placed ${locked ? "locked" : ""}`,
+      "data-placed-id": id,
+      tabIndex: st.done ? -1 : 0,
+      role: "button",
+      style: {
+        left: c * cell,
+        top: r * cell
+      },
+      "aria-label": locked ? `${p.item.name}, packed by a hint` : `${p.item.name}, packed. Enter to move it, Delete to unpack it.`
+    }, /*#__PURE__*/React.createElement(Piece, {
+      shape: shapeOf(level, st, id),
+      cell: cell,
+      item: p.item,
+      onCellDown: e => H.down(e, id, "grid")
+    }));
+  }), ghost && /*#__PURE__*/React.createElement("div", {
+    className: `ghostwrap ${ghost.ok ? "" : "bad"}`,
+    "data-ghost-r": ghost.r,
+    "data-ghost-c": ghost.c,
+    "data-ok": ghost.ok ? 1 : 0,
+    style: {
+      left: ghost.c * cell,
+      top: ghost.r * cell
+    }
+  }, /*#__PURE__*/React.createElement(Piece, {
+    shape: shapeOf(level, st, ghost.id),
+    cell: cell,
+    item: kb ? level.pieces[ghost.id].item : null
+  })), st.done && /*#__PURE__*/React.createElement("div", {
+    className: `lid ${fresh ? "anim" : ""}`,
+    "data-packed": true
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "display text-[clamp(20px,5vw,30px)] leading-none"
+  }, "Packed!"), /*#__PURE__*/React.createElement("div", {
+    className: "pop text-[clamp(22px,6vw,34px)] leading-tight",
+    "aria-label": `${stars} stars`
+  }, "⭐".repeat(stars)), /*#__PURE__*/React.createElement("div", {
+    className: "pop text-[15px] font-black tabular-nums"
+  }, "\u23F1 ", fmt(st.ms)))), st.done && /*#__PURE__*/React.createElement("span", {
+    className: `pull ${fresh ? "anim" : ""}`,
+    "aria-hidden": "true"
+  }))))), /*#__PURE__*/React.createElement("aside", {
+    ref: asideRef,
+    className: "min-w-0 lg:pt-6"
+  }, st.done ? /*#__PURE__*/React.createElement("button", {
+    onClick: onNext,
+    className: "btn btn-go pop mt-2 w-full py-3.5 text-[18px]",
+    autoFocus: true
+  }, nextLabel) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "mb-2 text-center text-[13px] font-bold text-[color:var(--muted)]"
+  }, "Drag items into the suitcase \xB7 tap one to turn it"), /*#__PURE__*/React.createElement("div", {
+    ref: trayRef,
+    className: "tray",
+    "aria-label": "Items to pack"
+  }, level.pieces.map(p => {
+    const out = !!st.placed[p.id] || away(p.id),
+      [h, w] = dims(p.shapes[0]),
+      side = Math.max(h, w) * tcell + 14;
+    return /*#__PURE__*/React.createElement("button", {
+      key: p.id,
+      className: "slot",
+      "data-tray-id": p.id,
+      disabled: !!st.placed[p.id],
+      style: {
+        width: side,
+        height: side
+      },
+      onPointerDown: e => H.down(e, p.id, "tray"),
+      "aria-label": `${p.item.name}, ${p.size} squares. Tap to turn, drag into the suitcase. Keyboard: Enter to pick up, R to turn.`,
+      title: p.item.name
+    }, !out && /*#__PURE__*/React.createElement(Piece, {
+      shape: shapeOf(level, st, p.id),
+      cell: tcell,
+      item: p.item
+    }));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid grid-cols-3 gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: doUndo,
+    disabled: !undoN,
+    className: "btn btn-plain py-2.5 text-[14px]"
+  }, "\u21B6 Undo"), /*#__PURE__*/React.createElement("button", {
+    onClick: reset,
+    disabled: !Object.keys(st.placed).some(id => !st.locked.includes(+id)),
+    className: "btn btn-plain py-2.5 text-[14px]"
+  }, "\u27F2 Reset"), /*#__PURE__*/React.createElement("button", {
+    onClick: hint,
+    className: "btn btn-gold py-2.5 text-[14px]"
+  }, "\uD83D\uDCA1 Hint", st.hints < 2 && /*#__PURE__*/React.createElement("span", {
+    className: "font-bold opacity-70"
+  }, " \u22121\u2B50")))))), /*#__PURE__*/React.createElement("div", {
+    className: "sr-only",
+    "aria-live": "polite"
+  }, msg), fresh && /*#__PURE__*/React.createElement(Confetti, null), drag && /*#__PURE__*/React.createElement("div", {
+    className: "floating",
+    style: {
+      transform: `translate(${drag.left}px,${drag.top}px)`
+    }
+  }, /*#__PURE__*/React.createElement(Piece, {
+    shape: shapeOf(level, st, drag.id),
+    cell: cell,
+    item: level.pieces[drag.id].item
+  })));
+}
+function App() {
+  const DAILY = useMemo(() => dailyLevels(DAY.id), []);
+  const LINEUP = useMemo(() => lineupOf(DAILY), []);
+  const SAVE_KEY = `carry-${DAY.id}`;
+  const loadDaily = () => {
+    const s = store.get(SAVE_KEY, null);
+    if (s && s.lineup === LINEUP && Array.isArray(s.levels) && s.levels.length === DAILY.length) return {
+      cur: clamp(s.cur | 0, 0, DAILY.length),
+      levels: s.levels.map((x, i) => restore(DAILY[i], x))
+    };
+    return {
+      cur: 0,
+      levels: DAILY.map(freshState)
+    };
+  };
+  const [daily, setDaily] = useState(loadDaily);
+  const [bonus, setBonus] = useState(null); // { n, level, st }: endless random suitcases after the daily, not saved
+  const [sound, setSound] = useState(() => store.get("carry-sound", true));
+  const [streak, setStreak] = useState(() => store.get("carry-streak", {
+    count: 0,
+    last: 0
+  }));
+  const [showHelp, setShowHelp] = useState(false);
+  const [copied, setCopied] = useState(false),
+    [fallback, setFallback] = useState(false);
+  const taRef = useRef(null);
+  useEffect(() => {
+    store.set(SAVE_KEY, {
+      lineup: LINEUP,
+      cur: daily.cur,
+      levels: daily.levels
+    });
+  }, [daily]);
+  useEffect(() => {
+    store.set("carry-sound", sound);
+  }, [sound]);
+  const allDone = daily.levels.every(l => l.done);
+  useEffect(() => {
+    if (allDone && streak.last !== DAY.id) {
+      const s = {
+        count: streak.last === DAY.id - 1 ? streak.count + 1 : 1,
+        last: DAY.id
+      };
+      setStreak(s);
+      store.set("carry-streak", s);
+    }
+  }, [allDone]);
+  const updDaily = fn => setDaily(d => {
+    const i = Math.min(d.cur, d.levels.length - 1),
+      x = fn(d.levels[i]);
+    if (x === d.levels[i]) return d;
+    const levels = [...d.levels];
+    levels[i] = x;
+    return {
+      ...d,
+      levels
+    };
+  });
+  const updBonus = fn => setBonus(b => {
+    const x = fn(b.st);
+    return x === b.st ? b : {
+      ...b,
+      st: x
+    };
+  });
+  const newBonus = n => {
+    const level = bonusLevel(Math.floor(Math.random() * 1e9), n);
+    setBonus({
+      n,
+      level,
+      st: freshState(level)
+    });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const nextDaily = () => {
+    setDaily(d => ({
+      ...d,
+      cur: d.cur + 1
+    }));
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  const stars = daily.levels.map(l => starsFor(l.hints)),
+    total = daily.levels.reduce((t, l) => t + l.ms, 0),
+    totalStars = stars.reduce((a, b) => a + b, 0);
+  const [, rName, rIcon] = rankFor(totalStars);
+  const shareTxt = `🧳 Carry-On Fitter #${DAY.id} · ${stars.map(k => "⭐".repeat(k)).join(" ")} · ${fmt(total)} · Packed it! ${GR.gameUrl("carry-on-fitter")}`;
+  const copy = () => {
+    const ok = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    };
+    const no = () => {
+      setFallback(true);
+      setTimeout(() => taRef.current && taRef.current.select(), 30);
+    };
+    try {
+      navigator.clipboard.writeText(shareTxt).then(ok).catch(no);
+    } catch {
+      no();
+    }
+  };
+  const playing = bonus || daily.cur < DAILY.length;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "mx-auto max-w-3xl"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "mt-1 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("h1", {
+    className: "display text-[26px] sm:text-[42px] leading-none text-[color:var(--shell-l)]"
+  }, "Carry-On Fitter ", /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline",
+    "aria-hidden": "true"
+  }, "\uD83E\uDDF3")), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 truncate text-[12px] font-extrabold uppercase tracking-[.1em] text-[color:var(--muted)]"
+  }, bonus ? `Bonus bag #${bonus.n} · just for fun` : `Bag check #${DAY.id} · ${DAY.label}`)), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 sm:gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chip flex items-center gap-1 px-3 py-1.5",
+    title: "Daily streak"
+  }, /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", {
+    className: "text-[15px] font-extrabold tabular-nums"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSound(x => !x),
+    className: "chip grid h-10 w-10 place-items-center text-[16px]",
+    "aria-label": sound ? "Mute sounds" : "Turn sounds on",
+    "aria-pressed": sound
+  }, sound ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowHelp(true),
+    className: "chip grid h-10 w-10 place-items-center text-[17px] font-extrabold",
+    "aria-label": "How to play"
+  }, "?"))), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4 hidden md:block"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 728,
+    h: 90,
+    size: "728\xD790 Leaderboard"
+  })), !bonus && daily.cur < DAILY.length && /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 grid grid-cols-3 gap-2",
+    "aria-label": "Today's suitcases"
+  }, DAILY.map((L, i) => /*#__PURE__*/React.createElement("li", {
+    key: i,
+    className: `lvl ${i === daily.cur ? "now" : ""} ${daily.levels[i].done ? "done" : ""}`,
+    "aria-current": i === daily.cur ? "step" : undefined
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "block truncate text-[11px] uppercase tracking-[.1em]"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, "Bag ", i + 1, " \xB7 "), L.name), /*#__PURE__*/React.createElement("span", {
+    className: "block text-[13px]"
+  }, daily.levels[i].done ? "⭐".repeat(stars[i]) : `${L.rows}×${L.cols}`)))), playing ? bonus ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Board, {
+    key: "b" + bonus.n,
+    level: bonus.level,
+    st: bonus.st,
+    update: updBonus,
+    sound: sound,
+    title: `Bonus bag · ${bonus.level.name} · ${bonus.level.rows}×${bonus.level.cols}`,
+    onNext: () => newBonus(bonus.n + 1),
+    nextLabel: "Next bonus bag \u2192"
+  }), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setBonus(null),
+    className: "btn btn-plain mt-4 w-full py-2.5 text-[15px]"
+  }, "\u2190 Back to today's results")) : /*#__PURE__*/React.createElement(Board, {
+    key: "d" + daily.cur,
+    level: DAILY[daily.cur],
+    st: daily.levels[daily.cur],
+    update: updDaily,
+    sound: sound,
+    title: `Bag ${daily.cur + 1} of 3 · ${DAILY[daily.cur].name}`,
+    onNext: nextDaily,
+    nextLabel: daily.cur < DAILY.length - 1 ? "Next suitcase →" : "See my results →"
+  }) : /*#__PURE__*/React.createElement("main", {
+    className: "mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card pop"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Bag check #", DAY.id, " \xB7 all bags packed"), /*#__PURE__*/React.createElement("div", {
+    className: "mt-2 flex items-center gap-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[56px] leading-none",
+    "aria-hidden": "true"
+  }, rIcon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "display text-[36px] leading-none"
+  }, rName), /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 text-[15px] text-[color:var(--muted)]"
+  }, totalStars, " of 9 stars \xB7 ", fmt(total), " total"))), /*#__PURE__*/React.createElement("ol", {
+    className: "mt-4 grid gap-2"
+  }, DAILY.map((L, i) => /*#__PURE__*/React.createElement("li", {
+    key: i,
+    className: "flex items-center gap-3 rounded-xl border-2 border-black bg-black/20 px-3 py-2 text-[14px]"
+  }, /*#__PURE__*/React.createElement("b", null, L.name), /*#__PURE__*/React.createElement("span", {
+    className: "text-[color:var(--muted)]"
+  }, L.rows, "\xD7", L.cols), /*#__PURE__*/React.createElement("span", {
+    className: "ml-auto",
+    "aria-label": `${stars[i]} stars`
+  }, "⭐".repeat(stars[i])), /*#__PURE__*/React.createElement("span", {
+    className: "w-12 text-right tabular-nums"
+  }, fmt(daily.levels[i].ms)))))), /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Sponsored"), /*#__PURE__*/React.createElement("p", {
+    className: "mt-1 text-[15px]"
+  }, "Packed and ready to go? Find your flight, or a carry-on that fits the airline's size limit."), /*#__PURE__*/React.createElement("div", {
+    className: "mt-3 grid gap-2 sm:grid-cols-2"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: GR.flightLink(),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn btn-go block py-3 text-center text-[16px]"
+  }, "\u2708\uFE0F Find cheap flights"), /*#__PURE__*/React.createElement("a", {
+    href: GR.shopLink("carry on luggage"),
+    target: "_blank",
+    rel: "noopener sponsored",
+    className: "btn btn-plain block py-3 text-center text-[16px]"
+  }, "Shop carry-on luggage \u2197"))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => newBonus(1),
+    className: "btn btn-gold w-full py-3 text-[17px]"
+  }, "\uD83C\uDFB2 Pack a bonus bag")), /*#__PURE__*/React.createElement("aside", {
+    className: "min-w-0 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-extrabold uppercase tracking-[.14em] text-[color:var(--muted)]"
+  }, "Share card"), /*#__PURE__*/React.createElement("pre", {
+    className: "mt-2 whitespace-pre-wrap rounded-xl bg-black/30 p-3 text-[13px] font-bold leading-relaxed",
+    style: {
+      fontFamily: "ui-monospace,Menlo,Consolas,monospace"
+    }
+  }, shareTxt), fallback && /*#__PURE__*/React.createElement("div", {
+    className: "mt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-1 text-[12px] font-bold text-[color:var(--gold)]"
+  }, "Copying is blocked here. The text is selected, so press Ctrl+C or \u2318+C."), /*#__PURE__*/React.createElement("textarea", {
+    ref: taRef,
+    readOnly: true,
+    value: shareTxt,
+    rows: 4,
+    className: "w-full rounded-lg bg-black/30 p-2 text-[12px]"
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: copy,
+    className: "btn btn-go mt-3 w-full py-3 text-[17px]"
+  }, copied ? "✓ Copied!" : "Copy & Challenge a Friend"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
+    className: "mt-4"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 300,
+    h: 250,
+    size: "300\xD7250 Medium Rectangle"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "card text-center text-[13px] text-[color:var(--muted)]"
+  }, "\uD83D\uDD25 Streak: ", /*#__PURE__*/React.createElement("b", {
+    className: "text-[color:var(--ink)]"
+  }, streak.last >= DAY.id - 1 ? streak.count : 0), " \xB7 New suitcases in ", /*#__PURE__*/React.createElement(Countdown, null)))), /*#__PURE__*/React.createElement("footer", {
+    className: "mt-8 text-center text-[12px] font-bold text-[color:var(--muted)]"
+  }, "Carry-On Fitter \xB7 a GlobeRush game"), window.GLOBERUSH.ads && /*#__PURE__*/React.createElement("div", {
+    className: "sticky-ad md:hidden"
+  }, /*#__PURE__*/React.createElement(AdSlot, {
+    w: 320,
+    h: 50,
+    size: "320\xD750 Sticky Banner"
+  })), showHelp && /*#__PURE__*/React.createElement(HelpModal, {
+    onClose: () => setShowHelp(false)
+  }));
+}
+ReactDOM.createRoot(document.getElementById("root")).render( /*#__PURE__*/React.createElement(App, null));
+</script>
+
+</body>
+</html>

@@ -4,7 +4,7 @@ const fs = require("fs"), path = require("path"), vm = require("vm"), B = requir
 const ROOT = path.resolve(__dirname, ".."), SRC = path.join(ROOT, "src", "games"), OUT = path.join(ROOT, "docs");
 fs.rmSync(OUT, { recursive: true, force: true }); fs.cpSync(path.join(ROOT, "src", "site"), OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, ".nojekyll"), "");
-const GAMES = ["skyhop", "trivia-battle", "guess-the-city", "guess-the-beach", "airport-codes", "guess-the-flag", "departures", "fare-detective", "vegas-or-orlando", "vacation-price", "hot-takes", "would-you-rather", "magic-trip"];
+const GAMES = ["carry-on-fitter", "trivia-battle", "guess-the-city", "guess-the-beach", "airport-codes", "guess-the-flag", "departures", "fare-detective", "vegas-or-orlando", "vacation-price", "hot-takes", "would-you-rather", "magic-trip"];
 // config.js is browser code: run it with a stand-in window and document to read the settings the static pages need
 const CFG = (() => {
   const sb = { window: {}, document: { readyState: "loading", addEventListener() {}, documentElement: { classList: { toggle() {} } } } };
@@ -28,7 +28,7 @@ const footer = b => `<footer id="gr-foot">
 <nav aria-label="GlobeRush">${[["index.html", "All games"], ["blog/index.html", "Blog"], ["about.html", "About"], ["contact.html", "Contact"], ["privacy.html", "Privacy Policy"], ["terms.html", "Terms"]]
   .map(([href, label]) => `<a href="${b}${href}">${label}</a>`).join("")}</nav>
 <p><b>GlobeRush</b> · free travel games, new every day. © ${YEAR} GlobeRush</p>
-<p>GlobeRush may earn a commission when you book through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
+<p>GlobeRush may earn a commission when you book or buy through links on this site, at no extra cost to you. Prices and facts in the games are examples for play; always check current prices before you book.</p>
 </footer>`;
 
 const GR_STYLE = `/* GlobeRush chrome shared by every game page (fixed brand colors so it reads the same on every game's background) */
@@ -71,22 +71,13 @@ for (const slug of GAMES) {
   let s = fs.readFileSync(path.join(SRC, slug + ".html"), "utf8");
   // 1. links come from config.js
   if (s.includes("const AFFILIATE = {")) s = must(s, "const AFFILIATE = {", "const AFFILIATE = (window.GLOBERUSH && window.GLOBERUSH.affiliate) || {", slug);
-  if (slug === "skyhop") s = must(s, "const sky = `https://www.skyscanner.com/transport/flights/${puzzle.origin.toLowerCase()}/${puzzle.target.toLowerCase()}/`;",
-    "const sky = window.GLOBERUSH.flightLink(puzzle.origin, puzzle.target);", slug);
+  // share links in the older games still point at the prototype's skyhop.app domain
   s = s.replace(/\{ url: "https:\/\/skyhop\.app\/([a-z-]+)" \}/g, (m, g) => `{ url: window.GLOBERUSH.gameUrl("${g}") }`);
   s = s.replace(/https:\/\/skyhop\.app\/([a-z-]+)`/g, (m, g) => '${window.GLOBERUSH.gameUrl("' + g + '")}`');
-  s = s.replace(/Play: https:\/\/skyhop\.app`/g, 'Play: ${window.GLOBERUSH.gameUrl("skyhop")}`');
   if (/skyhop\.app/.test(s)) throw new Error(slug + ": leftover skyhop.app");
   s = s.replace(/ prototype · /g, " · a GlobeRush game · ");
-  // daily rotation for the three earliest games (they were built around one fixed puzzle)
+  // daily rotation for the two games built around one fixed puzzle
   const DAYFIX = {
-    skyhop: [
-      ['const DAILY = { id: 42, origin: "ATL", target: "HND" };',
-       'const GR_DAY = window.GLOBERUSH.day();\nconst DAILY = (() => { const codes = AIRPORTS.map(a => a.iata), pool = []; for (const a of codes) for (const b of codes) if (a !== b && isSolvable(a, b)) pool.push([a, b]); const p = window.GLOBERUSH.shuffled(pool, 4242)[(GR_DAY.id - 1) % pool.length]; return { id: GR_DAY.id, origin: p[0], target: p[1] }; })();'],
-      ['const SAVE_KEY = "skyhop-42-v2";', 'const SAVE_KEY = "skyhop-day-" + DAILY.id;'],
-      ['{ count: 7, last: 41 }', '{ count: 0, last: 0 }'],
-      ['Daily #{DAILY.id} · Mon, Oct 19', 'Daily #{DAILY.id} · {GR_DAY.label}'],
-    ],
     departures: [
       ['const DAILY = { id: 1, code: "HNL" };', 'const GR_DAY = window.GLOBERUSH.day();\nconst DAILY = { id: GR_DAY.id, code: window.GLOBERUSH.shuffled(Object.keys(BOARDS), 808)[(GR_DAY.id - 1) % Object.keys(BOARDS).length] };'],
       ['const SAVE_KEY = "departures-1";', 'const SAVE_KEY = "departures-day-" + DAILY.id;'],
@@ -102,8 +93,7 @@ for (const slug of GAMES) {
   const SLOT = /<div className="[^"]*"><AdSlot [^>]*\/><\/div>/g;
   if ((s.match(SLOT) || []).length !== (s.match(/<AdSlot /g) || []).length) throw new Error(slug + ": every <AdSlot> must sit alone in one <div>");
   s = s.replace(SLOT, m => `{window.GLOBERUSH.ads && (${m})}`);
-  // 2. scripts: shared local React, no Babel or Lucide (SkyHop has built-in icon fallbacks), JSX precompiled
-  s = s.replace(/<script src="[^"]*lucide-react[^"]*"><\/script>\s*/g, "");
+  // 2. scripts: shared local React, no Babel, JSX precompiled
   s = s.replace(/<script src="[^"]*babel\.min\.js"><\/script>\s*/g, "");
   s = s.replace(/<script src="[^"]*\/react\.production\.min\.js"><\/script>/, '<script src="lib/react.production.min.js"></script>');
   s = s.replace(/<script src="[^"]*\/react-dom\.production\.min\.js"><\/script>/, '<script src="lib/react-dom.production.min.js"></script>\n<script src="config.js"></script>');

@@ -2,13 +2,16 @@
    GLOBERUSH SETTINGS: the one file you edit.
    Every game on the site reads its links from here, so change a link once and it updates everywhere.
 
-   site         = your domain (used in every share card, e.g. https://www.globerush.games/skyhop.html)
-   affiliate    = your flight affiliate links. Placeholders you can use:
-                    {FROM} {TO} = airport codes in capitals (JFK)   {from} {to} = lowercase (jfk)
+   site         = your domain (used in every share card, e.g. https://www.globerush.games/carry-on-fitter.html)
+   affiliate    = your affiliate links. Placeholders you can use:
+                    {FROM} {TO} = airport codes in capitals (JFK)   {from} {to} = lowercase (jfk)   {q} = shopping search words
                   route   → used when both airports are known
                   toOnly  → used when only the destination is known
                   general → used for generic "find cheap flights" buttons
+                  shop    → used for shopping buttons (Carry-On Fitter's "Shop carry-on luggage")
                   For Skyscanner, add your partner/tracking parameters to the end of each link.
+                  For Amazon, add your Associates tag (&tag=yourtag-20); Amazon then requires the line
+                  "As an Amazon Associate I earn from qualifying purchases." on the site.
    contactEmail = the address shown on the Contact, Privacy and Terms pages.
    ads          = false hides every ad slot. Set it to true once AdSense approves the site.
                   Magic Trip Quiz (the kids' page) never shows ads, whatever this says.
@@ -21,11 +24,12 @@ window.GLOBERUSH = {
     route:   "https://www.skyscanner.com/transport/flights/{from}/{to}/",
     toOnly:  "https://www.skyscanner.com/transport/flights-to/{to}/",
     general: "https://www.skyscanner.com/",
+    shop:    "https://www.amazon.com/s?k={q}",
   },
 
   /* The games on the site, in the order they appear. To hide a game, delete its line. */
   games: [
-    { slug: "skyhop",           name: "SkyHop",                   emoji: "✈️", kind: "Daily puzzle", mins: 3, blurb: "Connect two cities in as few nonstop flights as you can." },
+    { slug: "carry-on-fitter",  name: "Carry-On Fitter",          emoji: "🧳", kind: "Daily puzzle", mins: 4, blurb: "Pack every item into the suitcase with no empty squares. Three bags a day, each bigger than the last." },
     { slug: "trivia-battle",    name: "Travel Trivia Battle",     emoji: "⚔️", kind: "Daily battle", mins: 3, blurb: "Beat today's rival traveler in 10 rapid-fire questions, or challenge a friend on one phone." },
     { slug: "guess-the-city",   name: "Guess the City",           emoji: "📮", kind: "Daily puzzle", mins: 3, blurb: "Five postcard clues, from hard to easy. Name the mystery city in as few as you can." },
     { slug: "guess-the-beach",  name: "Guess the Beach",          emoji: "🏖️", kind: "Daily puzzle", mins: 3, blurb: "Five postcard clues lead to a famous beach. Fewer clues, more points." },
@@ -53,7 +57,7 @@ window.GLOBERUSH = {
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
     return a;
   },
-  // keeps the .html: Vercel serves /skyhop.html but not /skyhop (no cleanUrls)
+  // keeps the .html: Vercel serves /guess-the-city.html but not /guess-the-city (no cleanUrls)
   gameUrl(slug) { return this.site.replace(/\/$/, "") + (slug ? "/" + slug + ".html" : ""); },
   fill(tpl, from, to) {
     return tpl.replace(/\{FROM\}/g, (from || "").toUpperCase()).replace(/\{TO\}/g, (to || "").toUpperCase())
@@ -63,6 +67,7 @@ window.GLOBERUSH = {
     const a = this.affiliate;
     return this.fill(from && to ? a.route : to ? a.toOnly : a.general, from, to);
   },
+  shopLink(q) { return this.affiliate.shop.replace(/\{q\}/g, encodeURIComponent(q || "")); },
 };
 
 /* GlobeRush bar on top of every game, and "play another game" cards under it. */

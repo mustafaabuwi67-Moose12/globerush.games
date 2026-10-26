@@ -1,9 +1,10 @@
 # GlobeRush: notes for Claude Code
 
-Static site, no backend. Live at https://www.globerush.games on Vercel (`vercel.json` runs the build and serves `/docs`; the bare domain redirects to www). No clean URLs: `/skyhop` is a 404, so links and share URLs keep the `.html`.
+Static site, no backend. Live at https://www.globerush.games on Vercel (`vercel.json` runs the build and serves `/docs`; the bare domain redirects to www). No clean URLs: `/guess-the-city` is a 404, so links and share URLs keep the `.html`. `vercel.json` also redirects the retired SkyHop (`/skyhop`, `/skyhop.html`) to Carry-On Fitter.
 
 ## Layout
 - `src/games/<slug>.html`: one file per game. React 18 + JSX in a `<script type="text/babel">` block, Tailwind play CDN for utility classes, each game's own CSS tokens in `<style>`. Question data lives inside the file.
+- Carry-On Fitter generates its suitcases instead of using a question pool: the plain-JS block between the `LEVEL GENERATOR` markers cuts the full grid into pieces with a seeded RNG (seed from `GLOBERUSH.day().id`), so a perfect packing always exists. `npm test` (`scripts/test-carry-on-fitter.js`) loads that block and checks 200 random suitcases per difficulty plus a year of dailies; keep the markers and run it after touching the generator.
 - `src/site/index.html`: the home page (plain JS, renders cards from `config.js`).
 - `src/site/config.js`: `window.GLOBERUSH`: site URL, contact email, the `ads` switch, affiliate link templates, the games list, and helpers (`day()`, `shuffled()`, `flightLink()`, `gameUrl()`). It also renders the shared GlobeRush top bar (`#gr-bar`) and the "play another game" cards (`#gr-more`) on every game page, and puts `.gr-ads` on `<html>` when `ads` is true.
 - `src/site/lib/`: React and ReactDOM UMD builds, served locally.
@@ -15,7 +16,7 @@ Static site, no backend. Live at https://www.globerush.games on Vercel (`vercel.
 ## Conventions
 - Daily content: `GLOBERUSH.day().id` is today's puzzle number (day 1 = Oct 19, 2026). Pools are shuffled with a fixed seed and walked through so nothing repeats until the pool is used up.
 - Saved progress uses localStorage with a key per game and day, and stores a lineup signature so a changed question list never crashes an old save. Always wrap storage in try/catch.
-- Affiliate links: never hardcode. Use `GLOBERUSH.flightLink(from, to)`.
+- Affiliate links: never hardcode. Use `GLOBERUSH.flightLink(from, to)`, or `GLOBERUSH.shopLink(words)` for shopping.
 - Share cards: spoiler-free emoji grid + `GLOBERUSH.gameUrl(slug)`.
 - Each game has: daily mode + bonus/practice mode, streak, share card with clipboard fallback, ad placeholders (728×90 desktop, 300×250 results, 320×50 sticky on mobile), keyboard shortcuts, `prefers-reduced-motion` support.
 - Ads: each slot is `<div className="…"><AdSlot … /></div>` on its own so the build can gate it on `GLOBERUSH.ads` (off until AdSense approval). Magic Trip Quiz (kids) has no ad slots at all; don't add any.
